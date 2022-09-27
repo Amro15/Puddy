@@ -1,0 +1,65 @@
+{% extends "layout.html" %}
+
+{% block title %} GetInspired {% endblock %}
+
+{% block head %}
+<style>
+    body{
+        background-image: url("/static/get_inspired_background.jpg") !important;
+    }
+</style>
+{% endblock %}
+
+{% block main%}
+<h1>Writer's block be gone!</h1>
+<h3>Look at other people's work and get inspired</h3>
+<input class="form-control mr-sm-2" id="poem_search" type="search" placeholder="Search" aria-label="Search">
+    <button id="search_poem" type="button" class="btn btn-primary">
+      <i class="fas fa-search"><img src="/static/search_icon.png"></i>
+    </button>
+    <button class="button" id="poem_rand">Randomise</button>
+    <div id="radio_button_div">
+      <div class="form-check form-check-inline">
+        <input class="form-check-input search_by" type="radio" name="inlineRadioOptions" id="search_by_author" checked>
+        <label class="form-check-label" for="search_by_author">Search By Author Name</label>
+      </div>
+    <div class="form-check form-check-inline">
+        <input class="form-check-input search_by" type="radio" name="inlineRadioOptions" id="search_by_title" >
+        <label class="form-check-label" for="search_by_title">Search By Poem Title</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input search_by" type="radio" name="inlineRadioOptions" id="search_by_poem" >
+        <label class="form-check-label" for="search_by_poem">Search By Poem Verse</label>
+      </div>
+    </div>
+    <div class="input-group mb-3" id="select_poem_div">
+    <label class="input-group-text" for="select_poem_div">Quick Navigation Menu
+    </label>
+    <select class="form-select"  id="poem_search_select"  onchange="location = this.value;">
+        <option selected disabled>Title/Author</option>
+        {% for i in server_response%}
+        <option value='#{{loop.index}}'>{{i["title"]}} / {{i["author"]}}</option>
+        {% endfor %}
+    </select>
+</div>
+    <div id="loading_poems">
+      <div class="text-center">
+      <div class="spinner-border" style="width: 3rem; height: 3rem;" role="status">
+      </div>
+    </div>
+    </div>
+    <div id="poem_result">
+      {% for i in server_response%}
+      <div id="{{loop.index}}">
+        <h3>{{i.title}} By {{i.author}}</h3>
+        <pre>{{i.lines[0]}}</pre>
+        <pre>{{i.lines[1]}}</pre>
+        ....
+      </div>
+      <br>
+      <hr>
+      <br>
+      {% endfor %}
+    </div>
+{% endblock %}
+{% block footer %}<a target="_blank" href="https://icons8.com/icon/59878/search">Search</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>{% endblock %}

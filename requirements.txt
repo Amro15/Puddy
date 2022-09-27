@@ -1,0 +1,4 @@
+flask
+flask-session
+sqlite3
+npm rhyme-detector

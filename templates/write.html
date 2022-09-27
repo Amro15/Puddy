@@ -1,0 +1,144 @@
+{% extends "layout.html" %}
+
+{% block head %}<style>
+    body {
+        background-image: url('{{user_background}}') !important;
+    }
+</style>{% endblock %}
+
+{% block title %} Write {% endblock %}
+
+{% block main %}
+
+<!-- write Modal -->
+<div class="modal fade" id="write_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Duplicate Found!</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+            <div class="modal-body">
+                The current poem already has an existing <a href="/Draft" target="_blank">draft</a> what would you like to do?
+            </div>
+            <div class="modal-footer">
+                <button id="save" class="button">Save Another Draft</button>
+                <button id="update" class="button">Update Most Recent/Current Draft</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="btn_div">
+   <a href="/Rhyme" target="_blank"><button type="button" class="btn btn-secondary">
+    Search For Rhymes</button></a>
+    <div class="form-check form-switch form-check-reverse switch_div">
+        <input class="form-check-input" id="detatch_util" name="switch" type="checkbox"
+            id="flexSwitchCheckReverse">
+        <label class="form-check-label" for="flexSwitchCheckReverse">Detatch Utility Box</label>
+    </div>
+    <div class="form-check form-switch form-check-reverse switch_div">
+        <input class="form-check-input" id="toggle_nav" name="switch" type="checkbox"
+            id="flexSwitchCheckReverse">
+        <label class="form-check-label" for="flexSwitchCheckReverse">Toggle Navbar</label>
+    </div>
+    <div class="form-check form-switch form-check-reverse switch_div">
+        <input class="form-check-input" id="toggle_note" name="switch"  type="checkbox"
+            id="flexSwitchCheckReverse">
+        <label class="form-check-label" for="flexSwitchCheckReverse" >Toggle Notepad</label>
+    </div>
+    <div class="form-check form-switch form-check-reverse switch_div">
+        {% if not ( (user_rhyme_scheme=="Free Verse") or (user_rhyme_scheme=="Haiku")
+        ) %}
+            <input class="form-check-input" id="check_rhymes" name="switch" value="check_rhymes" type="checkbox"
+                id="flexSwitchCheckReverse">
+            <label class="form-check-label" for="flexSwitchCheckReverse" id="check_rhymes_label">Check Rhymes</label>
+            <div id="no_data_rhymes"></div>
+        {% endif %}
+    </div>
+    <div class="form-check form-switch form-check-reverse switch_div">
+        <input class="form-check-input" id="display_syllable_count" name="switch" value="display_syllable_count"
+            type="checkbox" id="flexSwitchCheckReverse">
+        <label class="form-check-label" for="flexSwitchCheckReverse">Display Syllable Count</label>
+        <div>
+            <ol id="no_data_syllables">You got 0 for a syllable count make sure:
+                <li>You did not misspell a word</li>
+                <li>You only used words that appear in the <a id="no_data_syllables_link" href="http://www.speech.cs.cmu.edu/cgi-bin/cmudict"
+                        target="_blank">dictionary</a></li>
+            </ol>
+        </div>
+    </div>
+</div>
+<button class="button" id="arrow"><i class="arrow right" id="arrow_symbol"></i></button>
+</div>
+{% if draft_session == False %}
+    <span id="notepad" class="notepad" role="textbox" class="line" contenteditable></span>
+    <div class="poem-div">
+        <div class="verse">
+            <span contenteditable id="title"></span><span class="badge bg-secondary, title_symbol">Title</span>
+        </div>
+        {% if ( (user_rhyme_scheme=="Free Verse") or (user_rhyme_scheme=="Haiku") ) %}
+            {% for i in rhyme_schemes.rhymes%}
+            <div class="verse">
+                <span class="line {{i}}" id="{{i}}" name="{{i}}" role="textbox" contenteditable="true"></span><span id="symbol{{i}}"
+                    class="badge bg-secondary, rhyme_symbols">{{i}}</span>
+            </div>
+            <div id="syllables{{i}}" class="syllables"></div>
+                {% if rhyme_schemes.line_break_frequency and ((loop.index % rhyme_schemes.line_break_frequency) == 0) %}
+                <br>
+                {% endif %}
+            {% endfor %}
+        {% else%}
+            {% for i in rhyme_schemes.get_ids()%}
+            <div class="verse">
+                <span class="line {{i[0]}}" id="{{i}}" name="{{i[0]}}" role="textbox" contenteditable="true"></span><span
+                    id="symbol{{i}}" class="badge bg-secondary, rhyme_symbols">{{i[0]}}</span>
+            </div>
+            <div id="syllables{{i}}" class="syllables"></div>
+                {% if rhyme_schemes.line_break_frequency and ((loop.index % rhyme_schemes.line_break_frequency) == 0) %}
+                <br>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+        <button value="Save Draft"class="button" name="write_btn" id="save_draft">Save As Draft</button>
+        <button value="Next" class="button" name="write_btn" id="next">Save Poem</button>
+        <div id="msg_container"><p id="confirmation_msg_write"></p><button type="button" id = "hide" class="btn btn-secondary btn-sm">Hide</button></a> </div>
+    </div>
+{% else %}
+    <h1 id="draft_header">Draft</h1>
+    <span id="notepad" class="notepad" role="textbox" class="line" contenteditable>{{draft.get_notes()}}</span>
+    <div class="poem-div">
+        <div class="verse">
+            <span contenteditable id="title">{{draft.get_title()}}</span><span class="badge bg-secondary, title_symbol">Title</span>
+        </div>
+        {% if ( (user_rhyme_scheme=="Free Verse") or (user_rhyme_scheme=="Haiku") ) %}
+            {% for key, value in draft.get_lines().items()%}
+            <div class="verse">
+                <span class="line {{key}}" id="{{key}}" name="{{key}}" role="textbox" contenteditable="true">{{value}}</span><span id="symbol{{key}}"
+                    class="badge bg-secondary, rhyme_symbols">{{key}}</span>
+            </div>
+            <div id="syllables{{key}}" class="syllables"></div>
+                {% if draft.get_line_breaks() and ((loop.index % draft.get_line_breaks()) == 0) %}
+                <br>
+                {% endif %}
+            {% endfor %}
+        {% else%}
+            {% for key, value in draft.get_lines().items()%}
+            <div class="verse">
+                <span class="line {{key[0]}}" id="{{key}}" name="{{key[0]}}" role="textbox" contenteditable="true">{{value}}</span><span
+                    id="symbol{{key}}" class="badge bg-secondary, rhyme_symbols">{{key[0]}}</span>
+            </div>
+            <div id="syllables{{key}}" class="syllables"></div>
+                {% if draft.get_line_breaks() and ((loop.index % draft.get_line_breaks()) == 0) %}
+                <br>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+        <button value="Save Draft"class="button" name="write_btn" id="save_draft">Save As Draft</button>
+        <button value="Next" class="button" name="write_btn" id="next">Save Poem</button>
+        <div id="msg_container"><p id="confirmation_msg_write"></p><button type="button" id = "hide" class="btn btn-secondary btn-sm">Hide</button></a> </div>
+    </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+
+{% block title %} About {% endblock %}
+
+{% block head %}
+<style>
+    body{
+        background-image: url("/static/about_background.jpg") !important;
+    }
+</style>
+{% endblock %}
+
+{% block main%}
+<div class="container_div">
+<img src="/static/Puddy_Logo_writing.png">
+<h2>Welcome to Puddy your cutest poetry-writing buddy (yes it's pudding)</h2>
+<p>Poetry is already one of the most accessible artforms there are, Poddy takes advantage of the technological advancements we've
+    gone through over the years to craft the perfect <b>poetry writing environment</b> with a multitude of tools like:
+    <ul>
+        <li>Rhyme Checkers</li>
+        <li>Syllable Counters</li>
+        <li>Customizable Rhyme schemes and more!</li>
+    </ul>
+    What are you waiting for? Start working with Puddy and create masterpieces!
+</p>
+</div>
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends "layout.html" %}
+
+{% block head %}<style>
+    body{
+        background-image: url('{{user_background}}')!important;
+        }
+</style>{% endblock %}
+
+{% block title %} Create {% endblock %}
+
+{% block main %}
+<h1>Create</h1>
+<form class = "form" action="/Create" method="post">
+<div class="input-group mb-3">
+    <label class="input-group-text" for="rhyme_schemes">Rhymes</label>
+    <select class="form-select" id="rhyme_schemes" name="rhyme_schemes_select_menu">
+      <h1>{{rhyme_schemes}}</h1>
+      <option selected disabled>Choose rhyme scheme...</option>
+      {% for i in rhyme_schemes %}
+      {% if i == "Fixed Rhyme Schemes..."%}
+      <option value="{{i}}" id="{{i}}" disabled>{{i}}</option>
+      {%else%}
+      <option value="{{i}}" id="{{i}}">{{i}}</option>
+      {%endif%}
+      {% endfor %}
+    </select>
+</div>
+<div class="input-group flex-nowrap" id="rhyme_repetition_div">
+  <label class="input-group-text"  for="rhyme_repetition_val"> Rhyme repetition
+  </label>
+  <input id = "rhyme_repetition_val" name="rhyme_repetition" type="number" class="form-control" min="0" value="0"  aria-describedby="addon-wrapping" >
+</div>
+<div class="input-group flex-nowrap" id="line-div" name="rhyme_repetition">
+    <label class="input-group-text"  for="lines"> Desired amount of lines
+    </label>
+    <input id = "lines" name="lines" type="number" class="form-control" min="0" max="100"  aria-describedby="addon-wrapping" >
+  </div>
+<div class="input-group flex-nowrap" id="user-custom-rhymes-div">
+    <label class="input-group-text"  for="user_custom_rhymes">Type in desired rhymes
+    </label>
+    <input  id = "user_custom_rhymes" name="user_custom_rhymes" type="text" class="form-control" placeholder="ABAC... or A B A B C..." aria-label="Username" aria-describedby="addon-wrapping" >
+  </div>
+<div class="input-group flex-nowrap" id="line_break_frequency_div">
+  <label class="input-group-text"  for="line_break_frequency_val"> Line break every 
+  </label>
+  <input id = "line_break_frequency_val" name="line_break_frequency" type="number" class="form-control" placeholder="X Lines (optional)" aria-describedby="addon-wrapping" >
+</div>
+<p>Scroll down for more info after selecting your desired rhyme scheme</p>
+      {% if error_msg != 0 %}
+      <p class="error_msg">{{error_msg}}</p>
+      {% endif %}
+    <input type="submit" class="button" value="Create Poem" id="create_poem">
+  </form>
+    <button class="button" id="show_all_res_desc">Show all rhyme schemes descriptions</button>
+    <div id="description" class="rhyme_description"></div>
+    {% for key in rhyme_schemes %}
+    {% if key !="Fixed Rhyme Schemes..."%}
+    <div id="desc_par{{key}}" class="rhyme_description"></div>
+    {% endif %}
+    {% endfor %}
+
+{% endblock %}

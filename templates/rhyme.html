@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+
+{% block title %} Rhyme {% endblock %}
+
+{% block head %}
+<style>
+    body{
+        background-image: url("/static/rhyme_background.jpg") !important;
+    }
+</style>
+{% endblock %}
+
+{% block main %}
+<h1>rhymes</h1>
+<form action="/Rhyme" method="post">
+    {{msg}}
+    <input type="submit">
+</form>
+{% endblock %}

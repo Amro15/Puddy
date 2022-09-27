@@ -1,0 +1,56 @@
+{% extends "layout.html" %}
+
+{% block title %} Draft {% endblock %}
+
+{% block main %}
+<div class="modal fade" id="draft_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+aria-hidden="true">
+<div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">This action is irreversible!</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+            </button>
+        </div>
+        <div class="modal-body">
+            Are you sure you want to permanently delete your draft?
+        </div>
+        <div class="modal-footer">
+            <button class="button" type="button" class="btn-close" data-bs-dismiss="modal">Cancel</button>
+            <button id="delete_btn" class="button">Delete</button>
+            <input type="checkbox" id="dont_show_again">Don't show this message again
+        </div>
+    </div>
+</div>
+</div>
+<h1>My Drafts</h1>
+{%if data_arr|length != 0%}
+<div class="input-group mb-3" id="select_draft_div">
+    <label class="input-group-text" for="draft_select">Quick Navigation Menu
+    </label>
+    <select class="form-select"  id="draft_select"  onchange="location = this.value;">
+        <option selected disabled>Title/Poem number/Draft number</option>
+        {% for i in range(data_arr|length) %}
+        <option value="#{{data_arr[i].get_title()}}/{{data_arr[i].poem_num}}/{{data_arr[i].draft_num}}">{{data_arr[i].get_title()}}/{{data_arr[i].poem_num}}/{{data_arr[i].draft_num}}</option>
+        {% endfor%}
+    </select>
+</div>
+<ul class="flex-container">
+{% for i in range(data_arr|length) %}
+<li class = "flex-item" id="{{data_arr[i].get_title()}}/{{data_arr[i].poem_num}}/{{data_arr[i].draft_num}}" name="{{data_arr[i].poem_num}};{{data_arr[i].draft_num}}">
+<p class="draft_title">{{data_arr[i].get_title()}}</p>
+<p>Poem num : {{data_arr[i].poem_num}}</p>
+<p>Draft num : {{data_arr[i].draft_num}}</p>
+<p>Rhyme scheme : {{data_arr[i].get_rhyme_scheme()}}</p>
+<p>Date : {{data_arr[i].get_time()}}</p>
+<button class="button resume" name="{{data_arr[i].poem_num}};{{data_arr[i].draft_num}}" >Resume</button>
+<button class="button delete" name="{{data_arr[i].poem_num}};{{data_arr[i].draft_num}}" >Delete</button>
+</li>
+{% endfor %}
+</ul>
+{% else %}
+<div id="empty_draft">
+<h2>Looks like you don't have any drafts saved yet, get to <a href="/Create">Creating!</a></h2>
+</div>
+{% endif %}
+{% endblock %}

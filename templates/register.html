@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+
+{% block title %} Register {% endblock %}
+
+{% block main%}
+
+<form class = "form"  action="/Register" method="post">
+    <h2 class="login-header">Register</h2>
+        
+  <div class="container">
+    <input type="text"  class="login-input" placeholder="Username" name="username"  minlength="3" value="{{username}}" required autofocus autocomplete="off">
+
+    <input type="password" class="login-input" id="password" placeholder="Password" name="password"  minlength="8" required value="{{password}}" autocomplete="off">
+
+    <input type="password" class="login-input" id="cpassword" placeholder="Confirm Password" name="cpassword" minlength="8" required value="{{cpassword}}" autocomplete="off">
+    <div class=" showPassContainer">
+    <label for="showPassBtn" >Show Password</label>
+    <input type="checkbox" id="showPassBtn">
+    </div>
+    <button type="submit" class="button">Register</button>
+    <p class="error_msg">{{ error_msg }}</p>
+    <div class="login-footer">
+    <p>Already have an account? <a href="/Signin">Sign In</a></p>
+    </div>
+</div>
+</form >
+{% endblock %}

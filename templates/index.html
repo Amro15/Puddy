@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+{% block head %}
+<style>
+body{
+    background-image: url("/static/index_background.jpg") !important;
+    } 
+</style>
+{% endblock %}
+
+{% block title %} Home {% endblock %}
+
+{% block main%}
+<img src="/static/Puddy_Logo_writing.png">
+<img src="/static/Puddy_Logo_plume.png">
+<h1>Welcome to Puddy {{username}}!</h1>
+<div class="container_div">
+    <p>Puddy is your poetry writing buddy here's everything that puddy has to offer:</p>
+<ul>
+    <li>
+<p>To start creating your first poem <a href="/Create">go to create</a> choose a rhyme scheme which is explained there and get to writing!</p>
+    </li>
+    <li>
+        <p>Are you experiencing writer's block? Fear not<a>go to get inspired</a> to check out some famous poemsand get inspired!.</p>
+    </li>
+    <li>
+        <p>Can't think of rhymes for a word? <a>Go to have fun with rhymes.</a></p>
+    </li>
+    <li>
+        <p>Set the perfect writing mood! Just click on the account button and go to <a href="/Account/Customize">Customize</a> and change the background image to one of your liking!</p>
+    </li>
+</ul>
+<p>Disclaimer:</p>
+</div>
+{% endblock %}

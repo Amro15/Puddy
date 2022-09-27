@@ -1,0 +1,757 @@
+body{
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    color: rgb(65, 63, 61);
+    background-image: url("/static/background.jpg");
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center center;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+    font-family: sans-serif;
+    background-color: transparent;
+    overflow-x: hidden; 
+}
+footer{
+  margin-top: auto;
+  --bs-dark-rgb: 33,37,41;
+  --bs-bg-opacity: 1;
+  background-color: rgba(var(--bs-dark-rgb),var(--bs-bg-opacity))!important;
+  color: white;
+}
+h1{
+  text-align: center;
+  background-color: rgba(105, 113, 132, 0.8);
+  color: white;
+}
+h2{
+  color:white;
+}
+h3{
+  color:white
+}
+
+.container_div{
+  background-color: rgba(105, 113, 132, 0.8);
+  color:white;
+
+}
+p{
+  font-size: 18px;
+}
+#somethign{
+  color: rgb(65, 63, 61),rgb(177, 166, 175), rgb(105, 113, 132), rgb(216, 207, 208)}
+
+.wrap_login{
+    box-shadow: 0 3px 20px 0px rgb(0 0 0 / 10%);
+    background-color:  transparent;
+    width:60%;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    padding: 10px;
+    border-radius: 20px;
+    text-align: center;
+    display:block;
+}
+a{
+  color: black!important;
+}
+.navbar-nav a {
+    color:white!important;
+}
+
+.navbar-nav a:hover, a:hover{
+    color: black!important;
+}
+
+.navbar-nav a:active, a:active{
+  color:rgb(87, 85, 82)!important;
+}
+.form {
+    background-color: rgba(230, 207, 207, 0.2);
+    width: 50%;
+    padding: 10px; 
+    border-radius: 20px; 
+    margin: auto;
+    margin-top: 90px;
+    color: white;
+}
+
+input{
+    display: inline-block;
+}
+/* account/custom */
+.custom-file-upload::-webkit-file-upload-button {
+    visibility: hidden;
+  }
+.custom-file-upload::before {
+  background-color:rgb(105, 113, 132) ;
+  color: white;
+  content: 'Choose File';
+  display: inline-block;
+  border: 1px solid black;
+  padding: 5px;
+  outline: none;
+  white-space: nowrap;
+  --webkit-user-select: none;
+  cursor: pointer;
+}
+.custom-file-upload:hover::before {
+  background-color: rgb(45, 49, 57);
+}
+.custom-file-upload:active::before {
+  background: -webkit-linear-gradient(top,rgb(79, 86, 100), rgb(79, 86, 100));
+}
+#customize_text{
+  font-weight: bold;
+  font-size: large;
+}
+
+#customize_form{
+  background-color: rgba(106, 104, 104, 0.5);
+}
+/* ========================================= */
+.login-input, input[type=file] {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid rgba(105, 113, 132, 0.8);
+  box-sizing: border-box;
+  background-color: rgba(105, 113, 132, 0.5);
+  color: white;
+}
+
+.login-input:focus, input[type=file]:focus {
+    background-color: rgba(105, 113, 132, 0.8);
+}
+input::placeholder {
+    color:inherit;
+}
+
+.button{
+  background-color: rgb(105, 113, 132);
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+}
+
+.button:hover {
+  background-color: rgb(45, 49, 57);
+}
+
+.button:active{
+    background-color:  rgb(79, 86, 100);
+}
+
+.container {
+  padding: 16px;
+}
+
+
+.login-header{
+    text-align: center;
+    font-weight: bold;
+    color: white;
+}
+
+.login-footer{
+    background-color:rgb(105, 113, 132);
+    height: 25px;
+    text-align: center;
+    margin-top: 20px;
+}
+.login-footer a{
+    color:rgb(45, 49, 57);
+}
+.login-footer a:hover{
+    color:rgb(216, 207, 208);
+}
+
+/* DROPDOWN */
+
+#dropdown-btn {  
+    padding: 10px 30px;  
+    font-size: 15px;  
+}  
+#list-items {  
+   display: none;  
+   position: absolute;  
+   background-color: rgba(105, 113, 132, 0.8);
+   color: white;  
+   min-width: 114.39px;  
+   z-index: 2;
+}  
+#list-items a {  
+    display: block;  
+    font-size: 18px;  
+    background-color: rgba(105, 113, 132, 0.8);  
+    color: white!important;   
+    text-decoration: none;  
+    padding: 10px;  
+}  
+
+#list-items a:hover {
+background-color: rgb(143, 143, 143) ;
+}
+/* ------------- */
+/* toggle btns */
+
+.showPassContainer{
+  font-weight: bold;
+  background-color: rgb(105, 113, 132);
+  width: 135px;
+}
+.form-switch .form-check-input{
+  margin-left:35px !important ;
+
+}
+.form-check label{
+  background-color: rgb(105, 113, 132);
+  color:white;
+  margin-left: 3.3px;
+}
+
+/* ---------------- */
+/* erro and succes msgs */
+.error_msg{
+    font-weight: bold;
+    color: black;
+    margin-top: 10px;
+    text-align: center;
+    text-decoration: underline;
+    background-color: red;
+}
+
+#confirmation_msg, #confirmation_msg_write{
+    font-weight: bold;
+    color: black;
+    margin-top: 10px;
+    text-align: center;
+    text-decoration: underline;
+    background-color: green ;
+}
+/* ---------------------------- */
+
+/* /Create */
+.rhyme_description, #description{
+  word-wrap: break-word;
+  background-color: rgba(106, 104, 104, 0.8);
+  color:white;
+  width: 95%;
+  padding: 10px;
+  border-radius: 20px;
+  margin: auto;
+  margin-top: 30px;
+  text-align: center;
+  visibility: hidden;
+  position: absolute;
+}
+
+#resume{
+  text-align: center;
+  font-weight: bold;
+}
+
+#rhyme_repetition_div, #line_break_frequency_div{
+  visibility: hidden;
+  position: absolute;
+}
+/* ------------------------ */
+/* /Write */
+.poem-div{
+  text-align: center;
+}
+
+.verse{
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    width: 86%;
+    padding-top:10px;
+    margin-left:17vw ;
+    color:white;
+    font-size: large;
+}
+#title{
+  padding-left: 10px;
+  padding-top: 6px;
+  display: block;
+  width: 70%;
+  overflow: hidden;
+  background-color: rgba(37, 37, 37, 0.5);
+  border-radius: 7px;
+}
+
+
+#title:empty::before{
+  content: "Title(optional)";
+}
+
+#title, .title_symbol{
+  margin: 30px 0px 40px;
+  text-align: center;
+}
+#draft_header{
+  float: left;
+}
+.title_symbol{
+  padding: 10px 0px 0px 0px!important;
+}
+.rhyme_symbols{
+  padding: 11px 0px 0px 0px!important;
+}
+.rhyme_symbols, .title_symbol{
+  line-height: normal!important;
+  background-color:  rgb(105, 113, 132);
+  color:white;
+  width:40px;
+  height:40px;
+}
+
+.line{
+    padding-left: 10px;
+    padding-top: 6px;
+    display: block;
+    width: 70%;
+    overflow: hidden;
+    background-color: rgba(37, 37, 37, 0.5);
+    border-radius: 7px;
+}
+
+span[contenteditable]:empty::before {
+    content: "Text goes here";
+  }
+
+.syllables, #title_symbol{
+  background-color: rgba(37, 37, 37, 0.5);
+  color: white;
+  margin-left:17vw ;
+  width: 60%;
+  border-radius: 7px;
+  border: rgba(37, 37, 37, 0.8) 2px solid;
+  font-size: large;
+  position: absolute;
+  visibility: hidden;
+}
+ #user-custom-rhymes-div, #line-div{
+    visibility: hidden;
+    position: absolute;
+   
+  }
+
+  /* toggle btns */
+  #btn_div{
+    position: relative;
+    z-index: 1;
+    right: 0px;
+    border: 3px solid  rgb(45, 49, 57);
+    visibility: visible;
+    min-height: 106px;
+    min-width: 245px;
+    width: 245px; 
+    float: right;
+  }
+
+.btn-secondary {
+  color: #fff;
+  background-color: rgb(105, 113, 132)!important;
+  border-color:  rgb(105, 113, 132)!important;
+  float: right;
+  margin-right: 34px;
+  margin-bottom: 10px;
+}
+
+.btn-secondary:hover {
+  background-color: rgb(45, 49, 57)!important;
+}
+
+.btn-secondary:active{
+    background-color:  rgb(79, 86, 100)!important;
+}
+
+
+.notepad{
+    position: absolute;
+    visibility: hidden;
+    display: block;
+    width: 63.7%;
+    margin-top: 10px;
+    margin-left: 10px;
+    padding-left: 10px;
+    min-height: 100px;
+    overflow: hidden;
+    background-color: rgba(37, 37, 37, 0.5);
+    border-radius: 7px;
+    color:white;
+    padding-top: 6px;
+}
+
+.notepad:empty::before{
+    content: "Write down your ideas";
+    color: white;
+}
+
+.switch_div{
+  padding-top: 10px;
+  padding-left: 5px!important;
+  border-radius: 7px;
+}
+
+.arrow {
+  border: solid black;
+  border-width: 0 5px 5px 0;
+  display: inline-block;
+  padding: 7px 7px 7px 7px;
+  height: 20px;
+  width: 20px;
+}
+#arrow{
+  position: relative;
+  z-index: 1;
+  width: 5%;
+  float: right;
+  background-color:  rgb(105, 113, 132);
+  height: 40px;
+  margin: 0;
+}
+#arrow:hover{
+  background-color: rgb(42, 41, 41);
+}
+#arrow:active{
+  background-color:rgb(57, 58, 61) ;
+}
+.right {
+  transform: rotate(-45deg);
+  -webkit-transform: rotate(-45deg);
+  margin: -10px -10px 2px -15px;
+
+}
+
+.left {
+  transform: rotate(135deg);
+  -webkit-transform: rotate(135deg);
+  margin: -10px -25px 2px -15px;
+}
+
+#no_data_rhymes, #no_data_syllables{
+  padding-left: 40px;
+  font-weight: bold;
+  color:rgb(255, 0, 0);
+  background-color: rgba(37, 37, 37, 0.8);
+
+}
+
+#no_data_syllables{
+  margin-right: 10px;
+  position: absolute;
+  visibility: hidden;
+  background-color: rgba(37, 37, 37, 0.8);
+}
+#no_data_syllables_link{
+  color: rgb(255, 255, 255)!important;
+}
+#no_data_syllables_link:hover{
+  color: rgb(230, 207, 207)!important;
+}
+
+#next{
+  margin-right: 60px;
+}
+
+@media only screen and (max-width: 991px){
+  #next{
+      margin-right: 0px;
+  }
+}
+#next, #save_draft{
+  width:300px;
+  padding: 10px; 
+  margin-top: 10px;
+}
+
+
+
+#msg_container{
+  visibility: hidden;
+  position: absolute;
+}
+#hide{
+  float: left;
+}
+
+/* --------------------------------------------- */
+/* Tooltip container */
+.tooltip {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
+}
+
+/* Tooltip text */
+.tooltiptext {
+  visibility: visible;
+  min-width: 150px;
+  width: 150px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  padding: 5px 0;
+  border-radius: 6px;
+ 
+  /* Position the tooltip text - see examples below! */
+  float:right;
+  margin-top: 12px;
+  margin-right: 3px;
+}
+
+
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+}
+
+/* ------------------------------ */
+  /* Popup container - can be anything you want */
+.popup {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+  
+  /* The actual popup */
+  .popup .popuptext {
+    visibility: hidden;
+    width: 160px;
+    background-color: #555;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 8px 0;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -80px;
+  }
+  
+  /* Popup arrow */
+  .popup .popuptext::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #555 transparent transparent transparent;
+  }
+  
+  /* Toggle this class - hide and show the popup */
+  .popup .show {
+    visibility: visible;
+    -webkit-animation: fadeIn 1s;
+    animation: fadeIn 1s;
+  }
+  
+  /* Add animation (fade in the popup) */
+  @-webkit-keyframes fadeIn {
+    from {opacity: 0;} 
+    to {opacity: 1;}
+  }
+  
+  @keyframes fadeIn {
+    from {opacity: 0;}
+    to {opacity:1 ;}
+  }
+
+.popup_btn{
+    width: 10px;
+    height: 10px;
+    background-color: inherit;
+  }
+
+.popup_btn:hover{
+    color: #000;
+    background-color: gray;
+}
+
+.popup_btn:active{
+    color: rebeccapurple;
+    background-color: aqua;
+}
+
+
+/* /Draft */
+
+.flex-container {
+  display: flex;
+  flex-flow: row wrap;
+  
+  justify-content: space-around;
+  
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.flex-item {
+  background: rgba(105, 113, 132, 0.8);
+  padding: 5px;
+  min-width: 30%;
+  min-height: 310px;
+  margin-top: 10px;
+  width: 30%;
+  height: 335px;
+  flex-basis:content;
+  color: white;
+  font-size: 17px;
+  text-align: center;
+}
+.draft_title{
+  font-size: 30px;
+  text-decoration: underline;
+  font-weight: bold;
+}
+.resume, .delete{
+  width:150px;
+  background-color: rgb(76, 81, 93);
+}
+#select_draft_div{
+  background-color: rgba(230, 207, 207, 0.2);
+  width: 50%;
+  padding: 10px;
+  border-radius: 20px;
+  margin: auto;
+  margin-top: 15px;
+}
+
+#empty_draft{
+  text-align: center;
+  width: 70%;
+  height: 70%;
+  background-color: rgba(116, 114, 114, 0.9);
+  padding: 10px; 
+  border-radius: 20px; 
+  margin: auto;
+  margin-top: 90px;
+}
+
+@media only screen and (max-width: 991px){
+  .flex-item{
+      width: 45%;
+  }
+}
+/* ========================================================================== */
+#poem_container, .poem_container_account{
+  text-align: center;
+}
+.poem_container_account{
+  visibility: hidden;
+  position: absolute;
+}
+.edit_poem{
+  width: 245px;
+  display: inline-block;
+}
+.edit_poem_row2{
+  text-align: center;
+  display: inline-block;
+  margin-left: 10px;
+}
+#poem, #account_poem{
+  font-size: 20px;
+  background-color: rgba(105, 113, 132, 0.8);
+  text-align: left;
+  word-wrap: break-word;
+  max-width: 700px;
+  width: 700px;
+  font-family:Sans-Serif;
+  display: inline-block;
+  padding: 10px 50px 10px 50px;
+  color:white
+  
+}
+
+#poem_title{
+  font-size: 35px;
+  font-weight: bold;
+  margin-bottom: 0px;
+}
+#poem_author{
+  font-size: inherit;
+  font-style: italic;
+}
+.edit_line:empty::before {
+  content: " "!important;
+}
+#changes{
+  text-decoration: underline;
+  font-weight: bolder;
+  text-align: center;
+  color: white;
+  background-color: rgba(105, 113, 132, 0.8);
+}
+@media only screen and (max-width: 620px){
+  #poem, #account_poem{
+      max-width: 260px;
+      font-size: 18px;
+  }
+  #poem_title{
+    font-size: 28px;
+  }
+}
+
+/* Get inspired */
+#radio_button_div{
+  margin-top:10px;
+}
+#poem_search{
+  width: 500px !important;
+  display:inline-block;
+}
+#select_poem_div{
+  max-width: 690px;
+  margin-top: 10px;
+  min-width: 240px;
+}
+#poem_search_select{
+  min-width: 240px;
+}
+@media only screen and (max-width: 620px){
+  #poem_search{
+    width: 210px!important;
+  }
+}
+#poem_result{
+  margin-left: 20px;
+  font-size: larger;
+  font-weight: bolder;
+  color:white;
+  word-wrap: break-word
+}
+#loading_poems{
+  visibility: hidden;
+  position: absolute;
+  margin-top: 100px;
+}
+hr{
+  height: 5px!important;
+}
+#poem_rand{
+  width: 120px;
+}
+/* ================================================================================= */

@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+
+{% block head %}<style>
+    body {
+        background-image: url("/static/format-background.jpg") !important;
+    }
+</style>{% endblock %}
+
+{% block title %} Format {% endblock %}
+
+
+{% block main%}
+<h1> Your poem has been saved!</h1>
+<h4 id="changes">Any last minute changes? Click on any line to edit it!</h4>
+
+<div class="edit_poem_row2">
+<div class="edit_poem">
+    <button class="button" id="save_poem">Save</button>
+</div>
+</div>
+
+
+
+<div id="poem_container">
+    <div id ="poem">
+    <span contenteditable class="edit_line"><p id="poem_title">{{user_poem.get_title()}}</p></span>
+    <p id="poem_author">By {{username}}</p>
+{%for key, value in user_poem.get_lines().items()%}
+<p><span contenteditable id="{{key}}" class="edit_line">{{value}}</span></p>
+    {% if user_poem.get_line_breaks() and ((loop.index%user_poem.get_line_breaks()) == 0)%}
+    <br>
+    <br>
+    {%endif%}
+{%endfor%}
+</div>
+</div>
+</div>
+{% endblock %}

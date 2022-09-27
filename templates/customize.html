@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+
+{% block title %} Customize {% endblock %}
+
+{% block main%}
+<h1>Want to set the right mood while writing? Customize your background image!</h1>
+<form class = "form"  id="customize_form" action="/Account/Customize" method=post enctype=multipart/form-data>
+    <input type=file name=file class="custom-file-upload">
+    <input class="button" type=submit value=Set-Background >
+    <p id="customize_text">Recommended to use a 1920x1080 jpg to avoid stretching problems when image is resized to fit the background</p>
+  </form>
+  <p class="error_msg">{{error_msg}}</p>
+{% endblock %}
