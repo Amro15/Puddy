@@ -26,7 +26,7 @@
         <div class="container-fluid">
                 
             
-          {% if session["user_id"] %}
+          {% if current_user.is_authenticated %}
           <!-- logout modal -->
           <div class="modal fade" id="logout_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
     aria-hidden="true">
@@ -71,8 +71,8 @@
               <a href="/Account/Poem"> My Poems </a>  
               <a href="#" id="logout"> Log Out </a>  
             </div>  
-          {% else %}
-          <ul class="navbar-nav">
+            {% else %}
+            <ul class="navbar-nav">
             <a class="navbar-brand" href="/">
               <img src="/static/favicon.ico" alt="Feather logo" width="30" height="24" class="d-inline-block align-text-top">
               Poetry
@@ -88,16 +88,17 @@
               <a class="nav-link" href="/About">What is this website?</a> 
             </li>
           </ul>
-          </div>
-          {% endif%}
-      
+        </div>
+        {% endif%}
+        
       </nav>
     </div>
       <main>
     {%block main %}{% endblock %}
     </main>
-<footer>foo bar baz{% block footer %}{% endblock %}</footer>
-  
+    {% if current_user.is_authenticated %}
+    <footer>foo bar baz{% block footer %}{% endblock %}</footer>
+    {% endif %}
 </body>
 
 </html>

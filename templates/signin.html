@@ -1,11 +1,37 @@
+{% from 'macro.html' import form_field, err_msg %}
+
+
 {% extends "layout.html" %}
 
 
 {% block title %} Sign In {% endblock %}
 
 {% block main%}
+<form class = "form" action="{{ url_for('sign_in') }}" method="post">
+  <h2 class="login-header">Sign In</h2>
+  {{form.hidden_tag()}}
+  {{form_field(form.username, "login-input", "Username")}}
+  {{form_field(form.password, "login-input", "Password")}}
+  {{form.sign_in(class="button")}}
+  <div id="login_checkboxes">
+  <div class="checkbox_container">
+    <label>Remember Me</label>
+    {{form_field(form.remember_me, "none")}}
+  </div>
+  <div class="checkbox_container">
+    <label for="showPassBtn" >Show Password</label>
+    <input type="checkbox" id="showPassBtn">
+    </div>
+  </div>
+    {{ err_msg(form.username) }}
+    {{ err_msg(form.password) }}
+    {{ login_required_msg }}
+    <div class="login-footer">
+      <p>Not a member yet? <a href="/Register">Register</a></p>
+    </div>
+  </form>
 
-<form class = "form"  action="/Signin" method="post">
+<!-- <form class = "form"  action="/Signin" method="post">
     <h2 class="login-header">Sign In</h2>
         
     
@@ -25,5 +51,5 @@
     <p>Not a member yet? <a href="/Register">Register</a></p>
     </div>
 </div>
-</form >
+</form > -->
 {% endblock %}

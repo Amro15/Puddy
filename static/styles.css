@@ -3,17 +3,22 @@ body{
     display: flex;
     flex-direction: column;
     color: rgb(65, 63, 61);
-    background-image: url("/static/background.jpg");
+    background-image: url("/static/index_background.jpg");
     background-repeat: no-repeat;
     background-attachment: fixed;
     background-position: center center;
-    background-size: 100% 100%;
+    background-size: cover;
     background-repeat: no-repeat;
     background-position: center;
     font-family: sans-serif;
     background-color: transparent;
     overflow-x: hidden; 
 }
+@media only screen and (max-width: 480px) {
+  body {
+  background-image: url("/static/index_background_small.jpg");
+  }
+  }
 footer{
   margin-top: auto;
   --bs-dark-rgb: 33,37,41;
@@ -60,11 +65,14 @@ p{
 a{
   color: black!important;
 }
+a:hover{
+  color: white!important;
+}
 .navbar-nav a {
     color:white!important;
 }
 
-.navbar-nav a:hover, a:hover{
+.navbar-nav a:hover{
     color: black!important;
 }
 
@@ -73,7 +81,7 @@ a{
 }
 .form {
     background-color: rgba(230, 207, 207, 0.2);
-    width: 50%;
+    max-width: 620px;
     padding: 10px; 
     border-radius: 20px; 
     margin: auto;
@@ -112,7 +120,7 @@ input{
 }
 
 #customize_form{
-  background-color: rgba(106, 104, 104, 0.5);
+  background-color: rgba(106, 104, 104, 0.56);
 }
 /* ========================================= */
 .login-input, input[type=file] {
@@ -124,6 +132,7 @@ input{
   box-sizing: border-box;
   background-color: rgba(105, 113, 132, 0.5);
   color: white;
+  border-radius: 15px;
 }
 
 .login-input:focus, input[type=file]:focus {
@@ -167,12 +176,9 @@ input::placeholder {
     height: 25px;
     text-align: center;
     margin-top: 20px;
-}
-.login-footer a{
-    color:rgb(45, 49, 57);
-}
-.login-footer a:hover{
-    color:rgb(216, 207, 208);
+    display: inline-block;
+    width: 100%;
+    height: 100%;
 }
 
 /* DROPDOWN */
@@ -203,8 +209,12 @@ background-color: rgb(143, 143, 143) ;
 }
 /* ------------- */
 /* toggle btns */
-
-.showPassContainer{
+#login_checkboxes{
+  text-align: center;
+  margin-top: 10px;
+}
+.checkbox_container{
+  display: inline-block;
   font-weight: bold;
   background-color: rgb(105, 113, 132);
   width: 135px;

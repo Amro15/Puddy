@@ -1,27 +1,50 @@
-from encodings import normalize_encoding
 import os
-import urllib.parse
+from urllib.parse import urlparse, urljoin
 import urllib.request
 import json
 import sys
 import sqlite3
-
 from flask import redirect, request, session, g
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import UserMixin
+import time
 from functools import wraps
 from app import app
 
+def is_safe_url(target):
+    ref_url = urlparse(request.host_url)
+    test_url = urlparse(urljoin(request.host_url, target))
+    return test_url.scheme in ('http', 'https') and \
+           ref_url.netloc == test_url.netloc
+
+app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///database.db'
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 # require login
-def login_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if session.get("user_id") is None:
-            return redirect("/Signin")
-        return f(*args, **kwargs)
-    return decorated_function
+# def login_required(f):
+#     @wraps(f)
+#     def decorated_function(*args, **kwargs):
+#         if session.get("user_id") is None:
+#             return redirect("/Signin")
+#         return f(*args, **kwargs)
+#     return decorated_function
 
-# Configure db
+# Configure sqlalchemy
+db =  SQLAlchemy(app)
+
+class Users(db.Model, UserMixin):
+    __tablename__ = "users"
+    id = db.Column(db.Integer, primary_key = True)
+    username = db.Column(db.String(40), unique=True, nullable=False)
+    hash = db.Column(db.String(100), unique=True, nullable=False)
+    poem_count = db.Column(db.Integer, nullable=False)
+    saved_poem_count = db.Column(db.Integer)
+    session_token = db.Column(db.String(100),unique=True, nullable=False)
+
+    def get_id(self):
+        return str(self.session_token)
+
+# configure sqlite3
 DATABASE = "database.db"
-
 def get_db():
 
     db = getattr(g, '_database', None)
@@ -317,6 +340,10 @@ class draft:
 class poem:
     def __init__(self, _poem_id):
         self.poem_id = _poem_id
+    # def get_data(self):
+    #     row = query_db("SELECT * FROM poem WHERE user_id = ? AND poem_id = ?", 
+    #     [session.get("user_id", None), self.poem_id], one=True)
+    #     return row
     def get_title(self):
         row = query_db("SELECT * FROM poem WHERE user_id = ? AND poem_id = ?", 
         [session.get("user_id", None), self.poem_id], one=True)

@@ -76,6 +76,7 @@ checkBox.addEventListener("click", ()=>{
    }
 })}
 
+// Logout user
 let logout_btn = document.getElementById("logout")
 let confirm_logout_btn = document.getElementById("confirm_logout");
 
@@ -84,12 +85,11 @@ if (logout_btn){
       const logout_modal = new bootstrap.Modal(document.getElementById('logout_modal'), {backdrop:"static" });
             logout_modal.show();
             confirm_logout_btn.addEventListener("click", ()=>{
-               window.location.replace(window.origin+"/signout")
+               window.location.replace(window.origin+"/Signout")
             })
             
    })
 }
-
 
 
 //hide nav btn
@@ -963,4 +963,3 @@ if(window.location == window.origin+"/Write"){
             return e.returnValue="";
          });
       }
-

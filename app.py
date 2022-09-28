@@ -1,4 +1,3 @@
-from __future__ import print_function
 from asyncio import constants
 from asyncio.windows_events import NULL
 from cgi import print_form
@@ -26,8 +25,9 @@ import uuid
 from winreg import REG_QWORD, QueryReflectionKey
 from wsgiref.simple_server import server_version
 from xml.sax.handler import all_properties
-from flask import Flask, redirect, render_template, request, session, jsonify, make_response, url_for 
+from flask import Flask, redirect, render_template, request, session, jsonify, make_response, url_for, flash
 from flask_session import Session
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 from PIL import Image
@@ -36,109 +36,131 @@ import os
 import urllib.request
 import json
 import time
-import pandas as pd 
-
+import pandas as pd
+from flask_wtf.csrf import CSRFProtect
+from itsdangerous.url_safe import URLSafeSerializer
 
 
 app = Flask(__name__)
+csrf = CSRFProtect(app)
 app.config["TEMPLATES_AUTO_RELOAD"] = True
-from helpers import *
-
-app.config["SESSION_PERMANENT"] = True
+app.config["SECRET_KEY"] = "placeholder"
+serializer= URLSafeSerializer(app.secret_key)
+app.config["USE_SESSION_FOR_NEXT"] = True
+app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
-Session(app)
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = "sign_in"
+login_manager.login_message = "Please Sign In To Access The Rest Of The Website"
 
+
+from helpers import *
+from forms import *
+
+@login_manager.user_loader
+def load_user(session_token):
+    return Users.query.filter_by(session_token=session_token).first()
+Session(app)
 
 @app.route("/")
 @login_required
 def index():
-    username = query_db(
-            "SELECT * FROM users WHERE id = ?", [session.get("user_id", None)], one=True)
-    return render_template("index.html", username=username["username"])
+    user = Users.query.filter_by(session_token=current_user.get_id()).first()
+    print(user)
+    # username = query_db(
+    #         "SELECT * FROM users WHERE id = ?", [session.get("user_id", None)], one=True)
+    return render_template("index.html", username=user.username)
 
+# error handling pages
+@app.errorhandler(404)
+def err_404(e):
+    return render_template("404.html"), 404
+
+@app.errorhandler(500)
+def err_500(e):
+    return render_template("500.html"), 500
 
 @app.route("/Register", methods=["GET", "POST"])
 def register():
-    if request.method == "POST":
-        username = request.form.get("username")
-        password = request.form.get("password")
-        cpassword = request.form.get("cpassword")
-        # check for blanks and too short inputs
-        if not username:
-            return render_template("register.html", error_msg="Must provide username")
-        elif len(username) < 3:
-            return render_template("register.html", error_msg="Username must be between 3 and 30 characters long", username=username)
-        elif not re.match(r"^[A-Za-z][A-Za-z0-9_]{3,30}$", username):
-            return render_template("register.html", error_msg="Username should start with a letter and only contain letters and underscores", username=username)
-        # if ussername already taken check db
-        db = get_db()
-        cur = db.cursor()
-        for i in query_db("SELECT * FROM users"):
-            if username == i["username"]:
-                return render_template("register.html", error_msg="Username is taken", username = username)
-        if not password:
-            return render_template("register.html", error_msg="Must provide password")
-        elif re.match(r"/s",password):
-            return render_template("register.html", error_msg="Password cannot contain spaces", username=username, password=password)
-        elif len(password) < 8 and len(password) > 40:
-            return render_template("register.html", error_msg="Password must bet between 8 and 40 characters", username=username, password=password)
-        elif not cpassword:
-            return render_template("register.html", error_msg="Must confirm password")
-        elif password != cpassword:
-            return render_template("register.html", error_msg="Passwords don't match", username=username, password=password, cpassword=cpassword)
-        
-        # insert user into databases
-        cur.execute("INSERT INTO users (username, hash, poem_count) VALUES(?, ?, ?)",
-                    (username, generate_password_hash(password), 0))
-        db.commit()
-        cur.close()
-        # keep track of poem_num of user which we will need when saving users data
-        return render_template("signin.html", confirmation_msg="Registered Successfully")
+    # initialize form
+    form = RegisterForm()
     if request.method == "GET":
-        return render_template("register.html")
-
+        return render_template("register.html", form=form)
+    if request.method == "POST":
+        if form.validate_on_submit():
+            # add user to db if form is valid
+            new_user = Users(username = form.username.data, hash=generate_password_hash(form.password.data), poem_count=0,
+                            session_token = serializer.dumps(([form.username.data, generate_password_hash(form.password.data)])))
+            db.session.add(new_user)
+            db.session.commit()
+            return redirect(url_for("sign_in"))
+        return render_template("register.html", form=form)
+        
+            # db = get_db()
+            # cur = db.cursor()
+            # insert user into database
+            # keep track of poem_num of user which we will need when saving users data
+            # cur.execute("INSERT INTO users (username, hash, poem_count) VALUES(?, ?, ?)",
+            #             (form.username.data, generate_password_hash(form.password.data), 0))
+            # db.commit()
+            # cur.close()
+    
 
 @app.route("/Signin", methods=["GET", "POST"])
 def sign_in():
-    session.clear()
-    if request.method == "POST":
-        username = request.form.get("username")
-        print(username)
-        password = request.form.get("password")
-        # check for blank inputs
-        if not username:
-            return render_template("signin.html", error_msg="must provide username")
-
-        elif not password:
-            return render_template("signin.html", error_msg="must provide password")
-
-        user_db_info = query_db(
-            "SELECT * FROM users WHERE username = ?", [username], one=True)
-
-        # # Ensure username exists and password is correct
-        if not user_db_info or not user_db_info["username"]:
-            return render_template("signin.html", error_msg="invalid username", username=username, password=password)
-        if not check_password_hash(user_db_info["hash"], password):
-            return render_template("signin.html", error_msg="invalid password", username=username, password=password)
-        # set session id to user id
-        session["user_id"] = user_db_info["id"]
-        session["current_poem_num"] = user_db_info["poem_count"]
-
-        return redirect("/")
-
+    form = SigninForm()
     if request.method == "GET":
-        return render_template("signin.html")
+        return render_template("signin.html", form=form)
+
+    if request.method == "POST":
+        print("Form valid", form.validate_on_submit())
+        print(form.username.data, form.password.data)
+        print("forsm errs:", form.errors)
+        if form.validate_on_submit():
+            print("validated")
+            user = Users.query.filter_by(username = form.username.data).first()
+            print(form.remember_me.data)
+            login_user(user, remember = form.remember_me.data)
+            session["user_id"] = user.id
+            session["current_poem_num"] = user.poem_count
+
+            if "next" in session:
+                next = session["next"]
+                if next!=None and is_safe_url(next):
+                    return redirect(next)
+            return redirect(url_for("index"))
+        return render_template("signin.html", form=form)
+            
+            # username = request.form.get("username")
+            # print(username)
+            # password = request.form.get("password")
+            # # check for blank inputs
+            # if not username:
+            #     return render_template("signin.html", error_msg="must provide username")
+
+            # elif not password:
+            #     return render_template("signin.html", error_msg="must provide password")
 
 
-@app.route("/signout")
+            # # # Ensure username exists and password is correct
+            # if not user_db_info or not user_db_info["username"]:
+            #     return render_template("signin.html", error_msg="invalid username", username=username, password=password)
+            # if not check_password_hash(user_db_info["hash"], password):
+            #     return render_template("signin.html", error_msg="invalid password", username=username, password=password)
+            # # set session id to user id
+            
+
+@app.route("/Signout")
 @login_required
 def logout():
+    logout_user()
     session.clear()
-    return redirect("/")
+    return redirect(url_for("sign_in"))
 
 
 @app.route("/GetInspired", methods=["POST", "GET"])
-def about():
+def get_inspired():
     global server_response
     if request.method == "GET":
         if session.get("search", None)!= None:
@@ -205,10 +227,9 @@ def about():
             return make_response({"response": random_poems})
 
 
-@app.route("/Howto")
-@login_required
-def howto():
-    return render_template("howto.html")
+@app.route("/About")
+def about():
+    return render_template("about.html")
 
 @app.route("/Create/", methods=["POST", "GET"])
 @login_required
@@ -381,8 +402,11 @@ def write():
         else:
             user_draft = None
             user_rhyme_scheme = session.get("rhyme scheme", None)
-            rhyme_scheme_class = user_rhyme_scheme.replace(" ", "_")
-            rhyme_scheme_class = str_to_class(rhyme_scheme_class)
+            if user_rhyme_scheme != None:
+                rhyme_scheme_class = user_rhyme_scheme.replace(" ", "_")
+                rhyme_scheme_class = str_to_class(rhyme_scheme_class)
+            else:
+                return redirect(url_for("create"))
         # add poem = poem
         # , draft_session = session.get("draft_session", None))
         return render_template("write.html", rhyme_schemes=rhyme_scheme_class, user_background=user_background, user_rhyme_scheme=user_rhyme_scheme
