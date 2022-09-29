@@ -94,7 +94,9 @@ def register():
                             session_token = serializer.dumps(([form.username.data, generate_password_hash(form.password.data)])))
             db.session.add(new_user)
             db.session.commit()
-            return redirect(url_for("sign_in"))
+            # return redirect(url_for("sign_in"))
+            sigin_in_form = SigninForm()
+            return render_template("signin.html", form=sigin_in_form, success_msg="Registered successfully")
         return render_template("register.html", form=form)
         
             # db = get_db()

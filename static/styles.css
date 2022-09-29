@@ -240,7 +240,7 @@ background-color: rgb(143, 143, 143) ;
     background-color: red;
 }
 
-#confirmation_msg, #confirmation_msg_write{
+.confirmation_msg{
     font-weight: bold;
     color: black;
     margin-top: 10px;
