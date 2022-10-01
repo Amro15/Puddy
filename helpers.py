@@ -5,9 +5,6 @@ import json
 import sys
 import sqlite3
 from flask import redirect, request, session, g
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import UserMixin
-import time
 from functools import wraps
 from app import app
 
@@ -16,33 +13,6 @@ def is_safe_url(target):
     test_url = urlparse(urljoin(request.host_url, target))
     return test_url.scheme in ('http', 'https') and \
            ref_url.netloc == test_url.netloc
-
-app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///database.db'
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-# require login
-# def login_required(f):
-#     @wraps(f)
-#     def decorated_function(*args, **kwargs):
-#         if session.get("user_id") is None:
-#             return redirect("/Signin")
-#         return f(*args, **kwargs)
-#     return decorated_function
-
-# Configure sqlalchemy
-db =  SQLAlchemy(app)
-
-class Users(db.Model, UserMixin):
-    __tablename__ = "users"
-    id = db.Column(db.Integer, primary_key = True)
-    username = db.Column(db.String(40), unique=True, nullable=False)
-    hash = db.Column(db.String(100), unique=True, nullable=False)
-    poem_count = db.Column(db.Integer, nullable=False)
-    saved_poem_count = db.Column(db.Integer)
-    session_token = db.Column(db.String(100),unique=True, nullable=False)
-
-    def get_id(self):
-        return str(self.session_token)
-
 # configure sqlite3
 DATABASE = "database.db"
 def get_db():
@@ -104,7 +74,7 @@ def tup2dict(tup, di):
     for a, b in tup:
         di.setdefault(a, []).append(b)
     return di
-# initiate dict
+    
 def init_cmu():
     import nltk
     nltk.download('cmudict')
@@ -230,7 +200,6 @@ rhyme_schemes = [
                  "Haiku"
                  ]
 
-FIXED_RHYME_SCHEMES = ["Limerick","Shakespearean Sonnet","Haiku","Free Verse","Custom","Terza Rima", "Vilanelle"]
 CUSTOM_BR = ["Monorhyme", "Free Verse", "Custom"]
 
 # Classes
@@ -273,6 +242,8 @@ class rhyme_scheme:
         letters = {}
         return_arr = []
         for i in range(len(temp)):
+            if isinstance(temp[0], int):
+                return temp
             if temp[i] not in letters:
                 letters[temp[i]] = 0
                 return_arr.append(temp[i]+str(0))
@@ -295,82 +266,3 @@ Terza_Rima = rhyme_scheme("Terza_Rima", ["A","B","A"], 3, 1, ["E","E"], 3)
 Limerick = rhyme_scheme("Limerick", ["A","A","B","B","A"], None, None, None, None)
 Haiku = rhyme_scheme("Haiku", ["1","2","3"], None, None, None, None)
 
-
-
-
-class draft:
-        def __init__(self,_poem_draft, _poem_num, _draft_num):
-            self.poem_draft = _poem_draft
-            self.poem_num = _poem_num
-            self.draft_num = _draft_num
-            self.rhymes = None
-        def get_title(self):
-            row = query_db("SELECT * FROM draft WHERE user_id = ? AND poem_num = ? AND draft_num =?", 
-            [session.get("user_id", None), self.poem_num, self.draft_num], one=True)
-            return row["title"]
-        def get_lines(self):
-            print("get lines call")
-            line_obj = {}
-            db=get_db()
-            cur = db.cursor()
-            cur.execute("SELECT line_num, line_text FROM draft WHERE user_id = ? AND poem_num = ? AND draft_num =?", 
-            (session.get("user_id", None), self.poem_num, self.draft_num))
-            for i in cur:
-                line_obj[i["line_num"]]= i["line_text"]
-            cur.close()
-            self.rhymes = line_obj
-            return line_obj
-        def get_rhyme_scheme(self):
-            row = query_db("SELECT * FROM draft WHERE user_id = ? AND poem_num = ? AND draft_num =?", 
-            [session.get("user_id", None), self.poem_num, self.draft_num], one=True)
-            return row["rhyme_scheme"]
-        def get_time(self):
-            row = query_db("SELECT * FROM draft WHERE user_id = ? AND poem_num = ? AND draft_num =?", 
-            [session.get("user_id", None), self.poem_num, self.draft_num], one=True)
-            return row["date"]
-        def get_notes(self):
-            row = query_db("SELECT * FROM draft WHERE user_id = ? AND poem_num = ? AND draft_num =?", 
-            [session.get("user_id", None), self.poem_num, self.draft_num], one=True)
-            return row["notes"]
-        def get_line_breaks(self):
-            row = query_db("SELECT * FROM draft WHERE user_id = ? AND poem_num = ? AND draft_num =?", 
-            [session.get("user_id", None), self.poem_num, self.draft_num], one=True)
-            return row["line_breaks"]
-
-class poem:
-    def __init__(self, _poem_id):
-        self.poem_id = _poem_id
-    # def get_data(self):
-    #     row = query_db("SELECT * FROM poem WHERE user_id = ? AND poem_id = ?", 
-    #     [session.get("user_id", None), self.poem_id], one=True)
-    #     return row
-    def get_title(self):
-        row = query_db("SELECT * FROM poem WHERE user_id = ? AND poem_id = ?", 
-        [session.get("user_id", None), self.poem_id], one=True)
-        return row["title"]
-    def get_lines(self):
-        line_obj = {}
-        db=get_db()
-        cur = db.cursor()
-        cur.execute("SELECT line_num, line_text FROM poem WHERE user_id = ? AND poem_id = ?", 
-        (session.get("user_id", None), self.poem_id))
-        for i in cur:
-            line_obj[i["line_num"]]= i["line_text"]
-        cur.close()
-        return line_obj
-    def get_rhyme_scheme(self):
-        row = query_db("SELECT * FROM poem WHERE user_id = ? AND poem_id =?", 
-            [session.get("user_id", None), self.poem_id], one=True)
-        return row["rhyme_scheme"]
-    def get_line_breaks(self):
-        row = query_db("SELECT * FROM poem WHERE user_id = ? AND poem_id =?", 
-            [session.get("user_id", None), self.poem_id], one=True)
-        return row["line_breaks"]
-    def get_poem_num(self):
-        row = query_db("SELECT * FROM poem WHERE user_id = ? AND poem_id =?", 
-            [session.get("user_id", None), self.poem_id], one=True)
-        return row["poem_num"]
-    def get_time(self):
-        row = query_db("SELECT * FROM poem WHERE user_id = ? AND poem_id =?", 
-            [session.get("user_id", None), self.poem_id], one=True)
-        return row["date"]

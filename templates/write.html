@@ -30,6 +30,7 @@
         </div>
     </div>
 </div>
+<!-- ============ -->
 
 <div id="btn_div">
    <a href="/Rhyme" target="_blank"><button type="button" class="btn btn-secondary">
@@ -49,21 +50,22 @@
             id="flexSwitchCheckReverse">
         <label class="form-check-label" for="flexSwitchCheckReverse" >Toggle Notepad</label>
     </div>
+    <!-- Dont show check rhymes btn if rhyme scheme is either of these two -->
+    {% if not ((user_rhyme_scheme=="Free Verse") or (user_rhyme_scheme=="Haiku")) %}
     <div class="form-check form-switch form-check-reverse switch_div">
-        {% if not ( (user_rhyme_scheme=="Free Verse") or (user_rhyme_scheme=="Haiku")
-        ) %}
             <input class="form-check-input" id="check_rhymes" name="switch" value="check_rhymes" type="checkbox"
                 id="flexSwitchCheckReverse">
             <label class="form-check-label" for="flexSwitchCheckReverse" id="check_rhymes_label">Check Rhymes</label>
             <div id="no_data_rhymes"></div>
-        {% endif %}
-    </div>
+        </div>
+    {% endif %}
     <div class="form-check form-switch form-check-reverse switch_div">
         <input class="form-check-input" id="display_syllable_count" name="switch" value="display_syllable_count"
             type="checkbox" id="flexSwitchCheckReverse">
         <label class="form-check-label" for="flexSwitchCheckReverse">Display Syllable Count</label>
         <div>
             <ol id="no_data_syllables">You got 0 for a syllable count make sure:
+                <li>You left no empty fields</li>
                 <li>You did not misspell a word</li>
                 <li>You only used words that appear in the <a id="no_data_syllables_link" href="http://www.speech.cs.cmu.edu/cgi-bin/cmudict"
                         target="_blank">dictionary</a></li>
@@ -74,11 +76,13 @@
 <button class="button" id="arrow"><i class="arrow right" id="arrow_symbol"></i></button>
 </div>
 {% if draft_session == False %}
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <span id="notepad" class="notepad" role="textbox" class="line" contenteditable></span>
     <div class="poem-div">
         <div class="verse">
             <span contenteditable id="title"></span><span class="badge bg-secondary, title_symbol">Title</span>
         </div>
+        <!-- if rhyme scheme calls for numeric line numbers i[0] will not work so we need to check for that -->
         {% if ( (user_rhyme_scheme=="Free Verse") or (user_rhyme_scheme=="Haiku") ) %}
             {% for i in rhyme_schemes.rhymes%}
             <div class="verse">
@@ -103,42 +107,43 @@
             {% endfor %}
         {% endif %}
         <button value="Save Draft"class="button" name="write_btn" id="save_draft">Save As Draft</button>
-        <button value="Next" class="button" name="write_btn" id="next">Save Poem</button>
-        <div id="msg_container"><p class="confirmation_msg"></p><button type="button" id = "hide" class="btn btn-secondary btn-sm">Hide</button></a> </div>
+        <button value="save_poem" class="button" name="write_btn" id="save_poem">Save Poem</button>
+        <div id="msg_container"><p class="confirmation_msg" id="confirmation_msg_write"></p><button type="button" id = "hide" class="btn btn-secondary btn-sm">Hide</button></a> </div>
     </div>
+<!-- if sess is draft get all of our info from our databse-->
 {% else %}
-    <h1 id="draft_header">Draft</h1>
-    <span id="notepad" class="notepad" role="textbox" class="line" contenteditable>{{draft.get_notes()}}</span>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <span id="notepad" class="notepad" role="textbox" class="line" contenteditable>{{draft.notes}}</span>
     <div class="poem-div">
         <div class="verse">
-            <span contenteditable id="title">{{draft.get_title()}}</span><span class="badge bg-secondary, title_symbol">Title</span>
+            <span contenteditable id="title">{{draft.title}}</span><span class="badge bg-secondary, title_symbol">Title</span>
         </div>
-        {% if ( (user_rhyme_scheme=="Free Verse") or (user_rhyme_scheme=="Haiku") ) %}
-            {% for key, value in draft.get_lines().items()%}
+        {% if ( (draft.rhyme_scheme=="Free Verse") or (draft.rhyme_scheme=="Haiku") ) %}
+            {% for i in draft_lines %}
             <div class="verse">
-                <span class="line {{key}}" id="{{key}}" name="{{key}}" role="textbox" contenteditable="true">{{value}}</span><span id="symbol{{key}}"
-                    class="badge bg-secondary, rhyme_symbols">{{key}}</span>
+                <span class="line {{i.line_num}}" id="{{i.line_num}}" name="{{i.line_num}}" role="textbox" contenteditable="true">{{i.line_text}}</span><span id="symbol{{i.line_num}}"
+                    class="badge bg-secondary, rhyme_symbols">{{i.line_num}}</span>
             </div>
-            <div id="syllables{{key}}" class="syllables"></div>
-                {% if draft.get_line_breaks() and ((loop.index % draft.get_line_breaks()) == 0) %}
+            <div id="syllables{{i.line_num}}" class="syllables"></div>
+                {% if draft.line_breaks and ((loop.index % draft.line_breaks) == 0) %}
                 <br>
                 {% endif %}
             {% endfor %}
         {% else%}
-            {% for key, value in draft.get_lines().items()%}
+            {% for i in draft_lines %}
             <div class="verse">
-                <span class="line {{key[0]}}" id="{{key}}" name="{{key[0]}}" role="textbox" contenteditable="true">{{value}}</span><span
-                    id="symbol{{key}}" class="badge bg-secondary, rhyme_symbols">{{key[0]}}</span>
+                <span class="line {{i.line_num[0]}}" id="{{i.line_num}}" name="{{i.line_num[0]}}" role="textbox" contenteditable="true">{{i.line_text}}</span><span
+                    id="symbol{{i.line_num}}" class="badge bg-secondary, rhyme_symbols">{{i.line_num[0]}}</span>
             </div>
-            <div id="syllables{{key}}" class="syllables"></div>
-                {% if draft.get_line_breaks() and ((loop.index % draft.get_line_breaks()) == 0) %}
+            <div id="syllables{{i.line_num}}" class="syllables"></div>
+                {% if draftline_breaks and ((loop.index % draft.line_breaks) == 0) %}
                 <br>
                 {% endif %}
             {% endfor %}
         {% endif %}
         <button value="Save Draft"class="button" name="write_btn" id="save_draft">Save As Draft</button>
-        <button value="Next" class="button" name="write_btn" id="next">Save Poem</button>
-        <div id="msg_container"><p class="confirmation_msg"></p><button type="button" id = "hide" class="btn btn-secondary btn-sm">Hide</button></a> </div>
+        <button value="save_poem" class="button" name="write_btn" id="save_poem">Save Poem</button>
+        <div id="msg_container"><p class="confirmation_msg" id="confirmation_msg_write"></p><button type="button" id = "hide" class="button">Hide</button></a></div>
     </div>
 {% endif %}
 {% endblock %}

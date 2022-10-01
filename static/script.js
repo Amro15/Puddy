@@ -19,20 +19,6 @@ const SPECIAL_RHYME_SCHEME = []
    
 const FIXED_RHYME_SCHEMES = ["Limerick","Shakespearean Sonnet","Haiku","Free Verse","Custom","Terza Rima", "Vilanelle"]
 const CUSTOM_BR = ["Monorhyme", "Free Verse", "Custom"]
-// let RHYME_SCHEMES = {"Alternate Rhyme" : ["A", "B", "A", "B"],
-//                 "Ballade" : ["A", "B", "A", "B", "B", "C", "B", "C", "B","C","B","C"],
-//             "Coupled Rhymes (AABBCC)" :["A", "A"],
-//             "Monorhyme (AAA...)" : ["A"],
-//             "Encolsed Rhyme (ABBA)" : ["A", "B"],
-//             "Shakespearean Sonnet (ABAB CDCD EFEF GG)" :["A", "B", "C", "D", "E", "F", "G"],
-//             "Triplet (AAA)": ["A", "A", "A"],
-//             "Terza Rima (ABA BCB CDC DED EE)":["A", "B", "C", "D", "E"],
-//             "Limerick (AABBA)": ["A", "B"],
-//             "Vilanelle (ABA ABA ABA ABBA)" :["A", "B"],
-//             "HaikuNo Rhyme Scheme)" : [],
-//             "Free Verse(No Rhyme Scheme)" : [],
-//             "Custom" : []};
-// RHYME_SCHEMES = Object.freeze(RHYME_SCHEMES);
 
 
 window.onload=function(){
@@ -170,11 +156,11 @@ if(arrow){
 
 
 // popus
-let popup = document.getElementById("popup");
-let x = document.getElementById("myPopup");
-if (popup){
-   x.classList.toggle("show");
-}
+// let popup = document.getElementById("popup");
+// let x = document.getElementById("myPopup");
+// if (popup){
+//    x.classList.toggle("show");
+// }
 
 //change description based on rhyme scheme chosen
 // /Create
@@ -247,51 +233,14 @@ btn_show_all.addEventListener("click", ()=>{
 });
 };
 
-// fetch(window.origin+'/Rhyme')
-//       .then((response) => {
-//           return response.json();
-//       }).then((text)=> {
-//           console.log('GET response:');
-//           console.log(text); 
-//       });
-
 
 // MAIN FUNCTION---------------------------------------------------------------------Check Rhymes
-// let create_poem = document.getElementById("create_poem")
-// // /Write
-// if (create_poem){
-//    create_poem.addEventListener("click", ()=>{
-//       console.log("click detected")
-//       fetch(window.origin+"/Write",{
-//          method:"POST",
-//             headers: new Headers({
-//                "Content-Type":"application/json"
-//             }),
-//             cache:"no-cache",
-//             body: JSON.stringify({"request":"get rhyme scheme"})
-//          })
-//          // this is executed right after the fetch request
-//          .then((respone)=>{
-//             // if request fails
-//             if (respone.status !== 200){
-//                console.log("request status for syllables is"+respone.status);
-//                return;
-//             }
-//             // if request succeeds 
-//          respone.json().then((data)=>{ 
-//             console.log("rhyme scheme is",data);
-//             user_rhyme_scheme = data["rhyme scheme"];
-//             user_rhymes_for_custom = data["custom rhyme scheme"]
-//          })
-//       });
-//    })
-// }
 
 let check_rhyme_btn = document.getElementById("check_rhymes");
 if(check_rhyme_btn){
    check_rhyme_btn.addEventListener("click", ()=>{
       if(check_rhyme_btn.checked){
-         let send_to_server_rhymes = {"request":"get rhyme"};
+         let send_to_server_rhymes = {};
          let input = document.getElementsByClassName("line");
       console.log(input.length)
       for (let i=0; i<input.length; i++){
@@ -311,16 +260,17 @@ if(check_rhyme_btn){
          fetch(window.origin+"/Write",{
             method:"POST",
                headers: new Headers({
-                  "Content-Type":"application/json"
+                  "X-CSRFToken":document.getElementsByName("csrf_token")[0].value,
+                  "Content-Type":"application/json",
+                  "Request":"get rhyme"
                }),
                cache:"no-cache",
                body: JSON.stringify(send_to_server_rhymes)
             })
-            // this is executed right after the fetch request
             .then((respone)=>{
                // if request fails
                if (respone.status !== 200){
-                  console.log("request status for rhyme is"+respone.status);
+                  console.log("request status for rhyme is "+respone.status, respone.statusText,"response.json "+respone.json());
                   return;
                }
                // if request succeeds 
@@ -387,7 +337,7 @@ if(check_rhyme_btn){
    });
    }
 
-
+// /Write
 // CHECK SYLLABLES==============================================================================================================
 
 let check_syllables_btn= document.getElementById("display_syllable_count");
@@ -396,7 +346,7 @@ const LINE_AMOUNT = 101; //max is 100 lines
 if(check_syllables_btn){
    check_syllables_btn.addEventListener("click", ()=>{
    if(check_syllables_btn.checked){
-      let send_to_server_syllables = {"request":"get syllables"};
+      let send_to_server_syllables = {};
       let input = document.getElementsByClassName("line");
       for(let i =0; i<input.length; i++){
          send_to_server_syllables[input.item(i).id] = input.item(i).innerText;
@@ -405,12 +355,14 @@ if(check_syllables_btn){
          fetch(window.origin+"/Write",{
             method:"POST",
                headers: new Headers({
-                  "Content-Type":"application/json"
+                  "X-CSRFToken":document.getElementsByName("csrf_token")[0].value,
+                  "Content-Type":"application/json",
+                  "Request":"get syllables"
                }),
                cache:"no-cache",
                body: JSON.stringify(send_to_server_syllables)
             })
-            // this is executed right after the fetch request
+   
             .then((respone)=>{
                // if request fails
                if (respone.status !== 200){
@@ -425,11 +377,11 @@ if(check_syllables_btn){
                      console.log(input.item(j).id)
                      console.log(data[input.item(j).id])
                      if(data[input.item(j).id]){
+                        console.log("we re here")
                         let syllables = document.getElementById("syllables"+input.item(j).id)
-                        console.log(data[input.item(j).id] == 0)
                         for(k in data[input.item(j).id]){
-                        // console.log("data",data[input.item(j).id][j])
-                        if(data[input.item(j).id][j]==0){
+                        if(data[input.item(j).id][k]===0){
+                        console.log("entry", data[input.item(j).id][k])
                            let no_data_syllables = document.getElementById("no_data_syllables");
                            if(no_data_syllables.style.position!=="relative" && no_data_syllables.style.visibility!=="visible"){
                               no_data_syllables.style.cssText = "position: relative; visibility: visible";
@@ -465,7 +417,6 @@ let save_draft = document.getElementById("save_draft");
 let success_msg = document.getElementById("confirmation_msg_write");
 let success_msg_div = document.getElementById("msg_container");
 let close_success_msg = document.getElementById("hide");
-// const write_modal = new bootstrap.Modal(document.getElementById('write_modal'), {keyboard:false, backdrop:"static" });
 let save_btn = document.getElementById("save");
 let update_btn = document.getElementById("update");
 
@@ -475,7 +426,7 @@ if (save_draft){
    save_draft.addEventListener("click",()=>{
       let title = document.getElementById("title").innerText;
       let notepad = document.getElementById("notepad").innerText;
-      let send_to_server_draft = {"request":"save draft", "title":title, "notes":notepad};
+      let send_to_server_draft = {"title":title, "notes":notepad};
       let input = document.getElementsByClassName("line");
       for(let i =0; i<input.length; i++){
          send_to_server_draft[input.item(i).id] = input.item(i).innerText;
@@ -484,12 +435,13 @@ if (save_draft){
    fetch(window.origin+"/Write",{
          method:"POST",
          headers: new Headers({
-            "Content-Type":"application/json"
+            "X-CSRFToken":document.getElementsByName("csrf_token")[0].value,
+            "Content-Type":"application/json",
+            "Request":"save draft"
          }),
          cache:"no-cache",
          body: JSON.stringify(send_to_server_draft)
       })
-      // this is executed right after the fetch request
       .then((respone)=>{
          // if request fails
          if (respone.status !== 200){
@@ -520,12 +472,13 @@ if(save_btn){
    fetch(window.origin+"/Write",{
       method:"POST",
          headers: new Headers({
-            "Content-Type":"application/json"
+            "X-CSRFToken":document.getElementsByName("csrf_token")[0].value,
+            "Content-Type":"application/json",
+            "Request":"save another draft"
          }),
          cache:"no-cache",
          body: JSON.stringify({"request":"save another draft"})
       })
-      // this is executed right after the fetch request
       .then((respone)=>{
          console.log("saved another draft");
          // if request fails
@@ -551,12 +504,13 @@ if(update_btn){
    fetch(window.origin+"/Write",{
       method:"POST",
          headers: new Headers({
-            "Content-Type":"application/json"
+            "X-CSRFToken":document.getElementsByName("csrf_token")[0].value,
+            "Content-Type":"application/json",
+            "Request":"update draft"
          }),
          cache:"no-cache",
          body: JSON.stringify({"request":"update draft"})
       })
-      // this is executed right after the fetch request
       .then((respone)=>{
          // if request fails
          if (respone.status !== 200){
@@ -582,115 +536,12 @@ if (close_success_msg){
    })
 }
 
-let draft_resume = document.getElementsByClassName("resume");
-let draft_delete = document.getElementsByClassName("delete");
-
-if (draft_resume){
-   for(let i =0; i<draft_resume.length; i++){
-   draft_resume[i].addEventListener("click", ()=>{
-      poem_draft_num = String(draft_resume.item(i).getAttribute("name"));
-      send_to_server_draft_resume = {};
-      send_to_server_draft_resume["draft_resume"] = draft_resume.item(i).getAttribute("name");
-      console.log(send_to_server_draft_resume)
-      fetch(window.origin+"/Account/Draft",{
-         method:"POST",
-            headers: new Headers({
-               "Content-Type":"application/json"
-            }),
-            cache:"no-cache",
-            body: JSON.stringify(send_to_server_draft_resume)
-         })
-         // this is executed right after the fetch request
-         .then((respone)=>{
-            // if request fails
-            if (respone.status !== 200){
-               console.log("request status for resume draft is"+respone.status);
-               return;
-            }
-            // if request succeeds 
-         respone.json().then((data)=>{
-            // redirect user to write
-            window.location.replace(window.origin+("/Write"));
-          });
-   });
-
-   })
-}
-}
-if (draft_delete){
-   for(let i =0; i<draft_delete.length; i++){
-      draft_delete[i].addEventListener("click", ()=>{
-      send_to_server_draft_delete = {};
-      send_to_server_draft_delete["draft_delete"] = draft_delete.item(i).getAttribute("name");
-      console.log(send_to_server_draft_delete)
-      poem_draft_num = draft_delete.item(i).getAttribute("name");
-      console.log(poem_draft_num)
-         if (document.cookie !== "draft_hide=true"){
-            console.log(document.cookie)
-            const draft_modal = new bootstrap.Modal(document.getElementById('draft_modal'), {keyboard:false, backdrop:"static" });
-            draft_modal.show();
-            let delete_btn = document.getElementById("delete_btn");
-            let stop_showing_modal = document.getElementById("dont_show_again")
-            delete_btn.addEventListener("click", ()=>{
-               if(stop_showing_modal.checked){
-                  document.cookie = "draft_hide = true"
-               }
-               draft_modal.hide();
-               fetch(window.origin+"/Account/Draft",{
-                  method:"POST",
-                     headers: new Headers({
-                        "Content-Type":"application/json"
-                     }),
-                     cache:"no-cache",
-                     body: JSON.stringify(send_to_server_draft_delete)
-                  })
-                  // this is executed right after the fetch request
-                  .then((respone)=>{
-                     // if request fails
-                     if (respone.status !== 200){
-                        console.log("request status for delete draft is"+respone.status);
-                        return;
-                     }
-                     // if request succeeds 
-                  respone.json().then((data)=>{
-                     document.getElementsByName( draft_delete.item(i).getAttribute("name"))[0].style.visibility = "hidden";
-                     document.getElementsByName( draft_delete.item(i).getAttribute("name"))[0].style.position = "absolute";
-                   });
-            });
-            })
-         }
-         else{
-      fetch(window.origin+"/Account/Draft",{
-         method:"POST",
-            headers: new Headers({
-               "Content-Type":"application/json"
-            }),
-            cache:"no-cache",
-            body: JSON.stringify(send_to_server_draft_delete)
-         })
-         // this is executed right after the fetch request
-         .then((respone)=>{
-            // if request fails
-            if (respone.status !== 200){
-               console.log("request status for delete draft is"+respone.status);
-               return;
-            }
-            // if request succeeds 
-         respone.json().then((data)=>{
-            document.getElementsByName( draft_delete.item(i).getAttribute("name"))[0].style.visibility = "hidden";
-            document.getElementsByName( draft_delete.item(i).getAttribute("name"))[0].style.position = "absolute";
-          });
-         });
-         
-}
-   })
-}
-}
-let next = document.getElementById("next");
-if(next){
-   next.addEventListener("click",()=>{
+// /if user wants to save poem
+let save_poem_btn = document.getElementById("save_poem");
+if(save_poem_btn){
+   save_poem_btn.addEventListener("click",()=>{
       let title = document.getElementById("title").innerText;
-      let send_to_server_format = {"request":"format", "title":title};
+      let send_to_server_format = {"title":title};
       let input = document.getElementsByClassName("line");
       for(let i =0; i<input.length; i++){
          send_to_server_format[input.item(i).id] = input.item(i).innerText;
@@ -699,12 +550,13 @@ if(next){
    fetch(window.origin+"/Write",{
          method:"POST",
          headers: new Headers({
-            "Content-Type":"application/json"
+            "X-CSRFToken":document.getElementsByName("csrf_token")[0].value,
+            "Content-Type":"application/json",
+            "Request":"format"
          }),
          cache:"no-cache",
          body: JSON.stringify(send_to_server_format)
       })
-      // this is executed right after the fetch request
       .then((respone)=>{
          // if request fails
          if (respone.status !== 200){
@@ -721,57 +573,153 @@ if(next){
 });
 }
 
-if (window.location == window.origin+"/Format"){
-   fetch(window.origin+"/Format",{
-      method:"POST",
-         headers: new Headers({
-            "Content-Type":"application/json"
-         }),
-         cache:"no-cache",
-         body: JSON.stringify({"request":"get rhyme scheme"})
-      })
-      // this is executed right after the fetch request
-      .then((respone)=>{
-         // if request fails
-         if (respone.status !== 200){
-            console.log("request status for format is"+respone.status);
-            return;
-         }
-         // if request succeeds 
-      respone.json().then((data)=>{
-         data["response"] = rhyme_scheme
-         if (rhyme_scheme == "Alternate Rhyme (ABAB)"){
-            let hshs = document.getElementById("B0");
-            let lb = document.createElement("br");
-            insertAfter(lb, hshs)
-         }
-      });
-});
+// /Account/Draft
+let draft_resume = document.getElementsByClassName("resume");
+let draft_delete = document.getElementsByClassName("delete");
+
+if (draft_resume){
+   for(let i =0; i<draft_resume.length; i++){
+   draft_resume[i].addEventListener("click", ()=>{
+      poem_draft_num = String(draft_resume.item(i).getAttribute("name"));
+      send_to_server_draft_resume = {};
+      send_to_server_draft_resume["draft_resume"] = draft_resume.item(i).getAttribute("name");
+      console.log(send_to_server_draft_resume)
+      fetch(window.origin+"/Account/Draft",{
+         method:"POST",
+            headers: new Headers({
+               "X-CSRFToken":document.getElementsByName("csrf_token")[0].value,
+               "Content-Type":"application/json",
+            }),
+            cache:"no-cache",
+            body: JSON.stringify(send_to_server_draft_resume)
+         })
+
+         .then((respone)=>{
+            // if request fails
+            if (respone.status !== 200){
+               console.log("request status for resume draft is"+respone.status);
+               return;
+            }
+            // if request succeeds 
+         respone.json().then((data)=>{
+            // redirect user to write
+            window.location.replace(window.origin+("/Write")+"?draft=draft");
+          });
+   });
+
+   })
 }
+}
+if (draft_delete){
+   for(let i =0; i<draft_delete.length; i++){
+      let selectobject= document.getElementById("draft_select")
+      draft_delete[i].addEventListener("click", ()=>{
+      send_to_server_draft_delete = {};
+      send_to_server_draft_delete["draft_delete"] = draft_delete.item(i).getAttribute("name");
+      console.log(send_to_server_draft_delete)
+      poem_draft_num = draft_delete.item(i).getAttribute("name");
+      console.log(poem_draft_num)
+      // determine if to show modal or not
+      const draft_modal = new bootstrap.Modal(document.getElementById('draft_modal'), {keyboard:false, backdrop:"static" });
+         if (document.cookie !== "draft_hide=true"){
+            console.log(document.cookie)
+            draft_modal.show();  
+            let delete_btn = document.getElementById("delete_btn");
+            let stop_showing_modal = document.getElementById("dont_show_again")
+            delete_btn.addEventListener("click", ()=>{
+               if(stop_showing_modal.checked){
+                  document.cookie = "draft_hide = true"
+               }
+               draft_modal.hide();
+               fetch(window.origin+"/Account/Draft",{
+                  method:"POST",
+                     headers: new Headers({
+                        "X-CSRFToken":document.getElementsByName("csrf_token")[0].value,
+                        "Content-Type":"application/json"
+                     }),
+                     cache:"no-cache",
+                     body: JSON.stringify(send_to_server_draft_delete)
+                  })
+         
+                  .then((respone)=>{
+                     // if request fails
+                     if (respone.status !== 200){
+                        console.log("request status for delete draft is"+respone.status);
+                        return;
+                     }
+                     // if request succeeds 
+                  respone.json().then((data)=>{
+                     for (let j=0; j<selectobject.length; j++) {
+                        if (selectobject.options[j].value == `#${data["draft_title"]}/${data["poem_num"]}/${data["draft_num"]}`)
+                           selectobject.remove(j);
+                     }
+                     document.getElementsByName( draft_delete.item(i).getAttribute("name"))[0].style.visibility = "hidden";
+                     document.getElementsByName( draft_delete.item(i).getAttribute("name"))[0].style.position = "absolute";
+                     if(selectobject.length==1){
+                        window.location.reload();
+                     }
+                   });
+            });
+            })
+         }
+         else{
+      fetch(window.origin+"/Account/Draft",{
+         method:"POST",
+            headers: new Headers({
+               "X-CSRFToken":document.getElementsByName("csrf_token")[0].value,
+               "Content-Type":"application/json"
+            }),
+            cache:"no-cache",
+            body: JSON.stringify(send_to_server_draft_delete)
+         })
+
+         .then((respone)=>{
+            // if request fails
+            if (respone.status !== 200){
+               console.log("request status for delete draft is"+respone.status);
+               return;
+            }
+            // if request succeeds 
+         respone.json().then((data)=>{
+            for (let j=0; j<selectobject.length; j++) {
+               if (selectobject.options[j].value == `#${data["draft_title"]}/${data["poem_num"]}/${data["draft_num"]}`)
+                  selectobject.remove(j);
+            }
+            document.getElementsByName( draft_delete.item(i).getAttribute("name"))[0].style.visibility = "hidden";
+            document.getElementsByName( draft_delete.item(i).getAttribute("name"))[0].style.position = "absolute";
+            if(selectobject.length==1){
+               window.location.reload();
+            }
+          });
+         });
+}
+   })
+}
+}
+
 
 // /Format
 if(window.location == window.origin+"/Format"){
 
 let save = document.getElementById("save_poem");
-let poem_div = document.getElementById("poem");
+// let poem_div = document.getElementById("poem");
 
 save.addEventListener("click",()=>{
-   let send_to_server_poem = {"request":"save poem"};
+   let send_to_server_poem = {};
    let lines = document.getElementsByClassName("edit_line");
-   send_to_server_poem["title"]= document.getElementById("poem_title").innerText;
-   console.log(document.getElementById("poem_title").innerText)
    for (let i =0;i<lines.length;i++){
       send_to_server_poem[lines.item(i).id]= lines.item(i).innerText;
    }
    fetch(window.origin+"/Format",{
       method:"POST",
          headers: new Headers({
-            "Content-Type":"application/json"
+            "X-CSRFToken":document.getElementsByName("csrf_token")[0].value,
+            "Content-Type":"application/json",
+            "Request":"save poem"
          }),
          cache:"no-cache",
          body: JSON.stringify(send_to_server_poem)
       })
-      // this is executed right after the fetch request
       .then((respone)=>{
          // if request fails
          if (respone.status !== 200){
@@ -809,18 +757,21 @@ if (show_poem){
 }
 let delete_poem = document.getElementsByClassName("delete_poem")
 if (delete_poem){
+   let selectobject = document.getElementById("poem_select");
    for(let i=0; i<delete_poem.length; i++){
       delete_poem.item(i).addEventListener("click", ()=>{
-         let send_to_server_poem_delete = {"request":"delete_poem", "poem_id":delete_poem.item(i).getAttribute("name")}
+         let send_to_server_poem_delete = {"poem_id":document.getElementsByClassName("poem count")[i].getAttribute("value")}
       fetch(window.origin+"/Account/Poem",{
          method:"POST",
             headers: new Headers({
+               "X-CSRFToken":document.getElementsByName("csrf_token")[0].value,
+               "Request":"delete poem",
                "Content-Type":"application/json"
             }),
             cache:"no-cache",
             body: JSON.stringify(send_to_server_poem_delete)
          })
-         // this is executed right after the fetch request
+
          .then((respone)=>{
             // if request fails
             if (respone.status !== 200){
@@ -830,8 +781,14 @@ if (delete_poem){
             // if request succeeds 
          respone.json().then((data)=>{
             if (data["response"] === "successful"){
-               document.getElementById("container"+data["poem_title"]+"/"+data["poem_num"]).style.cssText = "position: absolute; visibility:hidden;";
+               for (let i=0; i<selectobject.length; i++) {
+                  if (selectobject.options[i].value == `#${data["poem_title"]}/${data["poem_num"]}`)
+                     selectobject.remove(i);
+               }
                document.getElementById(data["poem_title"]+"/"+data["poem_num"]).style.cssText = "position: absolute; visibility: hidden";
+               if(selectobject.length==1){
+                  window.location.reload();
+               }
             }
          });
       });
@@ -869,7 +826,7 @@ if (search_btn){
             cache:"no-cache",
             body: JSON.stringify(send_to_server_poem_search)
          })
-         // this is executed right after the fetch request
+
          .then((respone)=>{
             // if request fails
             if (respone.status !== 200){
@@ -928,7 +885,7 @@ if (random_poem){
             cache:"no-cache",
             body: JSON.stringify({"request":"random"})
          })
-         // this is executed right after the fetch request
+
          .then((respone)=>{
             // if request fails
             if (respone.status !== 200){

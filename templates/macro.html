@@ -1,0 +1,33 @@
+
+{% macro form_field(name, class, placeholder)%}
+
+{{ name(class=class, placeholder=placeholder, autofocus="on", autocomplete="off", **kwargs) }}
+
+{%endmacro%}
+
+<!-- ============================================================================================================= -->
+
+{% macro err_msg(name)%}
+
+{% for i in name.errors %}
+<p class="error_msg">{{i}}</p>
+{% endfor %}
+
+{%endmacro%}
+
+<!-- =========================================================================================================== -->
+
+
+{% macro login_required_msg() %}
+
+{% with messages = get_flashed_messages() %}
+    {% if messages %}  
+        {%for msg in messages%}
+        <p class="error_msg">{{msg}}</p>
+        {%endfor%}
+    {% endif%}
+{%endwith%}
+
+{%endmacro%}
+
+<!-- ===================================================================================================================== -->

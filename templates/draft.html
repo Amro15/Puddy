@@ -24,27 +24,31 @@ aria-hidden="true">
 </div>
 </div>
 <h1>My Drafts</h1>
-{%if data_arr|length != 0%}
+{%if drafts|length != 0%}
 <div class="input-group mb-3" id="select_draft_div">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <label class="input-group-text" for="draft_select">Quick Navigation Menu
     </label>
     <select class="form-select"  id="draft_select"  onchange="location = this.value;">
         <option selected disabled>Title/Poem number/Draft number</option>
-        {% for i in range(data_arr|length) %}
-        <option value="#{{data_arr[i].get_title()}}/{{data_arr[i].poem_num}}/{{data_arr[i].draft_num}}">{{data_arr[i].get_title()}}/{{data_arr[i].poem_num}}/{{data_arr[i].draft_num}}</option>
+        {% for i in drafts %}
+        <option value="#{{i.title}}/{{i.poem_count}}/{{i.draft_count}}">{{i.title}}/{{i.poem_count}}/{{i.draft_count}}</option>
         {% endfor%}
     </select>
 </div>
 <ul class="flex-container">
-{% for i in range(data_arr|length) %}
-<li class = "flex-item" id="{{data_arr[i].get_title()}}/{{data_arr[i].poem_num}}/{{data_arr[i].draft_num}}" name="{{data_arr[i].poem_num}};{{data_arr[i].draft_num}}">
-<p class="draft_title">{{data_arr[i].get_title()}}</p>
-<p>Poem num : {{data_arr[i].poem_num}}</p>
-<p>Draft num : {{data_arr[i].draft_num}}</p>
-<p>Rhyme scheme : {{data_arr[i].get_rhyme_scheme()}}</p>
-<p>Date : {{data_arr[i].get_time()}}</p>
-<button class="button resume" name="{{data_arr[i].poem_num}};{{data_arr[i].draft_num}}" >Resume</button>
-<button class="button delete" name="{{data_arr[i].poem_num}};{{data_arr[i].draft_num}}" >Delete</button>
+{% for i in drafts %}
+<li class = "flex-item" id="{{i.title}}/{{i.poem_count}}/{{i.draft_count}}" name="{{i.poem_count}};{{i.draft_count}}">
+<p class="draft_title">{{i.title}}</p>
+<p>Poem num : {{i.poem_count}}</p>
+<p>Draft num : {{i.draft_count}}</p>
+<p>Rhyme scheme : {{i.rhyme_scheme}}</p>
+<p>Creation Date : {{i.save_date.strftime("%d-%b-%Y at %I:%M%p")}}</p>
+{% if i.edit_date %}
+<p>Edit Date : {{i.edit_date.strftime("%d-%b-%Y at %I:%M%p")}}</p>
+{% endif %}
+<button class="button resume" name="{{i.poem_count}};{{i.draft_count}}" >Resume</button>
+<button class="button delete" name="{{i.poem_count}};{{i.draft_count}}" >Delete</button>
 </li>
 {% endfor %}
 </ul>

@@ -310,9 +310,6 @@ background-color: rgb(143, 143, 143) ;
   margin: 30px 0px 40px;
   text-align: center;
 }
-#draft_header{
-  float: left;
-}
 .title_symbol{
   padding: 10px 0px 0px 0px!important;
 }
@@ -482,7 +479,7 @@ span[contenteditable]:empty::before {
       margin-right: 0px;
   }
 }
-#next, #save_draft{
+#save_draft, #save_poem{
   width:300px;
   padding: 10px; 
   margin-top: 10px;
@@ -495,7 +492,7 @@ span[contenteditable]:empty::before {
   position: absolute;
 }
 #hide{
-  float: left;
+  width: 100px
 }
 
 /* --------------------------------------------- */
@@ -625,7 +622,6 @@ span[contenteditable]:empty::before {
   min-height: 310px;
   margin-top: 10px;
   width: 30%;
-  height: 335px;
   flex-basis:content;
   color: white;
   font-size: 17px;

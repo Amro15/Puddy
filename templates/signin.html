@@ -1,4 +1,4 @@
-{% from 'macro.html' import form_field, err_msg %}
+{% from 'macro.html' import form_field, err_msg, login_required_msg %}
 
 
 {% extends "layout.html" %}
@@ -25,32 +25,11 @@
   </div>
     {{ err_msg(form.username) }}
     {{ err_msg(form.password) }}
-    {{ login_required_msg }}
+    {{ login_required_msg() }}
     <p class="confirmation_msg">{{success_msg}}</p>
     <div class="login-footer">
       <p>Not a member yet? <a href="/Register">Register</a></p>
     </div>
   </form>
 
-<!-- <form class = "form"  action="/Signin" method="post">
-    <h2 class="login-header">Sign In</h2>
-        
-    
-    <div class="container">
-    <input type="text" class="login-input" placeholder="Username" name="username"  minlength="3" value="{{username}}" required autofocus >
-    <input type= "password" class="login-input" id="password" placeholder="Password" minlength="8" name="password" value="{{password}}" required >
-    <div class=" showPassContainer">
-      <label for="showPassBtn" >Show Password</label>
-      <input type="checkbox" id="showPassBtn">
-      </div>
-        
-    <button type="submit" class="button" >Sign in</button>
-    <p class="error_msg">{{ error_msg }}</p>
-    <p id="confirmation_msg"> {{ confirmation_msg }}</p>
-    
-    <div class="login-footer">
-    <p>Not a member yet? <a href="/Register">Register</a></p>
-    </div>
-</div>
-</form > -->
 {% endblock %}

@@ -12,38 +12,27 @@ body{
 
 {% block main%}
 <h1>My Poems</h1>
-{%if data_arr|length != 0%}
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+{%if user_poems|length != 0%}
 <div class="input-group mb-3" id="select_draft_div">
-    <label class="input-group-text" for="draft_select">Quick Navigation Menu
+    <label class="input-group-text" for="poem_select">Quick Navigation Menu
     </label>
-    <select class="form-select"  id="draft_select"  onchange="location = this.value;">
-        <option selected disabled>Title/Poem number/Draft number</option>
-        {% for i in range(data_arr|length) %}
-        <option value="#{{data_arr[i].get_title()}}/{{data_arr[i].get_poem_num()}}">{{data_arr[i].get_title()}}/{{data_arr[i].get_poem_num()}}</option>
+    <select class="form-select"  id="poem_select"  onchange="location = this.value;">
+        <option selected disabled>Title/Poem number</option>
+        {% for i in user_poems %}
+        <option value="#{{i.title}}/{{i.poem_count}}">{{i.title}}/{{i.poem_count}}</option>
         {% endfor%}
     </select>
 </div>
 <ul class="flex-container">
-{% for i in range(data_arr|length) %}
-<li class = "flex-item" name="{{data_arr[i].get_poem_num()}}" id="{{data_arr[i].get_title()}}/{{data_arr[i].get_poem_num()}}">
-<p class="draft_title">{{data_arr[i].get_title()}}</p>
-<p>Poem num : {{data_arr[i].get_poem_num()}}</p>
-<p>Rhyme scheme : {{data_arr[i].get_rhyme_scheme()}}</p>
-<p>Date : {{data_arr[i].get_time()}}</p>
-<button class="button show_poem" id="{{data_arr[i].get_title()}}/{{data_arr[i].get_poem_num()}}">Show</button>
-<button class="button delete_poem" name="{{data_arr[i].poem_id}}" value="delete" >Delete Poem</button>
-<div class="poem_container_account" id="container{{data_arr[i].get_title()}}/{{data_arr[i].get_poem_num()}}">
-    <div id ="account_poem">
-    <p id="poem_title" class="edit_line">{{data_arr[i].get_title()}}</p>
-    <p id="poem_author">By {{username}}</p>
-{%for key, value in data_arr[i].get_lines().items()%}
-<p id="{{key}}" class="edit_line" >{{value}}</p>
-    {% if data_arr[i].get_line_breaks() and ((loop.index%data_arr[i].get_line_breaks()) == 0)%}
-    <br>
-    <br>
-    {%endif%}
-{%endfor%}
-</div>
+{% for i in user_poems %}
+<li class = "flex-item" name="{{i.poem_count}}" id="{{i.title}}/{{i.poem_count}}">
+<p class="draft_title">{{i.title}}</p>
+<p class="poem count" value="{{i.poem_count}}">Poem num : {{i.poem_count}}</p>
+<p>Rhyme scheme : {{i.rhyme_scheme}}</p>
+<p>Date : {{i.save_date}}</p>
+<button class="button show_poem" id="{{i.title}}/{{i.poem_count}}">Show</button>
+<button class="button delete_poem" name="{{i.poem_id}}" value="delete" >Delete Poem</button>
 </div>
 </li>
 {% endfor %}

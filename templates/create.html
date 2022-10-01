@@ -11,6 +11,7 @@
 {% block main %}
 <h1>Create</h1>
 <form class = "form" action="/Create" method="post">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 <div class="input-group mb-3">
     <label class="input-group-text" for="rhyme_schemes">Rhymes</label>
     <select class="form-select" id="rhyme_schemes" name="rhyme_schemes_select_menu">
