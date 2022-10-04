@@ -7,33 +7,21 @@ import sqlite3
 from flask import redirect, request, session, g
 from functools import wraps
 from app import app
+import prosodic as p
+
+def check_meter(sentence):
+    temp = []
+    text = p.Text(sentence)
+    text.parse()
+    for parse in text.bestParses():
+        temp.append(parse)
+    return temp
 
 def is_safe_url(target):
     ref_url = urlparse(request.host_url)
     test_url = urlparse(urljoin(request.host_url, target))
     return test_url.scheme in ('http', 'https') and \
            ref_url.netloc == test_url.netloc
-# configure sqlite3
-DATABASE = "database.db"
-def get_db():
-
-    db = getattr(g, '_database', None)
-    if db is None:
-        db = g._database = sqlite3.connect(DATABASE)
-        db.row_factory = sqlite3.Row
-    return db
-
-@app.teardown_appcontext
-def close_connection(exception):
-    db = getattr(g, '_database', None)
-    if db is not None:
-        db.close()
-
-def query_db(query, args=(), one=False):
-    cur = get_db().execute(query, args)
-    rv = cur.fetchall()
-    cur.close()
-    return (rv[0] if rv else None) if one else rv
 
 #configure file uploads
 UPLOAD_FOLDER = 'static/'
@@ -43,28 +31,6 @@ app.config['MAX_CONTENT_LENGTH'] = 8 * 1000 * 1000
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-
-# rhyming fucntions
-# def rhymes(word1, word2):
-#     url = ("https://api.datamuse.com/words?rel_rhy="+word2)
-#     response = urllib.request.urlopen(url)
-#     data = response.read()
-#     rhymes_dict = json.loads(data)
-#     for i in rhymes_dict:
-#         if word1 == i["word"]:
-#             return True
-#     return False
-
-# def near_rhymes(word1, word2):
-#     url = ("https://api.datamuse.com/words?rel_nry="+word2)
-#     response = urllib.request.urlopen(url)
-#     data = response.read()
-#     near_rhymes_dict = json.loads(data)
-#     for i in near_rhymes_dict:
-#         if word1 == i["word"]:
-#             return True
-#     return False
 
 
 # rhyming functions
@@ -133,56 +99,7 @@ def count_syllables(word_s):
         count = len([p for p in phones0 if p[-1].isdigit()]) 
     return count
 
-# repeat a given pattern x amount of times by changing the elements example ["A","B"] repeat 2 change by 1 ["A","B","B","C","C","D"]
-def repeat_pattern(pattern, change_by, repeats, envoi):
-    print("repeat call")
-    if change_by == None and repeats == None:
-        return pattern
-    temp_pattern = []
-    return_pattern_arr = []
-    for i in pattern:
-        temp_pattern.append(ord(i))
-    temp_pattern_len = len(temp_pattern)
-    ctr = change_by
-    for i in range(int(repeats)+1):
-        if i>1 and change_by!=0:
-            ctr+=change_by
-        for j in range(temp_pattern_len):
-            if i!=0:
-                temp_pattern.append(temp_pattern[j]+ctr)
-    for i in range(len(temp_pattern)):
-        return_pattern_arr.append(chr(temp_pattern[i]))
-    if envoi != None:
-        for i in envoi:
-            return_pattern_arr.append(i)
-    return return_pattern_arr
 
-# converst ["A","B","A"] to ["A0","B0","A1"]
-def get_id(letter_array):
-    print("get id call")
-    letters = {}
-    return_arr = []
-    for i in range(len(letter_array)):
-        if letter_array[i] not in letters:
-            letters[letter_array[i]] = 0
-            return_arr.append(letter_array[i]+str(0))
-        else:
-            letters[letter_array[i]]+=1
-            return_arr.append(letter_array[i]+str(letters[letter_array[i]]))
-    return return_arr
-
-# returns which lines to add a break after ["A4","B3"]....
-def get_line_breaks(arr,frequency):
-    line_breaks = []
-    if not frequency or frequency == None:
-        return
-    for i in range(len(arr)):
-        if i%int(frequency) == 0 and i!=0:
-            line_breaks.append(arr[i-1])
-    return line_breaks
-
-def str_to_class(classname):
-    return getattr(sys.modules[__name__], classname)
 
 # obj used in  /Create /write
 rhyme_schemes = [
@@ -202,6 +119,8 @@ rhyme_schemes = [
 
 CUSTOM_BR = ["Monorhyme", "Free Verse", "Custom"]
 
+def str_to_class(classname):
+    return getattr(sys.modules[__name__], classname)
 # Classes
 class rhyme_scheme:
     def __init__(self, _name, _rhymes, _repeats, _increment_by, _envoi, _line_break_frequency):
@@ -212,14 +131,12 @@ class rhyme_scheme:
         self.envoi = _envoi
         self.line_break_frequency = _line_break_frequency
     def get_ids(self):
-        print("class func get ids call")
         print("repeats and increments and rhymes",self.repeats, self.increment_by, self.rhymes)
         temp = 0
-        # repeat pattern func defined above but cannot use inside object function or it will result in multiple calls of the function for each letter
+        # repeat pattern func present at bottom of page but cannot use inside object function or it will result with the function being called once for for each letter
         if self.repeats == None and self.increment_by == None:
             temp = self.rhymes
         else:
-            print("else")
             temp_pattern = []
             return_pattern_arr = []
             for i in self.rhymes:
@@ -238,7 +155,7 @@ class rhyme_scheme:
                 for i in self.envoi:
                     return_pattern_arr.append(i)
             temp = return_pattern_arr
-        # get ids func defined above
+        # get ids func defined below
         letters = {}
         return_arr = []
         for i in range(len(temp)):
@@ -253,7 +170,7 @@ class rhyme_scheme:
         # store value in obj to not call the func again inside get_br
         return return_arr
         
-
+# name, rhymes, repeats, increment_by, envoi, line_break_frequency
 Monorhyme = rhyme_scheme("Monorhyme", ["A"], 1, 0,None, None) 
 Coupled_Rhyme = rhyme_scheme("Coupled Rhyme",["A","A"], 1, 1, None, 2)
 Triplet = rhyme_scheme("Triplet", ["A","A","A"], 1, 1, None, 3)
@@ -266,3 +183,41 @@ Terza_Rima = rhyme_scheme("Terza_Rima", ["A","B","A"], 3, 1, ["E","E"], 3)
 Limerick = rhyme_scheme("Limerick", ["A","A","B","B","A"], None, None, None, None)
 Haiku = rhyme_scheme("Haiku", ["1","2","3"], None, None, None, None)
 
+
+# # repeat a given pattern x amount of times by changing the elements example ["A","B"] repeat 2 change by 1 ["A","B","B","C","C","D"]
+# def repeat_pattern(pattern, change_by, repeats, envoi):
+#     print("repeat call")
+#     if change_by == None and repeats == None:
+#         return pattern
+#     temp_pattern = []
+#     return_pattern_arr = []
+#     for i in pattern:
+#         temp_pattern.append(ord(i))
+#     temp_pattern_len = len(temp_pattern)
+#     ctr = change_by
+#     for i in range(int(repeats)+1):
+#         if i>1 and change_by!=0:
+#             ctr+=change_by
+#         for j in range(temp_pattern_len):
+#             if i!=0:
+#                 temp_pattern.append(temp_pattern[j]+ctr)
+#     for i in range(len(temp_pattern)):
+#         return_pattern_arr.append(chr(temp_pattern[i]))
+#     if envoi != None:
+#         for i in envoi:
+#             return_pattern_arr.append(i)
+#     return return_pattern_arr
+
+# # converst ["A","B","A"] to ["A0","B0","A1"]
+# def get_id(letter_array):
+#     print("get id call")
+#     letters = {}
+#     return_arr = []
+#     for i in range(len(letter_array)):
+#         if letter_array[i] not in letters:
+#             letters[letter_array[i]] = 0
+#             return_arr.append(letter_array[i]+str(0))
+#         else:
+#             letters[letter_array[i]]+=1
+#             return_arr.append(letter_array[i]+str(letters[letter_array[i]]))
+#     return return_arr

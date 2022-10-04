@@ -352,36 +352,37 @@ def create():
 @login_required
 def write():
     if request.method == "GET":
-        print("get write")
-        print(request.args.get("rs"))
         # check if user has a custom background
         if os.path.exists("static/user_background.jpg"):
             user_background = "/static/user_background.jpg"
         else:
             user_background = "/static/create_write_background.jpg"
-        if request.args.get("draft"):
-            draft_session = True
+        if request.args.get("rs") :
+            write_session = "default"
+            print("is rs")
+            user_rhyme_scheme = session.get("rhyme scheme", None)
+            rhyme_scheme_class = str_to_class(request.args.get("rs").replace(" ", "_"))
+            print("rhyme scheme class rhyme",rhyme_scheme_class.rhymes)
+            return render_template("write.html", rhyme_schemes=rhyme_scheme_class, user_background=user_background, user_rhyme_scheme=user_rhyme_scheme
+        ,write_session = write_session)
+
+        elif request.args.get("draft"):
+            write_session = "draft"
+            print("is draft")
             poem_num = session.get("draft_poem_num", None)
             draft_num = session.get("draft_num", None)
             # turn it into a poem class 
             draft = Drafts.query.filter_by(user_id=current_user.id, draft_count=draft_num, poem_count=poem_num).first()
             draft_lines = Drafts_Lines.query.filter_by(draft_id=draft.draft_id).all()
-            rhyme_scheme_class= None
-            user_rhyme_scheme = None
+            return render_template("write.html", user_background=user_background, write_session = write_session, draft=draft, draft_lines=draft_lines)
 
-        elif request.args.get("rs") :
-            draft_session = False
-            print("is rs")
-            user_draft = None
-            user_rhyme_scheme = session.get("rhyme scheme", None)
-            rhyme_scheme_class = str_to_class(request.args.get("rs").replace(" ", "_"))
-            print("rhyme scheme class rhyme",rhyme_scheme_class.rhymes)
-            draft = None
-            draft_lines = None
-        else:
-            return redirect(url_for("create"))
-        return render_template("write.html", rhyme_schemes=rhyme_scheme_class, user_background=user_background, user_rhyme_scheme=user_rhyme_scheme
-        ,draft_session = draft_session, draft=draft, draft_lines=draft_lines)
+        elif request.args.get("poem"):
+            print("is poem")
+            write_session = "poem"
+            poem = Poems.query.filter_by(user_id=current_user.id, poem_id = request.args.get("poem")).first()
+            poem_lines = Poems_Lines.query.filter_by(poem_id=poem.poem_id).all()
+            return render_template("write.html",user_background=user_background, write_session = write_session, poem=poem, poem_lines=poem_lines)
+
 # ===================================================================================================================================
     if request.method == "POST":
         print("is post")
@@ -542,6 +543,15 @@ def write():
                 print("server response is: ", server_response_syllables)
                 syllables_resp = make_response((server_response_syllables), 200)
                 return syllables_resp
+
+            # server_request METER ===================================================================================================================
+            if server_request == "check meter":
+                server_meter_response = {}
+                for key, value in req.items():
+                    server_meter_response[key]=str(check_meter(value))
+                print(server_meter_response)
+                return make_response(server_meter_response, 200)
+                
             # server_request DRAFT ===============================================================================================================
             if server_request =="save draft":
                 # save initial request because following requests will only have instructions on what to do next 
@@ -616,6 +626,7 @@ def write():
                     db.session.add(new_draft_lines)
                     db.session.commit()
                 return make_response({"response":"saved duplicate"}, 200)
+
             # update the draft the user is in currently 
             if server_request == "update draft":
                 print("server_request is upd draft")
@@ -633,10 +644,11 @@ def write():
                 updated_draft.edit_date = datetime.now()
                 db.session.commit()
                 for key, value in global_initial_request.items():
-                    updated_draft_lines = Drafts_Lines.query.filter_by(draft_id=Drafts.query.filter_by(user_id=current_user.id, draft_count=session.get("draft_num",None), poem_count=global_poem_num).first().draft_id, line_num=key).first()
+                    updated_draft_lines = Drafts_Lines.query.filter_by(draft_id=updated_draft.draft_id, line_num=key).first()
                     updated_draft_lines.line_text = value
                     db.session.commit()
                 return make_response({"response":"updated draft"}, 200)
+
             # REQUEST FORMAT ============================================================================================================
             if  server_request == "format":
                     poem_title = req["title"]
@@ -656,6 +668,18 @@ def write():
                         db.session.add(user_poem_lines)
                         db.session.commit()
                     return make_response({"response":"successful"})
+            # REQUEST UPDATE POEM====================================================================================================================================================================================
+            if server_request == "update poem":
+                print(req["poem_id"])
+                updated_poem = Poems.query.filter_by(user_id=current_user.id, poem_id=req["poem_id"]).first()
+                updated_poem.title = req["title"]
+                del req["title"]; del req["poem_id"]
+                updated_poem.edit_date = datetime.now()
+                for key, value in req.items():
+                    updated_poem_lines = Poems_Lines.query.filter_by(poem_id=updated_poem.poem_id, line_num=key).first()
+                    updated_poem_lines.line_text = value
+                db.session.commit()
+                return make_response({"response":"updated poem"}, 200)
 
 @app.route("/Format", methods=["POST", "GET"])
 def format():
@@ -779,3 +803,12 @@ def poems():
             poem.delete()
             db.session.commit()
             return make_response({"response":"successful", "poem_title":poem_title,"poem_num":poem_num})
+
+@app.route("/Account/Poem/Display", methods=["POST", "GET"])
+def display():
+    if request.method == "GET":
+        poem = Poems.query.filter_by(user_id=current_user.id, poem_id=request.args.get("pid")).first()
+        poem_lines = Poems_Lines.query.filter_by(poem_id= poem.poem_id).all()
+        return render_template("display.html", poem=poem, poem_lines=poem_lines, username=current_user.username)
+    if request.method == "POST":
+        pass

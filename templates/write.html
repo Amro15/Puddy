@@ -10,6 +10,8 @@
 
 {% block main %}
 
+
+{% if write_session != poem %}
 <!-- write Modal -->
 <div class="modal fade" id="write_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
     aria-hidden="true">
@@ -24,13 +26,14 @@
                 The current poem already has an existing <a href="/Draft" target="_blank">draft</a> what would you like to do?
             </div>
             <div class="modal-footer">
-                <button id="save" class="button">Save Another Draft</button>
-                <button id="update" class="button">Update Most Recent/Current Draft</button>
+                <button id="save_draft" class="button">Save Another Draft</button>
+                <button id="update_draft" class="button">Update Most Recent/Current Draft</button>
             </div>
         </div>
     </div>
 </div>
 <!-- ============ -->
+{% endif %}
 
 <div id="btn_div">
    <a href="/Rhyme" target="_blank"><button type="button" class="btn btn-secondary">
@@ -55,7 +58,7 @@
     <div class="form-check form-switch form-check-reverse switch_div">
             <input class="form-check-input" id="check_rhymes" name="switch" value="check_rhymes" type="checkbox"
                 id="flexSwitchCheckReverse">
-            <label class="form-check-label" for="flexSwitchCheckReverse" id="check_rhymes_label">Check Rhymes</label>
+            <label class="form-check-label" for="flexSwitchCheckReverse" id="check_rhymes_label">Check Rhymes</label><button id="rhyme_check_info">?</button>
             <div id="no_data_rhymes"></div>
         </div>
     {% endif %}
@@ -72,11 +75,31 @@
             </ol>
         </div>
     </div>
+    <div class="form-check form-switch form-check-reverse switch_div">
+        <input class="form-check-input" id="check_meter" name="switch" value="check_meter"
+            type="checkbox" id="flexSwitchCheckReverse">
+        <label class="form-check-label" for="flexSwitchCheckReverse">Display Meter</label>
+    </div>
+    <div>
+        <p id="no_data_meter"><p>
+    </div>
 </div>
 <button class="button" id="arrow"><i class="arrow right" id="arrow_symbol"></i></button>
 </div>
-{% if draft_session == False %}
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<div id="rhyme_info_div">
+    <ul>
+        <li><u style=color:green><span style=color:green>Green:</span></u> Words rhyme</li>
+        <br>
+        <li><u style=color:blue><span style=color:blue>Blue:</span></u> Words rhyme with each other but don't follow the rhyme group's rhyme scheme<br>(example: tree-A, free-A, sun-A, fun-A)</u> </li>
+        <br>
+        <li><u style=color:yellow><span style=color:yellow>Yellow:</span></u> Words rhyme with each other but also rhyme with another rhyme group<br>(example: tree-A, free-B, glee-A, see-B)</u> </li>
+        <br>
+        <li><u style=color:red><span style=color:red>Red:</span></u> Words don't rhyme</li>
+    </ul>
+    <button class=button id=hide_rhyme_info>Hide</button>
+</div>
+{% if write_session == "default" %}
     <span id="notepad" class="notepad" role="textbox" class="line" contenteditable></span>
     <div class="poem-div">
         <div class="verse">
@@ -89,7 +112,8 @@
                 <span class="line {{i}}" id="{{i}}" name="{{i}}" role="textbox" contenteditable="true"></span><span id="symbol{{i}}"
                     class="badge bg-secondary, rhyme_symbols">{{i}}</span>
             </div>
-            <div id="syllables{{i}}" class="syllables"></div>
+            <div class="syllables"><span class="syllables_text"></span></div>
+            <div class="meter"><span class="meter_text"></span></div>
                 {% if rhyme_schemes.line_break_frequency and ((loop.index % rhyme_schemes.line_break_frequency) == 0) %}
                 <br>
                 {% endif %}
@@ -100,7 +124,9 @@
                 <span class="line {{i[0]}}" id="{{i}}" name="{{i[0]}}" role="textbox" contenteditable="true"></span><span
                     id="symbol{{i}}" class="badge bg-secondary, rhyme_symbols">{{i[0]}}</span>
             </div>
-            <div id="syllables{{i}}" class="syllables"></div>
+            <div class="syllables"><span class="syllables_text"></span></div>
+            <div class="meter"><span class="meter_text"></span></div>
+
                 {% if rhyme_schemes.line_break_frequency and ((loop.index % rhyme_schemes.line_break_frequency) == 0) %}
                 <br>
                 {% endif %}
@@ -110,9 +136,9 @@
         <button value="save_poem" class="button" name="write_btn" id="save_poem">Save Poem</button>
         <div id="msg_container"><p class="confirmation_msg" id="confirmation_msg_write"></p><button type="button" id = "hide" class="btn btn-secondary btn-sm">Hide</button></a> </div>
     </div>
+
 <!-- if sess is draft get all of our info from our databse-->
-{% else %}
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+{% elif write_session == "draft" %}
     <span id="notepad" class="notepad" role="textbox" class="line" contenteditable>{{draft.notes}}</span>
     <div class="poem-div">
         <div class="verse">
@@ -124,7 +150,8 @@
                 <span class="line {{i.line_num}}" id="{{i.line_num}}" name="{{i.line_num}}" role="textbox" contenteditable="true">{{i.line_text}}</span><span id="symbol{{i.line_num}}"
                     class="badge bg-secondary, rhyme_symbols">{{i.line_num}}</span>
             </div>
-            <div id="syllables{{i.line_num}}" class="syllables"></div>
+            <div class="syllables"><span class="syllables_text"></span></div>
+            <div class="meter"><span class="meter_text"></span></div>
                 {% if draft.line_breaks and ((loop.index % draft.line_breaks) == 0) %}
                 <br>
                 {% endif %}
@@ -135,8 +162,9 @@
                 <span class="line {{i.line_num[0]}}" id="{{i.line_num}}" name="{{i.line_num[0]}}" role="textbox" contenteditable="true">{{i.line_text}}</span><span
                     id="symbol{{i.line_num}}" class="badge bg-secondary, rhyme_symbols">{{i.line_num[0]}}</span>
             </div>
-            <div id="syllables{{i.line_num}}" class="syllables"></div>
-                {% if draftline_breaks and ((loop.index % draft.line_breaks) == 0) %}
+            <div class="syllables"><span class="syllables_text"></span></div>
+            <div class="meter"><span class="meter_text"></span></div>
+                {% if draft.line_breaks and ((loop.index % draft.line_breaks) == 0) %}
                 <br>
                 {% endif %}
             {% endfor %}
@@ -145,5 +173,42 @@
         <button value="save_poem" class="button" name="write_btn" id="save_poem">Save Poem</button>
         <div id="msg_container"><p class="confirmation_msg" id="confirmation_msg_write"></p><button type="button" id = "hide" class="button">Hide</button></a></div>
     </div>
+
+<!-- if sess is poem get all of our info from our databse-->
+{% elif write_session == "poem" %}
+<span id="notepad" class="notepad" role="textbox" class="line" contenteditable></span>
+    <div class="poem-div">
+        <div class="verse">
+            <span contenteditable id="title">{{poem.title}}</span><span class="badge bg-secondary, title_symbol">Title</span>
+        </div>
+        {% if ( (poem.rhyme_scheme=="Free Verse") or (poem.rhyme_scheme=="Haiku") ) %}
+            {% for i in poem._lines %}
+            <div class="verse">
+                <span class="line {{i.line_num}}" id="{{i.line_num}}" name="{{i.line_num}}" role="textbox" contenteditable="true">{{i.line_text}}</span><span id="symbol{{i.line_num}}"
+                    class="badge bg-secondary, rhyme_symbols">{{i.line_num}}</span>
+            </div>
+            <div class="syllables"><span class="syllables_text"></span></div>
+            <div class="meter"><span class="meter_text"></span></div>
+                {% if poem.line_breaks and ((loop.index % poem.line_breaks) == 0) %}
+                <br>
+                {% endif %}
+            {% endfor %}
+        {% else%}
+            {% for i in poem_lines %}
+            <div class="verse">
+                <span class="line {{i.line_num[0]}}" id="{{i.line_num}}" name="{{i.line_num[0]}}" role="textbox" contenteditable="true">{{i.line_text}}</span><span
+                    id="symbol{{i.line_num}}" class="badge bg-secondary, rhyme_symbols">{{i.line_num[0]}}</span>
+            </div>
+            <div class="syllables"><span class="syllables_text"></span></div>
+            <div class="meter"><span class="meter_text"></span></div>
+                {% if poem.line_breaks and ((loop.index % poem.line_breaks) == 0) %}
+                <br>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+        <button class="button" id="update_poem">Save Changes</button>
+        <div id="msg_container"><p class="confirmation_msg" id="confirmation_msg_write"></p><button type="button" id = "hide" class="button">Hide</button></a></div>
+    </div>
 {% endif %}
+<script  src="/static/js/write.js"> </script>
 {% endblock %}

@@ -52,12 +52,11 @@
       {% endif %}
     <input type="submit" class="button" value="Create Poem" id="create_poem">
   </form>
-    <button class="button" id="show_all_res_desc">Show all rhyme schemes descriptions</button>
-    <div id="description" class="rhyme_description"></div>
-    {% for key in rhyme_schemes %}
-    {% if key !="Fixed Rhyme Schemes..."%}
-    <div id="desc_par{{key}}" class="rhyme_description"></div>
-    {% endif %}
-    {% endfor %}
-
+  <div id="create_btn_div">
+  <button class="button" id="random_create_poem">Randomise</button>
+    <button class="button" id="show_all_res_desc">Show All Rhyme Schemes Descriptions</button>
+  </div>
+    <div id="rhyme_desc_container" style="visibility: visible;"></div>
+    
+    <script  src="/static/js/create.js"> </script>
 {% endblock %}

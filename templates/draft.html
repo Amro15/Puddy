@@ -3,6 +3,7 @@
 {% block title %} Draft {% endblock %}
 
 {% block main %}
+<!-- draft modal -->
 <div class="modal fade" id="draft_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
 aria-hidden="true">
 <div class="modal-dialog">
@@ -18,7 +19,7 @@ aria-hidden="true">
         <div class="modal-footer">
             <button class="button" type="button" class="btn-close" data-bs-dismiss="modal">Cancel</button>
             <button id="delete_btn" class="button">Delete</button>
-            <input type="checkbox" id="dont_show_again">Don't show this message again
+            <input type="checkbox" id="dont_show_draft_modal">Don't show this message again
         </div>
     </div>
 </div>
@@ -57,4 +58,5 @@ aria-hidden="true">
 <h2>Looks like you don't have any drafts saved yet, get to <a href="/Create">Creating!</a></h2>
 </div>
 {% endif %}
+<script  src="/static/js/draft.js"> </script>
 {% endblock %}

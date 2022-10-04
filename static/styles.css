@@ -261,8 +261,6 @@ background-color: rgb(143, 143, 143) ;
   margin: auto;
   margin-top: 30px;
   text-align: center;
-  visibility: hidden;
-  position: absolute;
 }
 
 #resume{
@@ -280,17 +278,29 @@ background-color: rgb(143, 143, 143) ;
   text-align: center;
 }
 
-.verse{
+.verse, .syllables, .meter{
     position: relative;
     display: flex;
     flex-wrap: wrap;
     align-items: stretch;
-    width: 86%;
+    justify-content: center;
+    width: 100%;
     padding-top:10px;
-    margin-left:17vw ;
+    margin-left:1.5px ;
     color:white;
     font-size: large;
 }
+
+.syllables, .meter{
+  padding-top: 0px;
+  visibility: hidden;
+  position: absolute;
+}
+.meter_text, .syllables_text{
+  margin-right: 40px;
+  border: rgb(59, 60, 62) 2px solid;
+}
+
 #title{
   padding-left: 10px;
   padding-top: 6px;
@@ -324,7 +334,7 @@ background-color: rgb(143, 143, 143) ;
   height:40px;
 }
 
-.line{
+.line, .meter_text, .syllables_text{
     padding-left: 10px;
     padding-top: 6px;
     display: block;
@@ -338,17 +348,25 @@ span[contenteditable]:empty::before {
     content: "Text goes here";
   }
 
-.syllables, #title_symbol{
+/* .syllables, .meter, #title_symbol{
   background-color: rgba(37, 37, 37, 0.5);
   color: white;
-  margin-left:17vw ;
-  width: 60%;
+  margin-left:1.5px ;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
   border-radius: 7px;
   border: rgba(37, 37, 37, 0.8) 2px solid;
   font-size: large;
   position: absolute;
   visibility: hidden;
 }
+@media only screen and (max-width: 480px) {
+  .syllables, .meter, #title_symbol{
+    margin-left: 7vw;
+  }
+} */
  #user-custom-rhymes-div, #line-div{
     visibility: hidden;
     position: absolute;
@@ -377,22 +395,42 @@ span[contenteditable]:empty::before {
   margin-bottom: 10px;
 }
 
-.btn-secondary:hover {
+.btn-secondary:hover, #rhyme_check_info:hover {
   background-color: rgb(45, 49, 57)!important;
 }
 
-.btn-secondary:active{
+.btn-secondary:active, #rhyme_check_info:active{
     background-color:  rgb(79, 86, 100)!important;
 }
 
+#rhyme_check_info{
+  color:white;
+  margin-left: 2px;
+  background-color: rgb(105, 113, 132);
+  border: 0px;
+}
+#rhyme_info_div{
+  background-color:  rgba(37, 37, 37, 0.5);
+  color:white;
+  border-radius: 7px;
+  margin: 10px 0px 0px 10px;
+  display: inline-block;
+  padding: 10px;
+  visibility: hidden;
+  position: absolute;
+}
+#create_btn_div{
+  text-align: center;
+}
+#random_create_poem, #show_all_res_desc{
+  width: 311.98px!important;
+}
 
 .notepad{
     position: absolute;
     visibility: hidden;
     display: block;
-    width: 63.7%;
-    margin-top: 10px;
-    margin-left: 10px;
+    margin: 10px 10px 0 10px;
     padding-left: 10px;
     min-height: 100px;
     overflow: hidden;
@@ -449,19 +487,17 @@ span[contenteditable]:empty::before {
   margin: -10px -25px 2px -15px;
 }
 
-#no_data_rhymes, #no_data_syllables{
-  padding-left: 40px;
+#no_data_rhymes, #no_data_syllables, #no_data_meter{
+  padding-left: 25px;
   font-weight: bold;
   color:rgb(255, 0, 0);
   background-color: rgba(37, 37, 37, 0.8);
-
+  margin: 10px;
 }
 
 #no_data_syllables{
-  margin-right: 10px;
   position: absolute;
   visibility: hidden;
-  background-color: rgba(37, 37, 37, 0.8);
 }
 #no_data_syllables_link{
   color: rgb(255, 255, 255)!important;
@@ -479,12 +515,11 @@ span[contenteditable]:empty::before {
       margin-right: 0px;
   }
 }
-#save_draft, #save_poem{
+#save_draft, #save_poem, #update_poem{
   width:300px;
   padding: 10px; 
   margin-top: 10px;
 }
-
 
 
 #msg_container{
@@ -496,112 +531,9 @@ span[contenteditable]:empty::before {
 }
 
 /* --------------------------------------------- */
-/* Tooltip container */
-.tooltip {
-  position: relative;
-  display: inline-block;
-  border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
-}
-
-/* Tooltip text */
-.tooltiptext {
-  visibility: visible;
-  min-width: 150px;
-  width: 150px;
-  background-color: black;
-  color: #fff;
-  text-align: center;
-  padding: 5px 0;
-  border-radius: 6px;
- 
-  /* Position the tooltip text - see examples below! */
-  float:right;
-  margin-top: 12px;
-  margin-right: 3px;
-}
-
-
-
-/* Show the tooltip text when you mouse over the tooltip container */
-.tooltip:hover .tooltiptext {
-  visibility: visible;
-}
 
 /* ------------------------------ */
-  /* Popup container - can be anything you want */
-.popup {
-    position: relative;
-    display: inline-block;
-    cursor: pointer;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-  }
   
-  /* The actual popup */
-  .popup .popuptext {
-    visibility: hidden;
-    width: 160px;
-    background-color: #555;
-    color: #fff;
-    text-align: center;
-    border-radius: 6px;
-    padding: 8px 0;
-    position: absolute;
-    z-index: 1;
-    bottom: 125%;
-    left: 50%;
-    margin-left: -80px;
-  }
-  
-  /* Popup arrow */
-  .popup .popuptext::after {
-    content: "";
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    margin-left: -5px;
-    border-width: 5px;
-    border-style: solid;
-    border-color: #555 transparent transparent transparent;
-  }
-  
-  /* Toggle this class - hide and show the popup */
-  .popup .show {
-    visibility: visible;
-    -webkit-animation: fadeIn 1s;
-    animation: fadeIn 1s;
-  }
-  
-  /* Add animation (fade in the popup) */
-  @-webkit-keyframes fadeIn {
-    from {opacity: 0;} 
-    to {opacity: 1;}
-  }
-  
-  @keyframes fadeIn {
-    from {opacity: 0;}
-    to {opacity:1 ;}
-  }
-
-.popup_btn{
-    width: 10px;
-    height: 10px;
-    background-color: inherit;
-  }
-
-.popup_btn:hover{
-    color: #000;
-    background-color: gray;
-}
-
-.popup_btn:active{
-    color: rebeccapurple;
-    background-color: aqua;
-}
-
-
 /* /Draft */
 
 .flex-container {
@@ -678,7 +610,7 @@ span[contenteditable]:empty::before {
   display: inline-block;
   margin-left: 10px;
 }
-#poem, #account_poem{
+#poem, #account_poem, #display_poem{
   font-size: 20px;
   background-color: rgba(105, 113, 132, 0.8);
   text-align: left;
@@ -688,8 +620,13 @@ span[contenteditable]:empty::before {
   font-family:Sans-Serif;
   display: inline-block;
   padding: 10px 50px 10px 50px;
-  color:white
+  color:white;
+  margin: 10px;
   
+}
+
+#poem_container{
+  text-align: center;
 }
 
 #poem_title{

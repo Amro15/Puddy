@@ -11,6 +11,28 @@ body{
 {% block title %} Poems {% endblock %}
 
 {% block main%}
+<!-- poem modal -->
+<div class="modal fade" id="poem_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+aria-hidden="true">
+<div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">This action is irreversible!</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+            </button>
+        </div>
+        <div class="modal-body">
+            Are you sure you want to permanently delete your poem?
+        </div>
+        <div class="modal-footer">
+            <button class="button" type="button" class="btn-close" data-bs-dismiss="modal">Cancel</button>
+            <button id="delete_poem_btn" class="button">Delete</button>
+            <input type="checkbox" id="dont_show_poem_modal">Don't show this message again
+        </div>
+    </div>
+</div>
+</div>
+
 <h1>My Poems</h1>
 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 {%if user_poems|length != 0%}
@@ -31,7 +53,8 @@ body{
 <p class="poem count" value="{{i.poem_count}}">Poem num : {{i.poem_count}}</p>
 <p>Rhyme scheme : {{i.rhyme_scheme}}</p>
 <p>Date : {{i.save_date}}</p>
-<button class="button show_poem" id="{{i.title}}/{{i.poem_count}}">Show</button>
+<button class="button show_poem" id="{{i.title}}/{{i.poem_count}}" onclick="window.location.href='/Account/Poem/Display?pid={{i.poem_id}}'">Show</button>
+<button onclick="window.location='/Write?poem={{i.poem_id}}'" class="button">Edit</button>
 <button class="button delete_poem" name="{{i.poem_id}}" value="delete" >Delete Poem</button>
 </div>
 </li>
@@ -42,4 +65,5 @@ body{
 <h2>Looks like you don't have any poems saved yet, get to <a href="/Create">Creating!</a></h2>
 </div>
 {% endif %}
+<script  src="/static/js/poem.js"> </script>
 {% endblock %}

@@ -24,10 +24,11 @@
 <p><span contenteditable id="{{i.line_num}}" class="edit_line">{{i.line_text}}</span></p>
     {% if user_poem.line_break and ((loop.index % user_poem.line_break) == 0)%}
     <br>
-    <br>
     {%endif%}
 {%endfor%}
 </div>
 </div>
 </div>
+<script  src="/static/js/format.js"> </script>
+
 {% endblock %}
