@@ -27,41 +27,41 @@ let rhyme_repetition = document.getElementById("rhyme_repetition_div");
 let br_frequency = document.getElementById("line_break_frequency_div")
 rhyme_scheme.addEventListener("change", (event)=>{
     if(!(FIXED_RHYME_SCHEMES.includes(event.target.value))){
-        rhyme_repetition.style.cssText = "visibility: visible; position: relative";
+        rhyme_repetition.style.cssText = "display:flex";
     }
     else{
-        rhyme_repetition.style.cssText = "visibility: hidden; position: absolute";
+        rhyme_repetition.style.cssText = "display:none";
 
     }
     if(!(CUSTOM_BR.includes(event.target.value))){
-        br_frequency.style.cssText = "visibility: hidden; position: absolute";
+        br_frequency.style.cssText = "display:none";
     }
     else{
-        br_frequency.style.cssText = "visibility: visible; position: relative";
+        br_frequency.style.cssText = "display:flex";
     }
     
     let rhyme_div = document.getElementById("user-custom-rhymes-div")
     let line_div = document.getElementById("line-div")
     if ((event.target.value === "Free Verse")){
-        line_div.style.cssText = "position: relative; visibility:visible;";
+        line_div.style.cssText = "display:flex;";
     }
     else{
-        line_div.style.cssText = "position: absolute; visibility:hidden;";
+        line_div.style.cssText = "display:none;";
     }
     if (event.target.value === "Custom"){
-        rhyme_div.style.cssText = "position: relative; visibility:visible;";
+        rhyme_div.style.cssText = "display:flex;";
     }
     else{
-        rhyme_div.style.cssText = "position: absolute; visibility:hidden;";
+        rhyme_div.style.cssText = "display:none;";
     }
     // display description 
-    let rhyme_desc_container = document.getElementById("rhyme_desc_container");
-    rhyme_desc_container.innerHTML=""
+    let singular_desc_container = document.getElementById("singular_desc_container");
+    singular_desc_container.innerHTML=""
     let description_div = document.createElement("div");
         description_div.innerHTML = RHYME_DESCRIPTION[event.target.value];
         description_div.classList.add("rhyme_description");
-        description_div.visibility="visible";
-        rhyme_desc_container.appendChild(description_div);
+        description_div.style.cssText="display:block";
+        singular_desc_container.appendChild(description_div);
 });
 
 // show all rhyme descriptions if btn is pressed
@@ -71,7 +71,6 @@ let ctr = 0
 btn_show_all.addEventListener("click", ()=>{
     // ctr is used to detect if it's the user's first button press or not
     if(ctr==0){
-        console.log("First press")
     for(let key in RHYME_DESCRIPTION){
         let description_div = document.createElement("div");
         description_div.classList.add("rhyme_description");
@@ -81,12 +80,12 @@ btn_show_all.addEventListener("click", ()=>{
     }
 }
        else{
-        if(rhyme_desc_container.style.visibility!="visible"){
-            rhyme_desc_container.style.cssText="visibility: visible";
+        if(rhyme_desc_container.style.display!="block"){
+            rhyme_desc_container.style.display="block";
             btn_show_all.innerHTML="Hide all";
         }
         else{
-            rhyme_desc_container.style.visibility="hidden"
+            rhyme_desc_container.style.display="none";
             btn_show_all.innerHTML="Show All Rhyme Schemes Descriptions";
         }
     }

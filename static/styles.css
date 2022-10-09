@@ -268,9 +268,8 @@ background-color: rgb(143, 143, 143) ;
   font-weight: bold;
 }
 
-#rhyme_repetition_div, #line_break_frequency_div{
-  visibility: hidden;
-  position: absolute;
+#rhyme_repetition_div, #line_break_frequency_div, #user-custom-rhymes-div, #line-div{
+  display: none;
 }
 /* ------------------------ */
 /* /Write */
@@ -293,8 +292,7 @@ background-color: rgb(143, 143, 143) ;
 
 .syllables, .meter{
   padding-top: 0px;
-  visibility: hidden;
-  position: absolute;
+  display: none;
 }
 .meter_text, .syllables_text{
   margin-right: 40px;
@@ -348,30 +346,6 @@ span[contenteditable]:empty::before {
     content: "Text goes here";
   }
 
-/* .syllables, .meter, #title_symbol{
-  background-color: rgba(37, 37, 37, 0.5);
-  color: white;
-  margin-left:1.5px ;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  border-radius: 7px;
-  border: rgba(37, 37, 37, 0.8) 2px solid;
-  font-size: large;
-  position: absolute;
-  visibility: hidden;
-}
-@media only screen and (max-width: 480px) {
-  .syllables, .meter, #title_symbol{
-    margin-left: 7vw;
-  }
-} */
- #user-custom-rhymes-div, #line-div{
-    visibility: hidden;
-    position: absolute;
-   
-  }
 
   /* toggle btns */
   #btn_div{
@@ -523,8 +497,7 @@ span[contenteditable]:empty::before {
 
 
 #msg_container{
-  visibility: hidden;
-  position: absolute;
+  display: none;
 }
 #hide{
   width: 100px
@@ -659,42 +632,80 @@ span[contenteditable]:empty::before {
 }
 
 /* Get inspired */
-#radio_button_div{
-  margin-top:10px;
-}
 #poem_search{
   width: 500px !important;
   display:inline-block;
 }
-#select_poem_div{
+.get_inspired_div{
   max-width: 690px;
   margin-top: 10px;
   min-width: 240px;
 }
+
 #poem_search_select{
   min-width: 240px;
 }
+
+#poem_result{
+  text-align: center;
+  font-size: larger;
+  color:white;
+  word-wrap: break-word
+}
+
+#advanced_filters_btn{
+  width: 180px;
+}
+
+#length, #length_range, #advanced_filters, .read_more_div{
+  display: none;
+}
+
+.poem_length{
+  width: 50px;
+  border: 1px solid #ced4da;
+  border-radius:0.25rem;
+  margin-left: 10px;
+}
+#get_inspired_sort_by{
+  width: 120px;
+  margin: 0px 10px 10px 0px;
+  float: right;
+}
+
 @media only screen and (max-width: 620px){
   #poem_search{
     width: 210px!important;
   }
+  input[type=radio]{
+    display: block;
+  }
 }
-#poem_result{
-  margin-left: 20px;
-  font-size: larger;
-  font-weight: bolder;
-  color:white;
-  word-wrap: break-word
-}
+
 #loading_poems{
-  visibility: hidden;
-  position: absolute;
-  margin-top: 100px;
+  display: none;
+  margin-top: 50px;
 }
+#like_icon{
+  width: 32px;
+  height: 32px;
+}
+#like_btn{
+  float: right;
+  border: none;
+  margin-right: 10px;
+}
+
 hr{
   height: 5px!important;
 }
 #poem_rand{
   width: 120px;
+  margin-left:5px;
 }
 /* ================================================================================= */
+
+.pagination-page-info, .pagination{
+  margin-left: 10px;
+  font-size: larger;
+}

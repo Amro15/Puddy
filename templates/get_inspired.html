@@ -1,3 +1,5 @@
+{% from 'macro.html' import form_field, err_msg %}
+
 {% extends "layout.html" %}
 
 {% block title %} GetInspired {% endblock %}
@@ -7,59 +9,104 @@
     body{
         background-image: url("/static/get_inspired_background.jpg") !important;
     }
+    main{
+      color: white;
+    }
 </style>
 {% endblock %}
 
 {% block main%}
-<h1>Writer's block be gone!</h1>
 <h3>Look at other people's work and get inspired</h3>
-<input class="form-control mr-sm-2" id="poem_search" type="search" placeholder="Search" aria-label="Search">
-    <button id="search_poem" type="button" class="btn btn-primary">
-      <i class="fas fa-search"><img src="/static/search_icon.png"></i>
-    </button>
-    <button class="button" id="poem_rand">Randomise</button>
-    <div id="radio_button_div">
-      <div class="form-check form-check-inline">
-        <input class="form-check-input search_by" type="radio" name="inlineRadioOptions" id="search_by_author" checked>
-        <label class="form-check-label" for="search_by_author">Search By Author Name</label>
-      </div>
-    <div class="form-check form-check-inline">
-        <input class="form-check-input search_by" type="radio" name="inlineRadioOptions" id="search_by_title" >
-        <label class="form-check-label" for="search_by_title">Search By Poem Title</label>
-      </div>
-      <div class="form-check form-check-inline">
-        <input class="form-check-input search_by" type="radio" name="inlineRadioOptions" id="search_by_poem" >
-        <label class="form-check-label" for="search_by_poem">Search By Poem Verse</label>
-      </div>
-    </div>
-    <div class="input-group mb-3" id="select_poem_div">
-    <label class="input-group-text" for="select_poem_div">Quick Navigation Menu
-    </label>
-    <select class="form-select"  id="poem_search_select"  onchange="location = this.value;">
-        <option selected disabled>Title/Author</option>
-        {% for i in server_response%}
-        <option value='#{{loop.index}}'>{{i["title"]}} / {{i["author"]}}</option>
-        {% endfor %}
-    </select>
+<form action="{{url_for('get_inspired')}}" method="post" style="margin-left:5px">
+{{form.hidden_tag()}}
+{{form_field(form.query, "form-control mr-sm-2", "Search By", id="poem_search")}}
+{{form.search(id="search_poem", class="btn btn-primary", onclick="loading()")}}
+<br>
+<div class="input-group mb-3 get_inspired_div">
+  <label class="input-group-text" for="inputGroupSelect01">Filters</label>
+{{form_field(form.filters, "form-select", id="inputGroupSelect01")}}
 </div>
-    <div id="loading_poems">
-      <div class="text-center">
-      <div class="spinner-border" style="width: 3rem; height: 3rem;" role="status">
-      </div>
-    </div>
-    </div>
-    <div id="poem_result">
-      {% for i in server_response%}
-      <div id="{{loop.index}}">
-        <h3>{{i.title}} By {{i.author}}</h3>
-        <pre>{{i.lines[0]}}</pre>
-        <pre>{{i.lines[1]}}</pre>
-        ....
-      </div>
-      <br>
-      <hr>
-      <br>
+<button type="button" class="button" id="advanced_filters_btn">Advanced Filters</button>
+<div id="advanced_filters">
+  <p>Filter By:</p>
+  <input type="radio" id="length_radio" name="advanced_filters" value="length">
+  <label for="length_radio">Poem Length</label>
+  <input type="radio" id="length_range_radio" name="advanced_filters" value="length_range">
+  <label for="length_range_radio">Poem Length Range</label>
+
+<div class="input-group mb-3 get_inspired_div" id="length">
+  <span class="input-group-text">Poem Length</span>
+  <input type="number" class="form-control" name="poem_length" placeholder="(Optional)" aria-label="(Optional)">
+  <span class="input-group-text">Lines</span>
+  </div>
+<div class="input-group mb-3 get_inspired_div" id="length_range">
+  <span class="input-group-text">Min Poem Length</span>
+  <input type="text" class="form-control" name="min_length" placeholder="(Optional)" aria-label="(Optional)">
+  <span class="input-group-text">Lines</span>
+  <div class="input-group mb-3 get_inspired_div length_range">
+    <span class="input-group-text">Max Poem Length</span>
+    <input type="text" class="form-control" name="max_length" placeholder="(Optional)" aria-label="(Optional)">
+    <span class="input-group-text">Lines</span>
+  </div>
+</div>
+</div>
+<button class="button" type="button" id="poem_rand" >Randomise</button>
+{{err_msg(form.query)}}
+{{err_msg(form.filters)}}
+</form>
+<div id="loading_poems">
+  <div class="text-center">
+  <div class="spinner-border" style="width: 3rem; height: 3rem;" role="status">
+  </div>
+</div>
+</div>
+<p class="error_msg">{{not_found}}</p>
+{% if request.args.get("page") %}
+{{ pagination.info }} 
+{{ pagination.links }}
+<select class="form-select" id="get_inspired_sort_by" aria-label="Default select example">
+  <option selected disabled>Sort By</option>
+  <option value="shortest">Shortest</option>
+  <option value="longest">Longest</option>
+  <option value="author">A-Z author</option>
+  <option value="author reverse">Z-A author</option>
+  <option value="title">A-Z title</option>
+  <option value="title reverse">Z-A title</option>
+</select>
+<div class="input-group mb-3" class="get_inspired_div">
+  <label class="input-group-text" for="poem_serach_select">Quick Navigation
+  </label>
+  <select class="form-select"  id="poem_search_select"  onchange="location = this.value;">
+      <option selected disabled>Title/Author</option>
+      {% for i in items%}
+      <option value='#{{loop.index}}'>{{i["title"]}} / {{i["author"]}}</option>
       {% endfor %}
+  </select>
+</div>
+  <div id="poem_result">
+    {% for i in items%}
+    <div id="{{loop.index}}">
+      <button id="like_btn"><img src="/static/empty-like.png" id="like_icon"></button>
+      <h3>{{i.title}} By {{i.author}}</h3>
+      <p>{{i.lines[0]}}</p>
+      <p>{{i.lines[1]}}</p>
+      <div class="read_more_div">
+        {% for j in i.lines%}
+        {% if loop.index>2 %}
+        <p>{{j}}</p>
+        {% endif%}
+        {% endfor %}
+      </div>
+      <p><u><b>Poem Length:</b></u> {{i.linecount}} Lines</p>
+        <button class="read_more_btn button"  style="width: auto;">Read More...</button>
+        <button class="button" style="width: auto;" onclick="window.open('/GetInspired/{{i.author}}/{{i.title}}', '_blank')">Open In New Tab</button>
     </div>
+    <br>
+    <hr>
+    <br>
+    {% endfor %}
+  </div>
+{{ pagination.links }}
+{% endif %}
+<script  src="/static/js/get_inspired.js"> </script>
 {% endblock %}
-{% block footer %}<a target="_blank" href="https://icons8.com/icon/59878/search">Search</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>{% endblock %}

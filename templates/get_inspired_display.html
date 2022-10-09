@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+
+{% block head %}
+<style>
+    body{
+        background-image: url("/static/get_inspired_background.jpg") !important;
+    }
+</style>
+{% endblock %}
+
+{% block title %} Get Inspired Display {% endblock %}
+
+{% block main%}
+
+<div id="poem_result">
+<h3>{{poem[0]["title"]}} By {{poem[0]["author"]}}</h3>
+<br>
+{% for i in poem[0]["lines"]%}
+{% if i == ""%}
+<br>
+{% else %}
+<p>{{i}}</p>
+{% endif %}
+{% endfor %}
+</div>
+
+{% endblock %}

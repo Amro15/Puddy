@@ -1,7 +1,10 @@
+from ast import Sub
+from wsgiref.validate import validator
 from flask import session
 from flask_wtf import FlaskForm
+from sqlalchemy import Integer
 from werkzeug.security import check_password_hash
-from wtforms import StringField, SubmitField, PasswordField, BooleanField
+from wtforms import StringField, SubmitField, PasswordField, BooleanField, SelectField
 from wtforms.validators import InputRequired, EqualTo, Length, ValidationError, Regexp
 from database import db, Users
 
@@ -48,3 +51,8 @@ class SigninForm(FlaskForm):
     password = PasswordField("Password", validators=[InputRequired(message="Password Field Required"), validate_password])
     remember_me = BooleanField("Remember Me")
     sign_in = SubmitField("Sign In")
+
+class GetInspiredForm(FlaskForm):
+    query = StringField("query", validators=[InputRequired("Search Field Cannot Be Empty")])
+    filters = SelectField("filter", choices=[("author","Search By Author"),("title","Search By Title"),("lines","Search By Poem Verse"), ("linecount", "Search By Poem Length")], validators=[InputRequired("Please Select A Filter")])
+    search = SubmitField()

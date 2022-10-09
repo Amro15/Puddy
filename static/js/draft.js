@@ -1,37 +1,4 @@
-let draft_resume = document.getElementsByClassName("resume");
 let draft_delete = document.getElementsByClassName("delete");
-
-for (let i = 0; i < draft_resume.length; i++) {
-    draft_resume[i].addEventListener("click", () => {
-        poem_draft_num = String(draft_resume.item(i).getAttribute("name"));
-        send_to_server_draft_resume = {};
-        send_to_server_draft_resume["draft_resume"] = draft_resume.item(i).getAttribute("name");
-        console.log(send_to_server_draft_resume)
-        fetch(window.origin + "/Account/Draft", {
-            method: "POST",
-            headers: new Headers({
-                "X-CSRFToken": document.getElementsByName("csrf_token")[0].value,
-                "Content-Type": "application/json",
-            }),
-            cache: "no-cache",
-            body: JSON.stringify(send_to_server_draft_resume)
-        })
-
-            .then((respone) => {
-                // if request fails
-                if (respone.status !== 200) {
-                    console.log("request status for resume draft is" + respone.status);
-                    return;
-                }
-                // if request succeeds 
-                respone.json().then((data) => {
-                    // redirect user to write
-                    window.location.replace(window.origin + ("/Write") + "?draft=draft");
-                });
-            });
-
-    })
-}
 
 for (let i = 0; i < draft_delete.length; i++) {
     let selectobject = document.getElementById("draft_select")

@@ -48,7 +48,7 @@ aria-hidden="true">
 {% if i.edit_date %}
 <p>Edit Date : {{i.edit_date.strftime("%d-%b-%Y at %I:%M%p")}}</p>
 {% endif %}
-<button class="button resume" name="{{i.poem_count}};{{i.draft_count}}" >Resume</button>
+<button class="button resume" name="{{i.poem_count}};{{i.draft_count}}" onclick="window.location='/Write?draft={{i.draft_id}}'" >Resume</button>
 <button class="button delete" name="{{i.poem_count}};{{i.draft_count}}" >Delete</button>
 </li>
 {% endfor %}

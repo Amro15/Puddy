@@ -143,73 +143,93 @@ def logout():
     session.clear()
     return redirect(url_for("sign_in"))
 
+from flask_paginate import Pagination, get_page_parameter
 
 @app.route("/GetInspired", methods=["POST", "GET"])
 def get_inspired():
     global server_response
+    form = GetInspiredForm()
     if request.method == "GET":
-        if session.get("search", None)!= None:
-            session["search"] = None
-            return render_template("get_inspired.html", server_response=server_response)
+        if request.args.get("page"):
+            page = int(request.args.get('page', 1))
+            per_page = 20 
+            offset = (page - 1) * per_page 
+            items_pagination = server_response[offset:offset+per_page] 
+            total = len(server_response) 
+            pagination = Pagination(page=page, per_page=per_page, offset=offset, total=total) 
+            return render_template("get_inspired.html", form=form, pagination=pagination, items=items_pagination)
         else:
-            return render_template("get_inspired.html")
-    if request.method == "POST":
-        # read into our csv and return it as json
-        req = request.get_json()
-        print("request is", req)
-        # csv_file = "static/PoetryFoundationData.csv"
-        # poems = pd.read_csv(csv_file)
-        if req["request"] == "search poem":
-            query = req["query"]
-            query = query.strip().replace(" ","%20")
-            search_by = req["search by"]
-            if not search_by:
-                return make_response({"response":"empty"})
-            server_response = []
-            if search_by == "search_by_title":
-                url = f"https://poetrydb.org/title,poemcount/{query};{10}"
-                print(url)
-                server_response = requests.get(url)
-                print("srvr resp",server_response)
-                server_response = server_response.json()
-                session["search"] = True
-                return make_response({"response":"success"})
-
-                # capitalize first letter of every word
-                # query = query.title()
-                # for index, row in poems.iterrows():
-                #     if query in row["Title"].title():
-                #         server_response.append(row.to_json())
-                # return make_response({"response":server_response})
-            if search_by == "search_by_author":
-                url = f"https://poetrydb.org/author,poemcount/{query};{10}"
+            return render_template("get_inspired.html", form=form)
+    if request.method == "POST" :
+        # if an ajax request is sent
+        if "Request" in request.headers:
+            if request.headers["Request"] == "randomise":
+                url = "https://poetrydb.org/random/20"
                 server_response = requests.get(url)
                 server_response = server_response.json()
-                session["search"] = True
                 return make_response({"response":"success"})
 
-                # capitalize first letter of every word
-                # query = query.lower().title()
-                # for index, row in poems.iterrows():
-                #     if query in row["Poet"] :
-                #         server_response.append(row.to_json())
-                # return make_response({"response":server_response})
-            if search_by == "search_by_poem":
-                url = f"https://poetrydb.org/lines,poemcount/{query};{10}"
-                server_response = requests.get(url)
-                server_response = server_response.json()
-                session["search"] = True
+            if request.headers["Request"] == "sort":
+                req=request.get_json()
+                sort_by = req["request"]
+                match sort_by:
+                    case "shortest":
+                        server_response.sort(key=lambda i: int(i["linecount"]))
+                    case "longest":
+                        server_response.sort(key=lambda i: int(i["linecount"]), reverse=True)
+                    case "author":
+                        server_response.sort(key=lambda i: i[sort_by])
+                    case "author reverse":
+                        server_response.sort(key=lambda i: i[sort_by], reverse=True)
+                    case "title":
+                        server_response.sort(key=lambda i: i[sort_by])
+                    case "title reverse":
+                        server_response.sort(key=lambda i: i[sort_by], reverse=True)
                 return make_response({"response":"success"})
 
-                # for index, row in poems.iterrows():
-                #     if query in row["Poem"]:
-                #         server_response.append(row.to_json())
-                # return make_response({"response":server_response})
-        if req["request"] == "random" :
-            server_response = []
-            random_poems = random.choices([row.to_json() for index, row in poems.iterrows()], k=10)
-            print(random_poems)
-            return make_response({"response": random_poems})
+        # search for poems with users filters
+        if form.validate_on_submit():
+            print(form.filters.data)
+            query = form.query.data.strip().replace(" ","%20")
+            if (request.form.get("poem_length")):
+                url = f"https://poetrydb.org/{form.filters.data},linecount/{query};{request.form.get('poem_length')}"
+            else:
+                url = f"https://poetrydb.org/{form.filters.data}/{query}"
+            print(url)
+            server_response = requests.get(url)
+            server_response = server_response.json()
+            # if no results match user's search
+            if "status" in server_response and server_response["status"]== 404:
+                return render_template("get_inspired.html", form=form, not_found="There Are No Results That Match Your Search Check Your Spelling Or Try Again")
+            # if user has a min and max lincount filter modify enteries
+            if (request.form.get("min_length")):
+                min_len = request.form.get("min_length")
+                # for i in server_response:
+                #     if i["linecount"]>request.form.get("min_length"):
+                #         print(i)
+                server_response=[i for i in server_response if int(i["linecount"])>int(min_len)]
+            if (request.form.get("max_length")):
+                max_len = request.form.get("max_length")
+                for i in server_response:
+                    print(i["linecount"])
+                    print(int(i["linecount"])<int(max_len))
+                print("max len")
+                server_response=[i for i in server_response if int(i["linecount"])<int(max_len)]
+            if len(server_response) != 0:
+                return redirect(url_for("get_inspired", page=1))
+            return render_template("get_inspired.html", form=form, not_found="There Are No Results That Match Your Search Check Your Spelling Or Try Again")
+        else:
+            return render_template("get_inspired.html", form=form)
+
+@app.route("/GetInspired/<string:author>/<string:title>")
+def get_inspired_display(author, title):
+    print(author, title)
+    url = f"https://poetrydb.org/author,title/{author.replace(' ','%20')};{title.replace(' ','%20')};"
+    print(url)
+    poem = requests.get(url)
+    print(poem.json())
+    print(poem.json()[0]["author"])
+    return render_template("get_inspired_display.html", poem=poem.json())
 
 
 @app.route("/About")
@@ -369,10 +389,8 @@ def write():
         elif request.args.get("draft"):
             write_session = "draft"
             print("is draft")
-            poem_num = session.get("draft_poem_num", None)
-            draft_num = session.get("draft_num", None)
             # turn it into a poem class 
-            draft = Drafts.query.filter_by(user_id=current_user.id, draft_count=draft_num, poem_count=poem_num).first()
+            draft = Drafts.query.filter_by(user_id=current_user.id, draft_id=request.args.get("draft")).first()
             draft_lines = Drafts_Lines.query.filter_by(draft_id=draft.draft_id).all()
             return render_template("write.html", user_background=user_background, write_session = write_session, draft=draft, draft_lines=draft_lines)
 
@@ -555,7 +573,6 @@ def write():
             # server_request DRAFT ===============================================================================================================
             if server_request =="save draft":
                 # save initial request because following requests will only have instructions on what to do next 
-               
                 print("server_request is save draft")
                 print("rquest is", req)
                 # make vars global so we don't have to keep sending them in the following requests

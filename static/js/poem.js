@@ -1,20 +1,3 @@
-let show_poem = document.getElementsByClassName("show_poem");
-   for(let i=0; i<show_poem.length; i++){
-         show_poem.item(i).addEventListener("click",()=>{
-            let poem= document.getElementById("container"+show_poem.item(i).id);
-            let flex_container = document.getElementById(show_poem.item(i).id);
-         if (poem.style.visibility!=="visible" && poem.style.position!=="relative"){
-            poem.style.cssText = "position: relative; visibility:visible;";
-            show_poem.item(i).innerText = "Hide"
-            flex_container.style.height = `${poem.offsetHeight+335}px`;
-         }
-         else {
-            poem.style.cssText = "position: absolute; visibility:hidden;";
-            show_poem.item(i).innerText = "Show"
-            flex_container.style.height = "335px";
-         }
-      })
-      }
 
 let delete_poem = document.getElementsByClassName("delete_poem")
    let selectobject = document.getElementById("poem_select");

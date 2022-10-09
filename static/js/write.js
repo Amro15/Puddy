@@ -229,7 +229,7 @@ check_syllables_btn.addEventListener("click", () => {
                             let total_rhymes = data[input.item(j).id].reduce((a, b) => a + b, 0);
                             console.log(syllables[j])
                             if (syllables[j].style.visibility !== "visible" && syllables[j].style.position !== "relative") {
-                                syllables[j].style.cssText = "visibility: visible; position: relative";
+                                syllables[j].style.cssText = "display:flex";
                                 syllables_text[j].innerText = data[input.item(j).id].join(" / ").concat(" = " + total_rhymes);
                             }
                         }
@@ -245,7 +245,7 @@ check_syllables_btn.addEventListener("click", () => {
         }
         // hide all syllable divs
         for (let j = 0; j < syllables.length; j++) {
-            syllables[j].style.cssText = "visibility: hidden; position: absolute";
+            syllables[j].style.cssText = "display:none";
             syllables_text[j].innerText="";
         }
     }
@@ -284,8 +284,7 @@ check_meter_btn.addEventListener("click", () => {
                 let lines = document.getElementsByClassName("line");
                 for(let i =0; i<lines.length; i++){
                     console.log(i)
-                    meter_divs[i].style.visibility="visible";
-                    meter_divs[i].style.position="relative";
+                    meter_divs[i].style.cssText="display:flex";
                     meter_text[i].innerHTML= data[lines[i].id].slice(1, -1).replace(/([.|])/g, " $1 ");
                     if(data[lines[i].id]==="[None]"){
                         no_data_meter.innerText="Please Check Your Spelling"
@@ -297,8 +296,7 @@ check_meter_btn.addEventListener("click", () => {
     else{
                 for(let i =0; i<meter_divs.length; i++){
                     meter_text[i].innerHTML= "";
-                    meter_divs[i].style.visibility="hidden";
-                    meter_divs[i].style.position="absolute";
+                    meter_divs[i].style.cssText="display:none";
                 }
                 no_data_meter.innerText="";
     }
@@ -311,13 +309,14 @@ let save_draft = document.getElementById("save_draft");
 let success_msg = document.getElementById("confirmation_msg_write");
 let success_msg_div = document.getElementById("msg_container");
 let close_success_msg = document.getElementById("hide");
-let save_draft_btn = document.getElementById("save_draft");
+let save_draft_modal = document.getElementById("save_draft_modal");
 let update_draft_btn = document.getElementById("update_draft");
 
 // try saving user poem as draft to db
 const write_modal = new bootstrap.Modal(document.getElementById('write_modal'), { keyboard: false, backdrop: "static" });
 if(save_draft){
 save_draft.addEventListener("click", () => {
+    console.log("click")
     let title = document.getElementById("title").innerText;
     let notepad = document.getElementById("notepad").innerText;
     let send_to_server_draft = { "title": title, "notes": notepad };
@@ -352,16 +351,16 @@ save_draft.addEventListener("click", () => {
                 // else save and notify the user
                 else {
                     success_msg.innerText = "Draft succesfully saved";
-                    success_msg_div.style.cssText = "position: relative; visibility: visible";
+                    success_msg_div.style.cssText = "display:block";
 
                 }
             });
         });
 });
 }
-if (save_draft_btn) {
+if (save_draft_modal) {
     // if user chooses to save from the modal
-    save_draft_btn.addEventListener("click", () => {
+    save_draft_modal.addEventListener("click", () => {
         console.log("user wants to save");
         fetch(window.origin + "/Write", {
             method: "POST",
@@ -381,7 +380,7 @@ if (save_draft_btn) {
                 }
                 respone.json().then((data) => {
                     write_modal.hide()
-                    success_msg_div.style.cssText = "position: relative; visibility: visible";
+                    success_msg_div.style.cssText = "display:block";
                     success_msg.innerHTML = "Draft succesfully saved";
 
                 });
@@ -411,7 +410,7 @@ if (update_draft_btn) {
                 respone.json().then((data) => {
                     console.log("updated")
                     write_modal.hide()
-                    success_msg_div.style.cssText = "position: relative; visibility: visible";
+                    success_msg_div.style.cssText = "display:block";
                     success_msg.innerText = "Draft successfully updated";
 
                 });
@@ -489,7 +488,7 @@ if (update_poem_btn){
                 }
                 respone.json().then((data) => {
                     console.log("data we got back is", data);
-                    success_msg_div.style.cssText = "position: relative; visibility: visible";
+                    success_msg_div.style.cssText = "display:block";
                     success_msg.innerHTML="Poem Successfuly Updated";
     
                 });
