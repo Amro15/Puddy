@@ -36,8 +36,9 @@
 {% endif %}
 
 <div id="btn_div">
-   <a href="/Rhyme" target="_blank"><button type="button" class="btn btn-secondary">
-    Search For Rhymes</button></a>
+
+    <input type="text" class="form-control" id="quick_search" placeholder="Quick Search For Rhymes">
+    <button type="button" class="button" id="quick_search_rhymes_btn" ><img src="/static/icons/search.png" id="search_icon"></button>
     <div class="form-check form-switch form-check-reverse switch_div">
         <input class="form-check-input" id="detatch_util" name="switch" type="checkbox"
             id="flexSwitchCheckReverse">
@@ -60,6 +61,10 @@
                 id="flexSwitchCheckReverse">
             <label class="form-check-label" for="flexSwitchCheckReverse" id="check_rhymes_label">Check Rhymes</label><button id="rhyme_check_info">?</button>
             <div id="no_data_rhymes"></div>
+            <div id="loading_rhymes" class="text-center loading">
+                <div class="spinner-border" style="width: 2rem; height: 2rem;" role="status">
+              </div>
+            </div>
         </div>
     {% endif %}
     <div class="form-check form-switch form-check-reverse switch_div">
@@ -74,14 +79,22 @@
                         target="_blank">dictionary</a></li>
             </ol>
         </div>
+        <div id="loading_syllables" class="text-center loading">
+            <div class="spinner-border" style="width: 2rem; height: 2rem;" role="status">
+          </div>
+        </div>
     </div>
     <div class="form-check form-switch form-check-reverse switch_div">
         <input class="form-check-input" id="check_meter" name="switch" value="check_meter"
             type="checkbox" id="flexSwitchCheckReverse">
-        <label class="form-check-label" for="flexSwitchCheckReverse">Display Meter</label>
+        <label class="form-check-label" for="flexSwitchCheckReverse">Display Meter</label><button id="meter_info_btn">?</button>
     </div>
     <div>
         <p id="no_data_meter"><p>
+    </div>
+    <div id="loading_meter" class="text-center loading">
+        <div class="spinner-border" style="width: 2rem; height: 2rem;" role="status">
+      </div>
     </div>
 </div>
 <button class="button" id="arrow"><i class="arrow right" id="arrow_symbol"></i></button>
@@ -97,7 +110,21 @@
         <br>
         <li><u style=color:red><span style=color:red>Red:</span></u> Words don't rhyme</li>
     </ul>
-    <button class=button id=hide_rhyme_info>Hide</button>
+    <button class="button" id="hide_rhyme_info">Hide</button>
+</div>
+<div id="meter_info_div">
+    Display Meter:
+    <ul>
+        <li>Seperates Words Into Syllables</li>
+        <li>Identify <b>STRESSED</b> And <b>unstressed</b> Syllables</li>
+        <li><a>More About Meter...</a></li>
+    </ul>
+    <button class="button" id="hide_meter_info">Hide</button>
+</div>
+<div id="search_results">
+    <ul id="search_results_list"></ul>
+    <button id="hide_results" class="button">Hide</button>
+    <button class="button" onclick="window.open('/Rhymes', '_blank')">Advanced Search</button>
 </div>
 {% if write_session == "default" %}
     <span id="notepad" class="notepad" role="textbox" class="line" contenteditable></span>

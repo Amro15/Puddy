@@ -16,7 +16,7 @@
 {% endblock %}
 
 {% block main%}
-<h3>Look at other people's work and get inspired</h3>
+<h3>Look at other poet's work and get inspired</h3>
 <form action="{{url_for('get_inspired')}}" method="post" style="margin-left:5px">
 {{form.hidden_tag()}}
 {{form_field(form.query, "form-control mr-sm-2", "Search By", id="poem_search")}}
@@ -86,7 +86,7 @@
   <div id="poem_result">
     {% for i in items%}
     <div id="{{loop.index}}">
-      <button id="like_btn"><img src="/static/empty-like.png" id="like_icon"></button>
+      <button id="like_btn"><img src="/static/icons/empty-like.png" id="like_icon"></button>
       <h3>{{i.title}} By {{i.author}}</h3>
       <p>{{i.lines[0]}}</p>
       <p>{{i.lines[1]}}</p>

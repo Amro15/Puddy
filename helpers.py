@@ -1,11 +1,12 @@
-import os
+# import os
+# import urllib.request
+# import sqlite3
 from urllib.parse import urlparse, urljoin
-import urllib.request
 import json
 import sys
-import sqlite3
-from flask import redirect, request, session, g
-from functools import wraps
+import re
+from flask import request #,session, g,redirect,
+# from functools import wraps
 from app import app
 import prosodic as p
 
@@ -70,6 +71,7 @@ def require_rhyme_dict():
         jsonf.close()
         print('file opened and json_entries loaded.')
 
+regex = r'[0-9]'
 def isRhyme(word1, word2, level):
     require_rhyme_dict()
     global json_entries
@@ -79,7 +81,8 @@ def isRhyme(word1, word2, level):
         return False
     for a in word1_syllable_arrs:
         for b in word2_syllables_arrs:
-            if a[-level:] == b[-level:]:
+            # if a[-level:] == b[-level:]:
+            if re.sub(regex,"",a[-level]) == re.sub(regex,"",b[-level]):
                 return True
     return False
 

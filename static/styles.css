@@ -273,6 +273,10 @@ background-color: rgb(143, 143, 143) ;
 }
 /* ------------------------ */
 /* /Write */
+.loading{
+  display: none;
+}
+
 .poem-div{
   text-align: center;
 }
@@ -297,6 +301,22 @@ background-color: rgb(143, 143, 143) ;
 .meter_text, .syllables_text{
   margin-right: 40px;
   border: rgb(59, 60, 62) 2px solid;
+}
+
+#search_icon{
+  width: 12px;
+  height: 12px;
+}
+
+#quick_search_rhymes_btn{
+  padding: 7px;
+  width: 30px!important;
+  border-radius: 0.25rem;
+}
+
+#quick_search{
+  width: 204px;
+  display: inline-block;
 }
 
 #title{
@@ -369,29 +389,27 @@ span[contenteditable]:empty::before {
   margin-bottom: 10px;
 }
 
-.btn-secondary:hover, #rhyme_check_info:hover {
+.btn-secondary:hover, #rhyme_check_info:hover, #meter_info_btn:hover {
   background-color: rgb(45, 49, 57)!important;
 }
 
-.btn-secondary:active, #rhyme_check_info:active{
+.btn-secondary:active, #rhyme_check_info:active, #meter_info_btn:active{
     background-color:  rgb(79, 86, 100)!important;
 }
 
-#rhyme_check_info{
+#rhyme_check_info, #meter_info_btn{
   color:white;
   margin-left: 2px;
   background-color: rgb(105, 113, 132);
   border: 0px;
 }
-#rhyme_info_div{
+#rhyme_info_div, #meter_info_div, #search_results{
   background-color:  rgba(37, 37, 37, 0.5);
   color:white;
   border-radius: 7px;
-  margin: 10px 0px 0px 10px;
-  display: inline-block;
+  margin: 10px;
+  display: none;
   padding: 10px;
-  visibility: hidden;
-  position: absolute;
 }
 #create_btn_div{
   text-align: center;
@@ -469,9 +487,8 @@ span[contenteditable]:empty::before {
   margin: 10px;
 }
 
-#no_data_syllables{
-  position: absolute;
-  visibility: hidden;
+#no_data_syllables, #msg_container{
+  display: none;
 }
 #no_data_syllables_link{
   color: rgb(255, 255, 255)!important;
@@ -496,16 +513,12 @@ span[contenteditable]:empty::before {
 }
 
 
-#msg_container{
-  display: none;
-}
 #hide{
   width: 100px
 }
 
 /* --------------------------------------------- */
 
-/* ------------------------------ */
   
 /* /Draft */
 
@@ -703,9 +716,9 @@ hr{
   width: 120px;
   margin-left:5px;
 }
-/* ================================================================================= */
 
 .pagination-page-info, .pagination{
   margin-left: 10px;
   font-size: larger;
 }
+/* ================================================================================= */

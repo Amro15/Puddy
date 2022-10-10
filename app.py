@@ -204,9 +204,6 @@ def get_inspired():
             # if user has a min and max lincount filter modify enteries
             if (request.form.get("min_length")):
                 min_len = request.form.get("min_length")
-                # for i in server_response:
-                #     if i["linecount"]>request.form.get("min_length"):
-                #         print(i)
                 server_response=[i for i in server_response if int(i["linecount"])>int(min_len)]
             if (request.form.get("max_length")):
                 max_len = request.form.get("max_length")
@@ -217,18 +214,14 @@ def get_inspired():
                 server_response=[i for i in server_response if int(i["linecount"])<int(max_len)]
             if len(server_response) != 0:
                 return redirect(url_for("get_inspired", page=1))
-            return render_template("get_inspired.html", form=form, not_found="There Are No Results That Match Your Search Check Your Spelling Or Try Again")
+            return render_template("get_inspired.html", form=form, not_found="There Are No Results That Match Your Search")
         else:
             return render_template("get_inspired.html", form=form)
 
 @app.route("/GetInspired/<string:author>/<string:title>")
 def get_inspired_display(author, title):
-    print(author, title)
     url = f"https://poetrydb.org/author,title/{author.replace(' ','%20')};{title.replace(' ','%20')};"
-    print(url)
     poem = requests.get(url)
-    print(poem.json())
-    print(poem.json()[0]["author"])
     return render_template("get_inspired_display.html", poem=poem.json())
 
 
@@ -721,7 +714,7 @@ def format():
             return make_response({"response":"successful"})
 
 
-@app.route("/Rhyme", methods=["POST", "GET"])
+@app.route("/Rhymes", methods=["POST", "GET"])
 def rhyme():
     if request.method == "GET":
         return render_template("rhyme.html")
