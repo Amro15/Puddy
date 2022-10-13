@@ -55,7 +55,10 @@ if (logout_btn){
    })
 }
 
-
+var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+  return new bootstrap.Tooltip(tooltipTriggerEl)
+})
 }
 
 // cookie functions
@@ -77,4 +80,5 @@ function getCookie(name) {
        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
    }
    return null;
+
 }

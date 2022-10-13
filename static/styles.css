@@ -273,6 +273,31 @@ background-color: rgb(143, 143, 143) ;
 }
 /* ------------------------ */
 /* /Write */
+
+#warning{
+  position: fixed;
+  z-index: 2;
+  display: none;
+  color: white;
+  background-color: rgba(106, 104, 104, 0.8);
+  padding: 10px;
+  margin: 10px;
+}
+
+#warning_icon{
+  width: 60px;
+}
+.close_btn{
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  border: none;
+  background-color: rgb(106, 104, 104);
+}
+#rhyme_info_close, #meter_info_close{
+  width: 30px;
+  height: 30px;
+}
 .loading{
   display: none;
 }
@@ -389,11 +414,11 @@ span[contenteditable]:empty::before {
   margin-bottom: 10px;
 }
 
-.btn-secondary:hover, #rhyme_check_info:hover, #meter_info_btn:hover {
+.btn-secondary:hover, #rhyme_check_info:hover, #meter_info_btn:hover, .close_btn:hover, .icon_btn:hover {
   background-color: rgb(45, 49, 57)!important;
 }
 
-.btn-secondary:active, #rhyme_check_info:active, #meter_info_btn:active{
+.btn-secondary:active, #rhyme_check_info:active, #meter_info_btn:active, .close_btn:active, .icon_btn:active {
     background-color:  rgb(79, 86, 100)!important;
 }
 
@@ -405,6 +430,7 @@ span[contenteditable]:empty::before {
 }
 #rhyme_info_div, #meter_info_div, #search_results{
   background-color:  rgba(37, 37, 37, 0.5);
+  position: relative;
   color:white;
   border-radius: 7px;
   margin: 10px;
@@ -487,8 +513,11 @@ span[contenteditable]:empty::before {
   margin: 10px;
 }
 
-#no_data_syllables, #msg_container{
+#no_data_syllables,#no_data_rhymes, #msg_container{
   display: none;
+}
+#msg_container{
+  position: relative;
 }
 #no_data_syllables_link{
   color: rgb(255, 255, 255)!important;
@@ -545,14 +574,11 @@ span[contenteditable]:empty::before {
   font-size: 17px;
   text-align: center;
 }
-.draft_title{
+.draft_title, .poem_title{
+  word-break: break-word;
   font-size: 30px;
   text-decoration: underline;
   font-weight: bold;
-}
-.resume, .delete{
-  width:150px;
-  background-color: rgb(76, 81, 93);
 }
 #select_draft_div{
   background-color: rgba(230, 207, 207, 0.2);
@@ -580,12 +606,12 @@ span[contenteditable]:empty::before {
   }
 }
 /* ========================================================================== */
-#poem_container, .poem_container_account{
+/* Account/Poem */
+#poem_container, .poem_container{
   text-align: center;
 }
-.poem_container_account{
-  visibility: hidden;
-  position: absolute;
+.poem_container{
+  display: none;
 }
 .edit_poem{
   width: 245px;
@@ -596,7 +622,7 @@ span[contenteditable]:empty::before {
   display: inline-block;
   margin-left: 10px;
 }
-#poem, #account_poem, #display_poem{
+#poem, .display_poem{
   font-size: 20px;
   background-color: rgba(105, 113, 132, 0.8);
   text-align: left;
@@ -615,12 +641,12 @@ span[contenteditable]:empty::before {
   text-align: center;
 }
 
-#poem_title{
+.poem_title{
   font-size: 35px;
   font-weight: bold;
   margin-bottom: 0px;
 }
-#poem_author{
+.poem_author{
   font-size: inherit;
   font-style: italic;
 }
@@ -643,13 +669,14 @@ span[contenteditable]:empty::before {
     font-size: 28px;
   }
 }
+/* ========================================================================================== */
 
 /* Get inspired */
-#poem_search{
+#poem_search, #rhyme_search{
   width: 500px !important;
   display:inline-block;
 }
-.get_inspired_div{
+.get_inspired_div, .rhyme_select_div{
   max-width: 690px;
   margin-top: 10px;
   min-width: 240px;
@@ -686,8 +713,12 @@ span[contenteditable]:empty::before {
   float: right;
 }
 
+#search_poem, #search_rhyme{
+  margin-bottom:5px;
+}
+
 @media only screen and (max-width: 620px){
-  #poem_search{
+  #poem_search, #rhyme_search{
     width: 210px!important;
   }
   input[type=radio]{
@@ -699,6 +730,15 @@ span[contenteditable]:empty::before {
   display: none;
   margin-top: 50px;
 }
+
+.icon{
+  width: 50px;
+  height: 50px;
+}
+.icon_btn{
+  background-color: rgba(105, 113, 132, 0.8);
+}
+
 #like_icon{
   width: 32px;
   height: 32px;
@@ -722,3 +762,24 @@ hr{
   font-size: larger;
 }
 /* ================================================================================= */
+/* Rhymes */
+.small_icon{
+  width: 25px;
+  height: 30px;
+}
+
+.word_rhyme_result{
+  color: white;
+  display: inline-block;
+  font-size: large;
+}
+
+#loading_rhymes{
+  display: none;
+}
+
+#check_rhymes_div{
+  max-width: 500px;
+  min-width: 240px;
+}
+/* ========================================================================================= */

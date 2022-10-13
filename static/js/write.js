@@ -1,5 +1,17 @@
-// quick search for rhymes
+// remind user to save after 20 mins 
+let warning = setTimeout(()=>{
+    let warning_div = document.getElementById("warning");
+    warning_div.style.display="inline-block";
+    warning_div.scrollIntoView();
+    let close_warning_btn = document.getElementById("warning_close");
+    close_warning_btn.addEventListener("click", ()=>{
+        warning_div.style.display = "none";
+    })
+    
+},(20*60000))
 
+
+// quick search for rhymes
 let search_btn = document.getElementById("quick_search_rhymes_btn");
 let search_query = document.getElementById("quick_search");
 let search_results = document.getElementById("search_results");
@@ -54,7 +66,6 @@ hide_results_btn.addEventListener("click", ()=>{
 })
 
 //hide nav btn
-
 let navbar = document.getElementById("nav_div");
 toggle_nav.addEventListener("click", () => {
     if ((navbar.style.visibility !== "hidden") && (navbar.style.position !== "absolute")) {
@@ -173,7 +184,7 @@ check_rhyme_btn.addEventListener("click", () => {
                         obj_len += data[i].length;
                     }
                     if (obj_len === 0) {
-                        no_data_rhymes.innerHTML = "There must at least two words of the same rhyme in your poem!";
+                        no_data_rhymes.style.display = "block";
                     }
                     // change element color corresponding to the returned object's key
                     if (data["red"]) {
@@ -214,7 +225,7 @@ check_rhyme_btn.addEventListener("click", () => {
     //if btn is not checked all background colors go back to normal 
     else {
         // remove error msg
-        no_data_rhymes.innerHTML = "";
+        no_data_rhymes.style.display = "none";
         // rever all elements to their original color
         let input = document.getElementsByClassName("line");
         for (let i = 0; i < input.length; i++) {
@@ -226,7 +237,6 @@ check_rhyme_btn.addEventListener("click", () => {
 }
 
 // rhyme info
-
 let rhyme_info_btn = document.getElementById("rhyme_check_info");
 let rhyme_info_div = document.getElementById("rhyme_info_div");
 let ctr=0
@@ -234,9 +244,9 @@ if (rhyme_info_btn){
 rhyme_info_btn.addEventListener("click", ()=>{
         rhyme_info_div.style.display="inline-block";
 })
-let hide_rhyme_info = document.getElementById("hide_rhyme_info");
-if(hide_rhyme_info){
-    hide_rhyme_info.addEventListener("click", ()=>{
+let close_rhyme_info_btn = document.getElementById("rhyme_info_close");
+if(close_rhyme_info_btn){
+    close_rhyme_info_btn.addEventListener("click", ()=>{
         console.log("click")
     rhyme_info_div.style.display="none";
     })
@@ -373,11 +383,11 @@ check_meter_btn.addEventListener("click", () => {
 // meter info
 let meter_info_btn = document.getElementById("meter_info_btn");
 let meter_info_div = document.getElementById("meter_info_div");
-let hide_meter_info = document.getElementById("hide_meter_info");
+let close_meter_info_btn = document.getElementById("meter_info_close");
 meter_info_btn.addEventListener("click", ()=>{
     meter_info_div.style.display = "inline-block";
 });
-hide_meter_info.addEventListener("click", ()=>{
+close_meter_info_btn.addEventListener("click", ()=>{
     meter_info_div.style.display = "none";
 });
 
@@ -386,7 +396,7 @@ hide_meter_info.addEventListener("click", ()=>{
 let save_draft = document.getElementById("save_draft");
 let success_msg = document.getElementById("confirmation_msg_write");
 let success_msg_div = document.getElementById("msg_container");
-let close_success_msg = document.getElementById("hide");
+let close_success_msg = document.getElementById("close_success_msg");
 let save_draft_modal = document.getElementById("save_draft_modal");
 let update_draft_btn = document.getElementById("update_draft");
 
@@ -397,7 +407,19 @@ save_draft.addEventListener("click", () => {
     console.log("click")
     let title = document.getElementById("title").innerText;
     let notepad = document.getElementById("notepad").innerText;
-    let send_to_server_draft = { "title": title, "notes": notepad };
+    const urlParams = new URLSearchParams(window.location.search);
+    // if session is draft pass the required parameters
+    let send_to_server_draft;
+    if(urlParams.has("draft")){
+        let draft_session = true;
+        let draft_num = urlParams.get("draft")
+        let poem_num = urlParams.get("pnum");
+        send_to_server_draft = { "title": title, "notes": notepad, "draft_session":draft_session, "draft_num":draft_num,"poem_num":poem_num };
+        
+    }
+    else{
+        send_to_server_draft = { "title": title, "notes": notepad };
+    }
     let input = document.getElementsByClassName("line");
     for (let i = 0; i < input.length; i++) {
         send_to_server_draft[input.item(i).id] = input.item(i).innerText;
@@ -456,8 +478,7 @@ if (save_draft_modal) {
                 }
                 respone.json().then((data) => {
                     write_modal.hide()
-                    success_msg_div.style.cssText = "display:block";
-                    success_msg.innerHTML = "Draft succesfully saved";
+                    success_msg_div.style.display = "block";
 
                 });
             });
@@ -486,8 +507,7 @@ if (update_draft_btn) {
                 respone.json().then((data) => {
                     console.log("updated")
                     write_modal.hide()
-                    success_msg_div.style.cssText = "display:block";
-                    success_msg.innerText = "Draft successfully updated";
+                    success_msg_div.style.display = "block";
 
                 });
             });
@@ -495,8 +515,7 @@ if (update_draft_btn) {
 }
 
 close_success_msg.addEventListener("click", () => {
-    success_msg_div.style.cssText = "visibility: hidden, position:absolute";
-    success_msg.innerHTML = "";
+    success_msg_div.style.display = "none";
 })
 
 
@@ -564,8 +583,7 @@ if (update_poem_btn){
                 }
                 respone.json().then((data) => {
                     console.log("data we got back is", data);
-                    success_msg_div.style.cssText = "display:block";
-                    success_msg.innerHTML="Poem Successfuly Updated";
+                    success_msg_div.style.display = "block";
     
                 });
             });

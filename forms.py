@@ -1,4 +1,5 @@
 from ast import Sub
+from secrets import choice
 from wsgiref.validate import validator
 from flask import session
 from flask_wtf import FlaskForm
@@ -52,7 +53,13 @@ class SigninForm(FlaskForm):
     remember_me = BooleanField("Remember Me")
     sign_in = SubmitField("Sign In")
 
-class GetInspiredForm(FlaskForm):
+class SearchPoemsForm(FlaskForm):
     query = StringField("query", validators=[InputRequired("Search Field Cannot Be Empty")])
     filters = SelectField("filter", choices=[("author","Search By Author"),("title","Search By Title"),("lines","Search By Poem Verse"), ("linecount", "Search By Poem Length")], validators=[InputRequired("Please Select A Filter")])
+    search = SubmitField()
+    sort_by = SelectField("sort_by", choices=[("sort_by", "Sort By"),("shortest", "Shortest"), ("longest", "Longest"), ("author", "Author (A-Z)"), ("author_reverse", "Author (Z-A)"), ("title", "Title (A-Z)"), ("title_reverse", "Title (Z-A)")])
+
+class RhymesForm(FlaskForm):
+    query = StringField("query", validators=[InputRequired("Search Field Cannot Be Empty")])
+    filters = SelectField("filter", choices=[("rel_rhy","Search For Rhymes"),("rel_syn","Search For Synonyms"),("rel_ant","Search For Antonyms")], validators=[InputRequired("Please Select A Filter")])
     search = SubmitField()

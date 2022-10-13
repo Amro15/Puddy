@@ -1,0 +1,73 @@
+{% from 'macro.html' import form_field, err_msg %}
+
+{% extends "layout.html" %}
+
+{% block title %} Rhyme {% endblock %}
+
+{% block head %}
+<style>
+    body{
+        background-image: url("/static/get_inspired_background.jpg") !important;
+    }
+    main{
+        color: white;
+        margin-left: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block main %}
+<h3>Search for rhymes</h3>
+<form action="/Rhymes" method="post" id="serach_for_rhymes">
+{{form.hidden_tag()}}
+{{form_field(form.query, "form-control mr-sm-2", "Search For", id="rhyme_search")}}
+{{form.search(id="search_poem", class="btn btn-primary")}}
+<br>
+<div class="input-group mb-3 rhyme_select_div">
+  <label class="input-group-text" for="inputGroupSelect01">Filters</label>
+{{form_field(form.filters, "form-select", id="inputGroupSelect01")}}
+</div>
+{{err_msg(form.query)}}
+{{err_msg(form.filters)}}
+</form>
+<h3>Check if words rhyme</h3>
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<div class="input-group mb-3" id="check_rhymes_div">
+    <input type="text" class="form-control" id="word1" placeholder="Word1" aria-label="Word1" required>
+    <span class="input-group-text" id="rhyme_check_results"></span>
+    <input type="text" class="form-control" id="word2" placeholder="Word2" aria-label="Word2" required>
+    <button class="button" id="check_rhymes_btn">Check</button>
+</div>  
+<div id="loading_rhymes">
+    <div class="text-center">
+    <div class="spinner-border" style="width: 3rem; height: 3rem;" role="status">
+    </div>
+  </div>
+  </div>
+{% if no_results %}
+    <p class="error_msg">{{no_results}}</p>
+{% else %}
+<p><u>Tip:</u> Hover for quick definition of the word, click to show multiple definitions.</p>
+    {% if form.filters.data == "rel_rhy" %}
+        {% for key, value in resp.items() %}
+        <p><u><b>{{key}} Syllable(s):</b></u> <button class="icon_btn"><img src="static/icons/up-arrow.png" class="small_icon"></button></p>
+        <div class="syllable_div">
+            {% for i in value %}
+                {% for k, v in i.items()%}
+                    <a href="/Rhymes/Definition?i={{form.query.data}}&f={{form.filters.data}}&word={{k}}" class="word_rhyme_result" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{v[0]}}">{{k}}</a>, 
+                {% endfor %}
+            {% endfor %}
+        </div>
+        <br>
+        {% endfor %}
+    {% else %}
+        {% for i in resp %}
+        <a href="/Rhymes?word='{{i}}'"  class="word_rhyme_result">{{i.word}}</a>, 
+        {% endfor %}
+    {% endif %}
+{% endif %}
+
+<script  src="/static/js/rhymes.js"> </script>
+{% endblock %}
+<a href="https://www.flaticon.com/free-icons/back" title="back icons">Arrow icons created by Roundicons - Flaticon</a>
+<a href="https://www.datamuse.com/api/" target="_blank">Copyright © 2022 Datamuse</a>

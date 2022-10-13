@@ -48,8 +48,9 @@ aria-hidden="true">
 {% if i.edit_date %}
 <p>Edit Date : {{i.edit_date.strftime("%d-%b-%Y at %I:%M%p")}}</p>
 {% endif %}
-<button class="button resume" name="{{i.poem_count}};{{i.draft_count}}" onclick="window.location='/Write?draft={{i.draft_id}}'" >Resume</button>
-<button class="button delete" name="{{i.poem_count}};{{i.draft_count}}" >Delete</button>
+<button class="icon_btn" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Display"><img src="/static/icons/display.png" class="icon" alt="display"></button>
+<button class="icon_btn" name="{{i.poem_count}};{{i.draft_count}}" onclick="window.location='/Write?draft={{i.draft_id}}&pnum={{i.poem_count}}'" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Resume"><img src="/static/icons/resume.png" class="icon" alt="resume"></button>
+<button class="icon_btn delete" name="{{i.poem_count}};{{i.draft_count}}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Delete"><img src="/static/icons/delete.png" class="icon" alt="delete"></button>
 </li>
 {% endfor %}
 </ul>
@@ -60,3 +61,6 @@ aria-hidden="true">
 {% endif %}
 <script  src="/static/js/draft.js"> </script>
 {% endblock %}
+<a href="https://www.flaticon.com/free-icons/play" title="play icons">Resume icons created by Freepik - Flaticon</a>
+<a href="https://www.flaticon.com/free-icons/edit" title="edit icons">Edit icons created by Pixel perfect - Flaticon</a>
+<a href="https://www.flaticon.com/free-icons/delete" title="delete icons">Display-Delete icons created by bqlqn - Flaticon</a>

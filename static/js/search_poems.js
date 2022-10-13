@@ -39,13 +39,20 @@ length_range_radio.addEventListener("click", ()=>{
     lenght_div.style.display="none";
 })
 
+// trigger loading div
+let form = document.getElementById("get_inspired_form");
+let loading_div = document.getElementById("loading_poems");
+form.addEventListener("submit", ()=>{
+    loading_div.style.display = "block";
+})
+
+
 // random query
 
 let random_poem_btn = document.getElementById("poem_rand");
-let loading_div = document.getElementById("loading_poems");
 random_poem_btn.addEventListener("click", () => {
     loading_div.style.display = "block";
-    fetch(window.origin + "/GetInspired", {
+    fetch(window.origin + "/SearchPoems", {
         method: "POST",
         headers: new Headers({
             "X-CSRFToken": document.getElementsByName("csrf_token")[0].value,
@@ -63,7 +70,7 @@ random_poem_btn.addEventListener("click", () => {
             }
             respone.json().then((data) => {
                 if(data["response"] === "success"){
-                    window.location = "/GetInspired?page=1"
+                    window.location = "/SearchPoems?poem_rand=true"
                 }
             });
         });
@@ -99,28 +106,10 @@ for(let i=0; i<read_more_btn.length; i++){
 
 let sort_by = document.getElementById("get_inspired_sort_by");
 if(sort_by){
-sort_by.addEventListener("change", (event)=>{
-    loading_div.style.display = "block";
-    console.log("change")
-    fetch(window.origin+"/GetInspired",{
-        method:"POST",
-           headers: new Headers({
-            "X-CSRFToken": document.getElementsByName("csrf_token")[0].value,
-              "Content-Type":"application/json",
-              "Request":"sort"
-           }),
-           cache:"no-cache",
-           body: JSON.stringify({"request":event.target.value})
-        })
-        // this is executed right after the fetch request
-        .then((respone)=>{
-           // if request fails
-           if (respone.status !== 200){
-              console.log("request status for sort is"+respone.status);
-              return;
-           }
-           // if request succeeds 
-        respone.json().then((data)=>{window.location.reload()});
-    });
+sort_by.addEventListener("change", (e)=>{
+    if(e.target.value!="sort_by"){
+        loading_div.style.display = "block";
+        form.submit();
+    }
 })
 }

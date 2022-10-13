@@ -34,7 +34,7 @@
 </div>
 <!-- ============ -->
 {% endif %}
-
+<div id="warning"><img src="/static/icons/warning.png" id="warning_icon">You Haven't Saved In A While<button class="close_btn id="warning_close">x</button></div>
 <div id="btn_div">
 
     <input type="text" class="form-control" id="quick_search" placeholder="Quick Search For Rhymes">
@@ -55,12 +55,12 @@
         <label class="form-check-label" for="flexSwitchCheckReverse" >Toggle Notepad</label>
     </div>
     <!-- Dont show check rhymes btn if rhyme scheme is either of these two -->
-    {% if not ((user_rhyme_scheme=="Free Verse") or (user_rhyme_scheme=="Haiku")) %}
+    {% if not ((user_rhyme_scheme=="Free Verse") or (user_rhyme_scheme=="Haiku"))%}
     <div class="form-check form-switch form-check-reverse switch_div">
             <input class="form-check-input" id="check_rhymes" name="switch" value="check_rhymes" type="checkbox"
                 id="flexSwitchCheckReverse">
             <label class="form-check-label" for="flexSwitchCheckReverse" id="check_rhymes_label">Check Rhymes</label><button id="rhyme_check_info">?</button>
-            <div id="no_data_rhymes"></div>
+            <div id="no_data_rhymes">There must at least two words of the same rhyme in your poem</div>
             <div id="loading_rhymes" class="text-center loading">
                 <div class="spinner-border" style="width: 2rem; height: 2rem;" role="status">
               </div>
@@ -101,6 +101,7 @@
 </div>
 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 <div id="rhyme_info_div">
+    <button id="rhyme_info_close" class="close_btn">x</button>
     <ul>
         <li><u style=color:green><span style=color:green>Green:</span></u> Words rhyme</li>
         <br>
@@ -110,16 +111,15 @@
         <br>
         <li><u style=color:red><span style=color:red>Red:</span></u> Words don't rhyme</li>
     </ul>
-    <button class="button" id="hide_rhyme_info">Hide</button>
 </div>
 <div id="meter_info_div">
+    <button id="meter_info_close" class="close_btn">x</button>
     Display Meter:
     <ul>
         <li>Seperates Words Into Syllables</li>
         <li>Identify <b>STRESSED</b> And <b>unstressed</b> Syllables</li>
         <li><a>More About Meter...</a></li>
     </ul>
-    <button class="button" id="hide_meter_info">Hide</button>
 </div>
 <div id="search_results">
     <ul id="search_results_list"></ul>
@@ -161,7 +161,7 @@
         {% endif %}
         <button value="Save Draft"class="button" name="write_btn" id="save_draft">Save As Draft</button>
         <button value="save_poem" class="button" name="write_btn" id="save_poem">Save Poem</button>
-        <div id="msg_container"><p class="confirmation_msg" id="confirmation_msg_write"></p><button type="button" id = "hide" class="btn btn-secondary btn-sm">Hide</button></a> </div>
+        <div id="msg_container"><button type="button" class="close_btn" id="close_success_msg">hide</button><p class="confirmation_msg" id="confirmation_msg_write">Draft succesfully saved</p></div>
     </div>
 
 <!-- if sess is draft get all of our info from our databse-->
@@ -179,7 +179,7 @@
             </div>
             <div class="syllables"><span class="syllables_text"></span></div>
             <div class="meter"><span class="meter_text"></span></div>
-                {% if draft.line_breaks and ((loop.index % draft.line_breaks) == 0) %}
+                {% if draft.line_break and ((loop.index % draft.line_break) == 0) %}
                 <br>
                 {% endif %}
             {% endfor %}
@@ -191,14 +191,14 @@
             </div>
             <div class="syllables"><span class="syllables_text"></span></div>
             <div class="meter"><span class="meter_text"></span></div>
-                {% if draft.line_breaks and ((loop.index % draft.line_breaks) == 0) %}
+                {% if draft.line_break and ((loop.index % draft.line_break) == 0) %}
                 <br>
                 {% endif %}
             {% endfor %}
         {% endif %}
         <button value="Save Draft"class="button" name="write_btn" id="save_draft">Save As Draft</button>
         <button value="save_poem" class="button" name="write_btn" id="save_poem">Save Poem</button>
-        <div id="msg_container"><p class="confirmation_msg" id="confirmation_msg_write"></p><button type="button" id = "hide" class="button">Hide</button></a></div>
+        <div id="msg_container"><button type="button" class="close_btn" id="close_success_msg">hide</button><p class="confirmation_msg" id="confirmation_msg_write">Draft succesfully saved</p></div>
     </div>
 
 <!-- if sess is poem get all of our info from our databse-->
@@ -209,14 +209,14 @@
             <span contenteditable id="title">{{poem.title}}</span><span class="badge bg-secondary, title_symbol">Title</span>
         </div>
         {% if ( (poem.rhyme_scheme=="Free Verse") or (poem.rhyme_scheme=="Haiku") ) %}
-            {% for i in poem._lines %}
+            {% for i in poem_lines %}
             <div class="verse">
                 <span class="line {{i.line_num}}" id="{{i.line_num}}" name="{{i.line_num}}" role="textbox" contenteditable="true">{{i.line_text}}</span><span id="symbol{{i.line_num}}"
                     class="badge bg-secondary, rhyme_symbols">{{i.line_num}}</span>
             </div>
             <div class="syllables"><span class="syllables_text"></span></div>
             <div class="meter"><span class="meter_text"></span></div>
-                {% if poem.line_breaks and ((loop.index % poem.line_breaks) == 0) %}
+                {% if poem.line_break and ((loop.index % poem.line_break) == 0) %}
                 <br>
                 {% endif %}
             {% endfor %}
@@ -228,14 +228,15 @@
             </div>
             <div class="syllables"><span class="syllables_text"></span></div>
             <div class="meter"><span class="meter_text"></span></div>
-                {% if poem.line_breaks and ((loop.index % poem.line_breaks) == 0) %}
+                {% if poem.line_break and ((loop.index % poem.line_break) == 0) %}
                 <br>
                 {% endif %}
             {% endfor %}
         {% endif %}
         <button class="button" id="update_poem">Save Changes</button>
-        <div id="msg_container"><p class="confirmation_msg" id="confirmation_msg_write"></p><button type="button" id = "hide" class="button">Hide</button></a></div>
+        <div id="msg_container"><button type="button" class="close_btn" id="close_success_msg">hide</button><p class="confirmation_msg" id="confirmation_msg_write">Poem succesfully updated</p></div>
     </div>
 {% endif %}
 <script  src="/static/js/write.js"> </script>
 {% endblock %}
+<a href="https://www.datamuse.com/api/" target="_blank">Copyright © 2022 Datamuse</a>

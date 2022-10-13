@@ -145,84 +145,92 @@ def logout():
 
 from flask_paginate import Pagination, get_page_parameter
 
-@app.route("/GetInspired", methods=["POST", "GET"])
-def get_inspired():
+@app.route("/SearchPoems", methods=["POST", "GET"])
+def search_poems():
     global server_response
-    form = GetInspiredForm()
+    form = SearchPoemsForm()
     if request.method == "GET":
-        if request.args.get("page"):
+        # random query
+        if request.args.get("poem_rand"):
+            url = "https://poetrydb.org/random/20"
+            server_response = requests.get(url)
+            server_response = server_response.json()
             page = int(request.args.get('page', 1))
             per_page = 20 
             offset = (page - 1) * per_page 
             items_pagination = server_response[offset:offset+per_page] 
             total = len(server_response) 
             pagination = Pagination(page=page, per_page=per_page, offset=offset, total=total) 
-            return render_template("get_inspired.html", form=form, pagination=pagination, items=items_pagination)
-        else:
-            return render_template("get_inspired.html", form=form)
-    if request.method == "POST" :
-        # if an ajax request is sent
-        if "Request" in request.headers:
-            if request.headers["Request"] == "randomise":
-                url = "https://poetrydb.org/random/20"
-                server_response = requests.get(url)
-                server_response = server_response.json()
-                return make_response({"response":"success"})
-
-            if request.headers["Request"] == "sort":
-                req=request.get_json()
-                sort_by = req["request"]
-                match sort_by:
+            return render_template("search_poems.html", form=form, server_response=server_response, pagination=pagination, items=items_pagination, poem_rand=True)
+        # normal query
+        if request.args.get("query"):
+            # refill the form with the user's input
+            form.query.data  = request.args.get("query")
+            form.filters.data = request.args.get("filters")
+            query = form.query.data.strip().replace(" ","%20")
+            
+            # if user specified poem_length
+            if (request.args.get("poem_length")):
+                url = f"https://poetrydb.org/{form.filters.data},linecount/{query};{request.args.get('poem_length')}"
+            else:
+                url = f"https://poetrydb.org/{form.filters.data}/{query}"
+            server_response = requests.get(url)
+            server_response = server_response.json()
+            # if user has a min and max lincount filter modify enteries
+            if (request.args.get("min_length")):
+                min_len = request.args.get("min_length")
+                server_response=[i for i in server_response if int(i["linecount"])>int(min_len)]
+            if (request.args.get("max_length")):
+                max_len = request.args.get("max_length")
+                server_response=[i for i in server_response if int(i["linecount"])<int(max_len)]
+            
+            # if user wants to sort results
+            if(request.args.get("sort_by")):
+                form.sort_by.data = request.args.get("sort_by") 
+                match request.args.get("sort_by"):
                     case "shortest":
                         server_response.sort(key=lambda i: int(i["linecount"]))
                     case "longest":
                         server_response.sort(key=lambda i: int(i["linecount"]), reverse=True)
                     case "author":
-                        server_response.sort(key=lambda i: i[sort_by])
-                    case "author reverse":
-                        server_response.sort(key=lambda i: i[sort_by], reverse=True)
+                        server_response.sort(key=lambda i: i["author"])
+                    case "author_reverse":
+                        server_response.sort(key=lambda i: i["author"], reverse=True)
                     case "title":
-                        server_response.sort(key=lambda i: i[sort_by])
-                    case "title reverse":
-                        server_response.sort(key=lambda i: i[sort_by], reverse=True)
-                return make_response({"response":"success"})
-
-        # search for poems with users filters
-        if form.validate_on_submit():
-            print(form.filters.data)
-            query = form.query.data.strip().replace(" ","%20")
-            if (request.form.get("poem_length")):
-                url = f"https://poetrydb.org/{form.filters.data},linecount/{query};{request.form.get('poem_length')}"
-            else:
-                url = f"https://poetrydb.org/{form.filters.data}/{query}"
-            print(url)
-            server_response = requests.get(url)
-            server_response = server_response.json()
+                        server_response.sort(key=lambda i: i["title"])
+                    case "title_reverse":
+                        server_response.sort(key=lambda i: i["title"], reverse=True)
             # if no results match user's search
             if "status" in server_response and server_response["status"]== 404:
-                return render_template("get_inspired.html", form=form, not_found="There Are No Results That Match Your Search Check Your Spelling Or Try Again")
-            # if user has a min and max lincount filter modify enteries
-            if (request.form.get("min_length")):
-                min_len = request.form.get("min_length")
-                server_response=[i for i in server_response if int(i["linecount"])>int(min_len)]
-            if (request.form.get("max_length")):
-                max_len = request.form.get("max_length")
-                for i in server_response:
-                    print(i["linecount"])
-                    print(int(i["linecount"])<int(max_len))
-                print("max len")
-                server_response=[i for i in server_response if int(i["linecount"])<int(max_len)]
+                return render_template("search_poems.html", form=form, not_found="There are no results that match your search check your spelling or try again")
+            # if there is a response
             if len(server_response) != 0:
-                return redirect(url_for("get_inspired", page=1))
-            return render_template("get_inspired.html", form=form, not_found="There Are No Results That Match Your Search")
+                # pagination setup
+                page = int(request.args.get('page', 1))
+                per_page = 20 
+                offset = (page - 1) * per_page 
+                items_pagination = server_response[offset:offset+per_page] 
+                total = len(server_response) 
+                pagination = Pagination(page=page, per_page=per_page, offset=offset, total=total) 
+                return render_template("search_poems.html", form=form, pagination=pagination, items=items_pagination)
+            # if there's no response
+            return render_template("search_poems.html", form=form, not_found="There are no results that match your search")
+        # if there is no query url parameter
         else:
-            return render_template("get_inspired.html", form=form)
+            return render_template("search_poems.html", form=form)
+    if request.method == "POST" :
+        # if an ajax request is sent
+        if "Request" in request.headers:
+            # randomise results
+            if request.headers["Request"] == "randomise":
+                return make_response({"response":"success"})
 
-@app.route("/GetInspired/<string:author>/<string:title>")
-def get_inspired_display(author, title):
+
+@app.route("/SearchPoems/<string:author>/<string:title>")
+def search_poems_display(author, title):
     url = f"https://poetrydb.org/author,title/{author.replace(' ','%20')};{title.replace(' ','%20')};"
     poem = requests.get(url)
-    return render_template("get_inspired_display.html", poem=poem.json())
+    return render_template("search_poems_display.html", poem=poem.json())
 
 
 @app.route("/About")
@@ -358,8 +366,6 @@ def create():
                 session["draft_num"] = None
                 return redirect(url_for("write", rs=user_rhyme_scheme))
 
-        
-
 
 @app.route("/Write", methods=["POST", "GET"])
 @login_required
@@ -385,18 +391,17 @@ def write():
             # turn it into a poem class 
             draft = Drafts.query.filter_by(user_id=current_user.id, draft_id=request.args.get("draft")).first()
             draft_lines = Drafts_Lines.query.filter_by(draft_id=draft.draft_id).all()
-            return render_template("write.html", user_background=user_background, write_session = write_session, draft=draft, draft_lines=draft_lines)
+            return render_template("write.html", user_background=user_background, user_rhyme_scheme=draft.rhyme_scheme, write_session = write_session, draft=draft, draft_lines=draft_lines)
 
         elif request.args.get("poem"):
             print("is poem")
             write_session = "poem"
             poem = Poems.query.filter_by(user_id=current_user.id, poem_id = request.args.get("poem")).first()
             poem_lines = Poems_Lines.query.filter_by(poem_id=poem.poem_id).all()
-            return render_template("write.html",user_background=user_background, write_session = write_session, poem=poem, poem_lines=poem_lines)
+            return render_template("write.html",user_background=user_background, user_rhyme_scheme=poem.rhyme_scheme, write_session = write_session, poem=poem, poem_lines=poem_lines)
 
 # ===================================================================================================================================
     if request.method == "POST":
-        print("is post")
         if request.get_json():
             # takes request body and turns it into a python dict
             req = request.get_json()
@@ -615,24 +620,28 @@ def write():
                     return make_response({"response":"Draft was saved"}, 200)
                 # if draft exists tell the server
                 else:
-                    # if session.get("draft_session", None) == True:
-                    if request.args.get("draft"):
-                        global_poem_num = session.get("draft_poem_num", None)
+                    # if we're editing a draft set the global poem number to the draft poem_num not the user's most recent poem_num
+                    if "draft_session" in req:
+                        global_poem_num = req["poem_num"]
+                    del req["draft_session"]; del req["poem_num"]
                     return make_response({"response":"draft already exists"}, 200)
             # make a save of the draft having the same poem number but increasing the current draft number
             if server_request == "save another draft":
+                if "draft_num" in global_initial_request:
+                    del global_initial_request["draft_num"]
                 print("server_request is save another draft")
                 print("init request", global_initial_request)
                 print(session.get("draft_num", None))
                 last_draft_num = Drafts.query.filter_by(user_id=current_user.id, poem_count=global_poem_num).order_by(Drafts.draft_count.desc()).first()
-                session["draft_num"]= last_draft_num.draft_count+1
-                print("Draft num is: ", session.get("draft_num", None))
+                # session["draft_num"]= last_draft_num.draft_count+1
+                # print("Draft num is: ", session.get("draft_num", None))
+                draft_count = last_draft_num.draft_count+1
                 # insert new draft
-                new_draft = Drafts(user_id=current_user.id, draft_count=session.get("draft_num", None), poem_count=global_poem_num, rhyme_scheme=session.get("rhyme scheme", None), title=global_title, notes=global_notes,  save_date=datetime.now())
+                new_draft = Drafts(user_id=current_user.id, draft_count=draft_count, poem_count=global_poem_num, rhyme_scheme=session.get("rhyme scheme", None), title=global_title, notes=global_notes,  save_date=datetime.now())
                 db.session.add(new_draft)
                 db.session.commit()
                 for key, value in global_initial_request.items():
-                    new_draft_lines = Drafts_Lines(draft_id=Drafts.query.filter_by(user_id=current_user.id, draft_count=session.get("draft_num",None), poem_count=global_poem_num).first().draft_id, line_num=key, line_text=value )
+                    new_draft_lines = Drafts_Lines(draft_id=Drafts.query.filter_by(user_id=current_user.id, draft_count=draft_count, poem_count=global_poem_num).first().draft_id, line_num=key, line_text=value )
                     db.session.add(new_draft_lines)
                     db.session.commit()
                 return make_response({"response":"saved duplicate"}, 200)
@@ -644,11 +653,16 @@ def write():
                 # db = get_db()
                 # cur = db.cursor()
                 print("title inside update is", global_title)
-                print("darft nm", session.get("draft_num", None))
                 print("peomnum", global_poem_num)
                 print("uid", session.get("user_id", None))
                 # update most recent draft accoridingly
-                updated_draft = Drafts.query.filter_by(user_id=current_user.id, draft_count=session.get("draft_num", None), poem_count=global_poem_num).first()
+                if "draft_num" in global_initial_request:
+                    draft_count = global_initial_request["draft_num"]
+                else:
+                    draft_count =  Drafts.query.filter_by(user_id=current_user.id, poem_count=global_poem_num).order_by(Drafts.draft_count.desc()).first()
+                print("Draft count", draft_count)
+                updated_draft = Drafts.query.filter_by(user_id=current_user.id, draft_count=draft_count, poem_count=global_poem_num).first()
+                del global_initial_request["draft_num"]
                 updated_draft.title = global_title
                 updated_draft.notes = global_notes
                 updated_draft.edit_date = datetime.now()
@@ -691,11 +705,12 @@ def write():
                 db.session.commit()
                 return make_response({"response":"updated poem"}, 200)
 
+
 @app.route("/Format", methods=["POST", "GET"])
 def format():
     if request.method == "GET":
         user_poem = Poems.query.filter_by(user_id=current_user.id, poem_count=Users.query.filter_by(id=current_user.id).first().saved_poem_count).first()
-        user_poem_lines = Poems_Lines.query.filter_by(poem_id=Poems.query.filter_by(user_id=current_user.id).first().poem_id).all()
+        user_poem_lines = Poems_Lines.query.filter_by(poem_id=user_poem.poem_id).all()
         return render_template("format.html", user_poem = user_poem, user_poem_lines=user_poem_lines, username=current_user.username)
     if request.method == "POST":
         req = request.get_json()
@@ -715,11 +730,75 @@ def format():
 
 
 @app.route("/Rhymes", methods=["POST", "GET"])
-def rhyme():
+def rhymes():
+    form = RhymesForm()
     if request.method == "GET":
-        return render_template("rhyme.html")
+        return render_template("rhymes.html", form=form)
     if request.method == "POST":
-        return render_template("rhyme.html")
+        # to check if 2 words rhyme
+        if "Request" in request.headers and request.headers["Request"]== "check if words rhyme":
+            req = request.get_json()
+            return make_response({"response":isRhyme(req["request"][0],req["request"][1], 1)})
+        # to check rhymes call api
+        if form.validate_on_submit():
+            url = f"https://api.datamuse.com/words?{form.filters.data}={form.query.data}&max=1000&md=d"
+            resp = requests.get(url)
+            resp = resp.json()
+            if len(resp) == 0:
+                return render_template("rhymes.html", form=form, no_results="There are no words that match your search check your spelling or try again")
+            if form.filters.data == "rel_rhy":
+                syllables = []
+                resp_obj = {}
+                for i in resp:
+                    if i["numSyllables"] not in syllables:
+                        syllables.append(i["numSyllables"])
+                for i in syllables:
+                    resp_obj[i]= []
+                    for j in resp:
+                        if i == j["numSyllables"]:
+                            if "defs" in j:
+                                resp_obj[i].append({j["word"]:j["defs"]})
+                            else:
+                                resp_obj[i].append({j["word"]:"None"})
+                return render_template("rhymes.html", form=form, resp=dict(sorted(resp_obj.items())))
+            return render_template("rhymes.html", form=form, resp=resp)
+        print("if statements skipped")
+
+
+@app.route("/Rhymes/Definition")
+def rhymes_def():
+    initial_word =  request.args.get("i")
+    filter = request.args.get("f")
+    url = f"https://api.datamuse.com/words?{filter}={initial_word}&max=1000&md=d"
+    print(url)
+    resp = requests.get(url)
+    word=request.args.get("word")
+    for i in resp.json():
+        if i["word"] == word:
+            if "defs" in i:
+                definition = i["defs"]
+                break
+            else:
+                return render_template("rhymes_def.html", no_results=f'"{word}" has no known definitions in our dictionary')
+    if len(definition) == 0:
+        return render_template("rhymes_def.html", no_results=f'"{word}" has no known definitions in our dictionary')
+    def_obj = {"Noun":[],"Verb":[],"Adjective":[],"Adverb":[],"Undefined":[]}
+    for i in definition:
+        match i[0]:
+            case "n":
+                def_obj["Noun"].append(i[1:])
+            case "v":
+                def_obj["Verb"].append(i[1:])
+            case "u":
+                def_obj["Unidentified"].append(i[1:])
+        match i[0:3]:
+            case "adj":
+                def_obj["Adjective"].append(i[3:])
+            case "adv":
+                def_obj["Adverb"].append(i[3:])
+    print(def_obj)
+
+    return render_template("rhymes_def.html",definition=def_obj, word=word)
 
 # Account dropdown
 @app.route("/Account/Customize", methods=["POST", "GET"])
@@ -753,6 +832,7 @@ def customize():
                 os.remove(os.path.join(UPLOAD_FOLDER, filename))
         return redirect("/Create")
 
+
 @app.route("/Account/Draft", methods=["POST", "GET"])
 @login_required
 def drafts():
@@ -782,24 +862,14 @@ def drafts():
             db.session.commit()
             return{"response":"Draft Deleted", "draft_title":draft_title, "draft_num":draft_num , "poem_num":poem_num}
 
-# <div class="poem_container_account" id="container{{i.title}}/{{i.poem_count}}">
-#     <div id ="account_poem">
-#     <p id="poem_title" class="edit_line">{{i.title}}</p>
-#     <p id="poem_author">By {{username}}</p>
-# {%for key, value in data_arr[i].get_lines().items()%}
-# <p id="{{key}}" class="edit_line" >{{value}}</p>
-#     {% if data_arr[i].get_line_breaks() and ((loop.index%data_arr[i].get_line_breaks()) == 0)%}
-#     <br>
-#     <br>
-#     {%endif%}
-# {%endfor%}
-# </div>
+
 @app.route("/Account/Poem", methods=["POST", "GET"])
 @login_required
 def poems():
     if request.method == "GET":
         user_poems = Poems.query.filter_by(user_id=current_user.id).all()
-        return render_template("poem.html", user_poems=user_poems, username=current_user.username)
+        poem_lines = Poems_Lines.query.all()
+        return render_template("poem.html", user_poems=user_poems, poem_lines=poem_lines, username=current_user.username)
     if request.method == "POST":
         req=request.get_json()
         if request.headers["Request"] == "delete poem":
@@ -813,6 +883,7 @@ def poems():
             poem.delete()
             db.session.commit()
             return make_response({"response":"successful", "poem_title":poem_title,"poem_num":poem_num})
+
 
 @app.route("/Account/Poem/Display", methods=["POST", "GET"])
 def display():

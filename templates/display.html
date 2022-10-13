@@ -4,11 +4,10 @@
 
 
 {% block main%}
-<button id="copy_poem">Copy To Clipboard</button>
 <div id="poem_container">
-    <div id ="display_poem">
-    <p id="poem_title">{{poem.title}}</p>
-    <p id="poem_author">By {{username}}</p>
+    <div class ="display_poem">
+    <p class="poem_title">{{poem.title}}</p>
+    <p class="poem_author">By {{username}}</p>
 {%for i in poem_lines %}
 <p class="display_poem_line">{{i.line_text}}</p>
     {% if poem.line_break and ((loop.index % poem.line_break) == 0)%}

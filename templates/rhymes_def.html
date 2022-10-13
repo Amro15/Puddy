@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+
+{% block title %} Rhymes Definitions {% endblock %}
+
+{% block head %}
+<style>
+    body{
+        background-image: url("/static/get_inspired_background.jpg") !important;
+    }
+    main{
+        color: white;
+        text-align: center;
+        font-size: larger;
+    }
+</style>
+{% endblock %}
+
+{% block main%}
+{% if no_results %}
+    <p class="error_msg">{{no_results}}</p>
+{% else %}
+    <h2><u>Definition(s) of <b>{{word}}</b></u></h2>
+    {% for key, value in definition.items() %}
+        {% for i in value %}
+        <p><u><b>{{key}}</b></u> : {{i}}</p>
+        {% endfor %}
+    {% endfor %}
+{% endif %}
+
+{% endblock%}

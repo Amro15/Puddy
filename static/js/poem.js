@@ -1,5 +1,29 @@
+let show_poem = document.getElementsByClassName("show_poem");
+let poem_div = document.getElementsByClassName("poem_container");
+let arrow_btn = document.getElementsByClassName("arrow_icon");
+let ctr = 0;
+for(let i =0; i<show_poem.length; i++){
+   show_poem[i].addEventListener("click", ()=>{
+      if(ctr==0){
+         console.log("poem_div", poem_div[i])
+         poem_div[i].style.display = "block";
+         arrow_btn[i].setAttribute("src", "/static/icons/up-arrow.png");
+      }
+      else{
+         if(poem_div[i].style.display=="block"){
+            poem_div[i].style.display="none";
+            arrow_btn[i].setAttribute("src", "/static/icons/down-arrow.png");
+         }
+         else{
+            poem_div[i].style.display="block";
+            arrow_btn[i].setAttribute("src", "/static/icons/up-arrow.png");
+         }
+      }
+      ctr++;
+   })
+}
 
-let delete_poem = document.getElementsByClassName("delete_poem")
+let delete_poem = document.getElementsByClassName("delete_poem");
    let selectobject = document.getElementById("poem_select");
    for(let i=0; i<delete_poem.length; i++){
       const poem_modal = new bootstrap.Modal(document.getElementById('poem_modal'), { keyboard: false, backdrop: "static" });
@@ -79,5 +103,20 @@ else{
 }
 })
 }
+
+let copy_btn = document.getElementById("copy");
+copy_btn.addEventListener("click", ()=>{
+   let poem = document.createElement("div");
+   poem.innerHTML = document.getElementById("poem_title").innerText;
+   let poem_lines = document.getElementsByClassName("poem_lines");
+   for(let i =0; i<poem_lines.length; i++){
+      poem.innerHTML+=poem_lines[i].innerText;
+   }
+   document.body.appendChild(poem);
+   poem.select();
+   poem.setSelectionRange(0, 99999); 
+   navigator.clipboard.writeText(poem.innerHTML);
+   document.body.removeChild(poem);
+})
 
 

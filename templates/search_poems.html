@@ -16,11 +16,11 @@
 {% endblock %}
 
 {% block main%}
-<h3>Look at other poet's work and get inspired</h3>
-<form action="{{url_for('get_inspired')}}" method="post" style="margin-left:5px">
-{{form.hidden_tag()}}
+<h3>Search for other poet's work and get inspired</h3>
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<form action="{{url_for('search_poems')}}" method="get" style="margin-left:5px" id="get_inspired_form">
 {{form_field(form.query, "form-control mr-sm-2", "Search By", id="poem_search")}}
-{{form.search(id="search_poem", class="btn btn-primary", onclick="loading()")}}
+{{form.search(id="search_poem", class="btn btn-primary")}}
 <br>
 <div class="input-group mb-3 get_inspired_div">
   <label class="input-group-text" for="inputGroupSelect01">Filters</label>
@@ -53,26 +53,22 @@
 <button class="button" type="button" id="poem_rand" >Randomise</button>
 {{err_msg(form.query)}}
 {{err_msg(form.filters)}}
-</form>
 <div id="loading_poems">
   <div class="text-center">
   <div class="spinner-border" style="width: 3rem; height: 3rem;" role="status">
   </div>
 </div>
 </div>
+{% if not_found %}
 <p class="error_msg">{{not_found}}</p>
-{% if request.args.get("page") %}
+{% else %}
+{% if pagination %}
 {{ pagination.info }} 
 {{ pagination.links }}
-<select class="form-select" id="get_inspired_sort_by" aria-label="Default select example">
-  <option selected disabled>Sort By</option>
-  <option value="shortest">Shortest</option>
-  <option value="longest">Longest</option>
-  <option value="author">A-Z author</option>
-  <option value="author reverse">Z-A author</option>
-  <option value="title">A-Z title</option>
-  <option value="title reverse">Z-A title</option>
-</select>
+{% if not poem_rand %}
+{{form_field(form.sort_by, "form-select", id="get_inspired_sort_by")}}
+{% endif %}
+</form>
 <div class="input-group mb-3" class="get_inspired_div">
   <label class="input-group-text" for="poem_serach_select">Quick Navigation
   </label>
@@ -99,7 +95,7 @@
       </div>
       <p><u><b>Poem Length:</b></u> {{i.linecount}} Lines</p>
         <button class="read_more_btn button"  style="width: auto;">Read More...</button>
-        <button class="button" style="width: auto;" onclick="window.open('/GetInspired/{{i.author}}/{{i.title}}', '_blank')">Open In New Tab</button>
+        <button class="button" style="width: auto;" onclick="window.location='/SearchPoems/{{i.author}}/{{i.title}}'">Full View</button>
     </div>
     <br>
     <hr>
@@ -108,5 +104,8 @@
   </div>
 {{ pagination.links }}
 {% endif %}
-<script  src="/static/js/get_inspired.js"> </script>
+{% endif %}
+<script  src="/static/js/search_poems.js"> </script>
 {% endblock %}
+<a href="https://www.flaticon.com/free-icons/search" title="search icons">Search icons created by Smashicons - Flaticon</a>
+<a href="https://www.flaticon.com/free-icons/heart" title="heart icons">Heart icons created by Vlad Szirka - Flaticon</a>
