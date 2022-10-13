@@ -23,9 +23,9 @@ for(let i = 0; i<icon_btn.length; i++){
 }
 
 let search_rhymes= document.getElementById("serach_for_rhymes");
-let loadiong = document.getElementById("loading_rhymes");
+let loading = document.getElementById("loading_rhymes");
 search_rhymes.addEventListener("submit", ()=>{
-    loadiong.style.display = "block";
+    loading.style.display = "block";
 })
 
 let check_rhymes_btn = document.getElementById("check_rhymes_btn");
@@ -33,6 +33,7 @@ let rhyme_check_results = document.getElementById("rhyme_check_results");
 let word1 = document.getElementById("word1");
 let word2 = document.getElementById("word2");
 check_rhymes_btn.addEventListener("click", ()=>{
+    rhyme_check_results.style.backgroundColor="#e9ecef";
     fetch(window.origin+"/Rhymes",{
         method:"POST",
            headers: new Headers({
@@ -41,7 +42,7 @@ check_rhymes_btn.addEventListener("click", ()=>{
               "Request":"check if words rhyme"
            }),
            cache:"no-cache",
-           body: JSON.stringify({"request" : [word1.value, word2.value]})
+           body: JSON.stringify({"request" : [word1.value.toLowerCase(), word2.value.toLowerCase()]})
         })
         // this is executed right after the fetch request
         .then((respone)=>{

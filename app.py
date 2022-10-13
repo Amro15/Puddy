@@ -12,6 +12,7 @@
 # from pickle import NONE
 from asyncio.windows_events import NULL
 from importlib.metadata import requires
+from logging import error
 import re
 import random
 # from xmlrpc import server
@@ -144,94 +145,6 @@ def logout():
     return redirect(url_for("sign_in"))
 
 from flask_paginate import Pagination, get_page_parameter
-
-@app.route("/SearchPoems", methods=["POST", "GET"])
-def search_poems():
-    global server_response
-    form = SearchPoemsForm()
-    if request.method == "GET":
-        # random query
-        if request.args.get("poem_rand"):
-            url = "https://poetrydb.org/random/20"
-            server_response = requests.get(url)
-            server_response = server_response.json()
-            page = int(request.args.get('page', 1))
-            per_page = 20 
-            offset = (page - 1) * per_page 
-            items_pagination = server_response[offset:offset+per_page] 
-            total = len(server_response) 
-            pagination = Pagination(page=page, per_page=per_page, offset=offset, total=total) 
-            return render_template("search_poems.html", form=form, server_response=server_response, pagination=pagination, items=items_pagination, poem_rand=True)
-        # normal query
-        if request.args.get("query"):
-            # refill the form with the user's input
-            form.query.data  = request.args.get("query")
-            form.filters.data = request.args.get("filters")
-            query = form.query.data.strip().replace(" ","%20")
-            
-            # if user specified poem_length
-            if (request.args.get("poem_length")):
-                url = f"https://poetrydb.org/{form.filters.data},linecount/{query};{request.args.get('poem_length')}"
-            else:
-                url = f"https://poetrydb.org/{form.filters.data}/{query}"
-            server_response = requests.get(url)
-            server_response = server_response.json()
-            # if user has a min and max lincount filter modify enteries
-            if (request.args.get("min_length")):
-                min_len = request.args.get("min_length")
-                server_response=[i for i in server_response if int(i["linecount"])>int(min_len)]
-            if (request.args.get("max_length")):
-                max_len = request.args.get("max_length")
-                server_response=[i for i in server_response if int(i["linecount"])<int(max_len)]
-            
-            # if user wants to sort results
-            if(request.args.get("sort_by")):
-                form.sort_by.data = request.args.get("sort_by") 
-                match request.args.get("sort_by"):
-                    case "shortest":
-                        server_response.sort(key=lambda i: int(i["linecount"]))
-                    case "longest":
-                        server_response.sort(key=lambda i: int(i["linecount"]), reverse=True)
-                    case "author":
-                        server_response.sort(key=lambda i: i["author"])
-                    case "author_reverse":
-                        server_response.sort(key=lambda i: i["author"], reverse=True)
-                    case "title":
-                        server_response.sort(key=lambda i: i["title"])
-                    case "title_reverse":
-                        server_response.sort(key=lambda i: i["title"], reverse=True)
-            # if no results match user's search
-            if "status" in server_response and server_response["status"]== 404:
-                return render_template("search_poems.html", form=form, not_found="There are no results that match your search check your spelling or try again")
-            # if there is a response
-            if len(server_response) != 0:
-                # pagination setup
-                page = int(request.args.get('page', 1))
-                per_page = 20 
-                offset = (page - 1) * per_page 
-                items_pagination = server_response[offset:offset+per_page] 
-                total = len(server_response) 
-                pagination = Pagination(page=page, per_page=per_page, offset=offset, total=total) 
-                return render_template("search_poems.html", form=form, pagination=pagination, items=items_pagination)
-            # if there's no response
-            return render_template("search_poems.html", form=form, not_found="There are no results that match your search")
-        # if there is no query url parameter
-        else:
-            return render_template("search_poems.html", form=form)
-    if request.method == "POST" :
-        # if an ajax request is sent
-        if "Request" in request.headers:
-            # randomise results
-            if request.headers["Request"] == "randomise":
-                return make_response({"response":"success"})
-
-
-@app.route("/SearchPoems/<string:author>/<string:title>")
-def search_poems_display(author, title):
-    url = f"https://poetrydb.org/author,title/{author.replace(' ','%20')};{title.replace(' ','%20')};"
-    poem = requests.get(url)
-    return render_template("search_poems_display.html", poem=poem.json())
-
 
 @app.route("/About")
 def about():
@@ -729,40 +642,48 @@ def format():
             return make_response({"response":"successful"})
 
 
+# take user queries and return corresponding result from datamuse API
 @app.route("/Rhymes", methods=["POST", "GET"])
 def rhymes():
     form = RhymesForm()
     if request.method == "GET":
-        return render_template("rhymes.html", form=form)
-    if request.method == "POST":
-        # to check if 2 words rhyme
-        if "Request" in request.headers and request.headers["Request"]== "check if words rhyme":
-            req = request.get_json()
-            return make_response({"response":isRhyme(req["request"][0],req["request"][1], 1)})
-        # to check rhymes call api
-        if form.validate_on_submit():
-            url = f"https://api.datamuse.com/words?{form.filters.data}={form.query.data}&max=1000&md=d"
-            resp = requests.get(url)
-            resp = resp.json()
-            if len(resp) == 0:
+        if request.args.get("query") and request.args.get("filters"):
+            query = request.args.get("query")
+            user_filters = request.args.get("filters")
+            # repopulate the form with user's inputs
+            form.query.data  = query
+            form.filters.data = user_filters
+            url = f"https://api.datamuse.com/words?{user_filters}={query}&max=1000&md=d"
+            datamuse_api_response = requests.get(url)
+            datamuse_api_response = datamuse_api_response.json()
+            # if we get no results back
+            if len(datamuse_api_response) == 0:
                 return render_template("rhymes.html", form=form, no_results="There are no words that match your search check your spelling or try again")
-            if form.filters.data == "rel_rhy":
+            # if the user is looking for a rhyme filter the response into an array of objects 
+            # with the syllable num as the key and an object of the word and the word and it's definition as the value
+            # obj = [{numsyllables:{word:def}}, {numsyllables:{word:def}}, ....]
+            if user_filters == "rel_rhy":
                 syllables = []
                 resp_obj = {}
-                for i in resp:
+                for i in datamuse_api_response:
                     if i["numSyllables"] not in syllables:
                         syllables.append(i["numSyllables"])
                 for i in syllables:
                     resp_obj[i]= []
-                    for j in resp:
+                    for j in datamuse_api_response:
                         if i == j["numSyllables"]:
                             if "defs" in j:
                                 resp_obj[i].append({j["word"]:j["defs"]})
                             else:
                                 resp_obj[i].append({j["word"]:"None"})
                 return render_template("rhymes.html", form=form, resp=dict(sorted(resp_obj.items())))
-            return render_template("rhymes.html", form=form, resp=resp)
-        print("if statements skipped")
+            return render_template("rhymes.html", form=form, resp=datamuse_api_response)
+        return render_template("rhymes.html", form=form)
+    if request.method == "POST":
+        # to check if 2 words rhyme
+        if "Request" in request.headers and request.headers["Request"]== "check if words rhyme":
+            req = request.get_json()
+            return make_response({"response":isRhyme(req["request"][0],req["request"][1], 1)})
 
 
 @app.route("/Rhymes/Definition")
@@ -799,6 +720,96 @@ def rhymes_def():
     print(def_obj)
 
     return render_template("rhymes_def.html",definition=def_obj, word=word)
+
+
+# take user queries and return corresponding result from poetrydb API
+@app.route("/SearchPoems", methods=["POST", "GET"])
+def search_poems():
+    form = SearchPoemsForm(request.args)
+    if request.method == "GET":
+        # random query
+        if request.args.get("poem_rand"):
+            # get response from api
+            url = "https://poetrydb.org/random/20"
+            poetrydb_api_response = requests.get(url)
+            poetrydb_api_response = poetrydb_api_response.json()
+            # setup for pagination
+            page = int(request.args.get('page', 1))
+            per_page = 20 
+            offset = (page - 1) * per_page 
+            items_pagination = poetrydb_api_response[offset:offset+per_page] 
+            total = len(poetrydb_api_response) 
+            pagination = Pagination(page=page, per_page=per_page, offset=offset, total=total) 
+            return render_template("search_poems.html", form=form, poetrydb_api_response=poetrydb_api_response, pagination=pagination, items=items_pagination, poem_rand=True)
+        # normal query
+        elif request.args.get("query") and request.args.get("filters"):
+            # refill the form with the user's input
+            form.query.data  = request.args.get("query")
+            form.filters.data = request.args.get("filters")
+            query = form.query.data.strip().replace(" ","%20")
+            
+            # if user specified poem_length
+            if (request.args.get("poem_length")):
+                url = f"https://poetrydb.org/{form.filters.data},linecount/{query};{request.args.get('poem_length')}"
+            else:
+                url = f"https://poetrydb.org/{form.filters.data}/{query}"
+            poetrydb_api_response = requests.get(url)
+            poetrydb_api_response = poetrydb_api_response.json()
+            # if user has a min and max lincount filter modify enteries
+            if (request.args.get("min_length")):
+                min_len = request.args.get("min_length")
+                poetrydb_api_response=[i for i in poetrydb_api_response if int(i["linecount"])>int(min_len)]
+            if (request.args.get("max_length")):
+                max_len = request.args.get("max_length")
+                poetrydb_api_response=[i for i in poetrydb_api_response if int(i["linecount"])<int(max_len)]
+            
+            # if user wants to sort results sort accordingly
+            if(request.args.get("sort_by")):
+                form.sort_by.data = request.args.get("sort_by") 
+                match request.args.get("sort_by"):
+                    case "shortest":
+                        poetrydb_api_response.sort(key=lambda i: int(i["linecount"]))
+                    case "longest":
+                        poetrydb_api_response.sort(key=lambda i: int(i["linecount"]), reverse=True)
+                    case "author":
+                        poetrydb_api_response.sort(key=lambda i: i["author"])
+                    case "author_reverse":
+                        poetrydb_api_response.sort(key=lambda i: i["author"], reverse=True)
+                    case "title":
+                        poetrydb_api_response.sort(key=lambda i: i["title"])
+                    case "title_reverse":
+                        poetrydb_api_response.sort(key=lambda i: i["title"], reverse=True)
+            # if no results match user's search
+            if "status" in poetrydb_api_response and poetrydb_api_response["status"]== 404:
+                return render_template("search_poems.html", form=form, not_found="There are no results that match your search check your spelling or try again")
+            # if there is a response
+            if len(poetrydb_api_response) != 0:
+                page = int(request.args.get('page', 1))
+                per_page = 20 
+                offset = (page - 1) * per_page 
+                items_pagination = poetrydb_api_response[offset:offset+per_page] 
+                total = len(poetrydb_api_response) 
+                pagination = Pagination(page=page, per_page=per_page, offset=offset, total=total) 
+                return render_template("search_poems.html", form=form, pagination=pagination, items=items_pagination)
+            # if there's no response
+            return render_template("search_poems.html", form=form, not_found="There are no results that match your search")
+        # if there is no query url parameter
+        else:
+            return render_template("search_poems.html", form=form)
+    if request.method == "POST" :
+        # if an ajax request is sent
+        if "Request" in request.headers:
+            # randomise results
+            if request.headers["Request"] == "randomise":
+                return make_response({"response":"success"})
+
+
+@app.route("/SearchPoems/<string:author>/<string:title>")
+def search_poems_display(author, title):
+    url = f"https://poetrydb.org/author,title/{author.replace(' ','%20')};{title.replace(' ','%20')};"
+    poem = requests.get(url)
+    return render_template("search_poems_display.html", poem=poem.json())
+
 
 # Account dropdown
 @app.route("/Account/Customize", methods=["POST", "GET"])
