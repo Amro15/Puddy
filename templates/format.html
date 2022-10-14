@@ -18,7 +18,7 @@
 
 <div id="poem_container">
     <div id ="poem">
-    <span contenteditable class="edit_title"><p id="poem_title">{{user_poem.title}}</p></span>
+    <span contenteditable class="edit_title"><p class="poem_title">{{user_poem.title}}</p></span>
     <p id="poem_author">By {{username}}</p>
 {%for i in user_poem_lines %}
 <p><span contenteditable id="{{i.line_num}}" class="edit_line">{{i.line_text}}</span></p>

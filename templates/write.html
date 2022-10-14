@@ -11,7 +11,7 @@
 {% block main %}
 
 
-{% if write_session != poem %}
+{% if write_session != poem and current_user.is_authenticated %}
 <!-- write Modal -->
 <div class="modal fade" id="write_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
     aria-hidden="true">
@@ -28,15 +28,17 @@
             </div>
             <div class="modal-footer">
                 <button id="save_draft_modal" class="button">Save Another Draft</button>
-                <button id="update_draft" class="button">Update Most Recent/Current Draft</button>
+                <button id="update_draft" class="button">Update Current Draft</button>
             </div>
         </div>
     </div>
 </div>
 <!-- ============ -->
 {% endif %}
-<div id="warning"><img src="/static/icons/warning.png" id="warning_icon">You Haven't Saved In A While<button
-        class="close_btn id=" warning_close">x</button></div>
+{% if current_user.is_authenticated %}
+<div id="warning"><img src="/static/icons/warning.png" id="warning_icon">You Haven't Saved In A While<button class="close_btn" id="warning_close">x</button>
+</div>
+{% endif %}
 <div id="btn_div">
 
     <input type="text" class="form-control" id="quick_search" placeholder="Quick Search For Rhymes">
@@ -131,6 +133,8 @@
     <button id="hide_results" class="button">Hide</button>
     <button class="button" onclick="window.open('/Rhymes', '_blank')">Advanced Search</button>
 </div>
+
+<!-- if default sess -->
 {% if write_session == "default" %}
 <span id="notepad" class="notepad" role="textbox" class="line" contenteditable></span>
 <div class="poem-div">
@@ -139,19 +143,19 @@
     </div>
     <!-- if rhyme scheme calls for numeric line numbers i[0] will not work so we need to check for that -->
     {% if ( (user_rhyme_scheme=="Free Verse") or (user_rhyme_scheme=="Haiku") ) %}
-        {% for i in rhyme_schemes.rhymes%}
+        {% for i in rhyme_schemes.current_rhymes.split(",") %}
             <div class="verse">
                 <span class="line {{i}}" id="{{i}}" name="{{i}}" role="textbox" contenteditable="true"></span><span
                     id="symbol{{i}}" class="badge bg-secondary, rhyme_symbols">{{i}}</span>
             </div>
             <div class="syllables"><span class="syllables_text"></span></div>
             <div class="meter"><span class="meter_text"></span></div>
-            {% if rhyme_schemes.line_break_frequency and ((loop.index % rhyme_schemes.line_break_frequency) == 0) %}
+            {% if rhyme_schemes.current_line_breaks!=0 and (loop.index % rhyme_schemes.current_line_breaks == 0) %}
             <br>
             {% endif %}
         {% endfor %}
     {% else%}
-            {% for i in rhyme_schemes.get_ids()%}
+            {% for i in rhyme_schemes.current_rhymes.split(",") %}
             <div class="verse">
                 <span class="line {{i[0]}}" id="{{i}}" name="{{i[0]}}" role="textbox" contenteditable="true"></span><span
                     id="symbol{{i}}" class="badge bg-secondary, rhyme_symbols">{{i[0]}}</span>
@@ -159,16 +163,23 @@
             <div class="syllables"><span class="syllables_text"></span></div>
             <div class="meter"><span class="meter_text"></span></div>
 
-                {% if rhyme_schemes.line_break_frequency and ((loop.index % rhyme_schemes.line_break_frequency) == 0) %}
+                {% if rhyme_schemes.current_line_breaks!=0 and (loop.index % rhyme_schemes.current_line_breaks == 0) %}
                 <br>
                 {% endif %}
             {% endfor %}
     {% endif %}
+    {% if current_user.is_authenticated %}
     <button value="Save Draft" class="button" name="write_btn" id="save_draft">Save As Draft</button>
     <button value="save_poem" class="button" name="write_btn" id="save_poem">Save Poem</button>
     <div id="msg_container"><button type="button" class="close_btn" id="close_success_msg">hide</button>
         <p class="confirmation_msg" id="confirmation_msg_write">Draft succesfully saved</p>
     </div>
+    <p id="err_msg" class="error_msg">You cannot save an empty poem</p>
+    <p id="save_err_msg" class="error_msg">There was a problem saving your poem, you may need to reload the page. Unfortunately progress will be lost.</p>
+    {% else %}
+    <div class="visible_warning"><img src="/static/icons/warning.png" id="warning_icon">You cannot save until you are <a href="/Signin">Signed In</a>
+    </div>
+    {% endif %}
 </div>
 
 <!-- if sess is draft get all of our info from our databse-->
@@ -206,11 +217,18 @@
                 {% endif %}
         {% endfor %}
     {% endif %}
+    {% if current_user.is_authenticated %}
     <button value="Save Draft" class="button" name="write_btn" id="save_draft">Save As Draft</button>
     <button value="save_poem" class="button" name="write_btn" id="save_poem">Save Poem</button>
     <div id="msg_container"><button type="button" class="close_btn" id="close_success_msg">hide</button>
         <p class="confirmation_msg" id="confirmation_msg_write">Draft succesfully saved</p>
     </div>
+    <p id="err_msg" class="error_msg">You cannot save an empty poem</p>
+    <p id="save_err_msg" class="error_msg">There was a problem saving your poem, you may need to reload the page. Unfortunately progress will be lost.</p>
+    {% else %}
+    <div class="visible_warning"><img src="/static/icons/warning.png" id="warning_icon">You cannot save until you are <a href="/Signin">Signed In</a>
+    </div>
+    {% endif %}
 </div>
 
 <!-- if sess is poem get all of our info from our databse-->
@@ -248,10 +266,17 @@
             {% endif %}
     {% endfor %}
     {% endif %}
+    {% if current_user.is_authenticated %}
     <button class="button" id="update_poem">Save Changes</button>
     <div id="msg_container"><button type="button" class="close_btn" id="close_success_msg">hide</button>
         <p class="confirmation_msg" id="confirmation_msg_write">Poem succesfully updated</p>
     </div>
+    <p id="err_msg" class="error_msg">You cannot save an empty poem</p>
+    <p id="save_err_msg" class="error_msg">There was a problem saving your poem, you may need to reload the page. Unfortunately progress will be lost.</p>
+    {% else %}
+    <div class="visible_warning"><img src="/static/icons/warning.png" id="warning_icon">You cannot save until you are <a href="/Signin">Signed In</a>
+    </div>
+    {% endif %}
 </div>
 {% endif %}
 <script src="/static/js/write.js"> </script>

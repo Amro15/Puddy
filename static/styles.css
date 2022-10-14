@@ -251,6 +251,15 @@ background-color: rgb(143, 143, 143) ;
 /* ---------------------------- */
 
 /* /Create */
+.visible_warning{
+  display: block;
+  text-align: center;
+  color: white;
+  background-color: rgba(106, 104, 104, 0.8);
+  padding: 10px;
+  margin: 10px;
+}
+
 .rhyme_description, #description{
   word-wrap: break-word;
   background-color: rgba(106, 104, 104, 0.8);
@@ -298,7 +307,7 @@ background-color: rgb(143, 143, 143) ;
   width: 30px;
   height: 30px;
 }
-.loading{
+.loading, #err_msg, #save_err_msg{
   display: none;
 }
 

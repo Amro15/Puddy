@@ -1,13 +1,13 @@
 {% extends "layout.html" %}
 
-{% block title %} Format {% endblock %}
+{% block title %} Display Poem {% endblock %}
 
 
 {% block main%}
 <div id="poem_container">
     <div class ="display_poem">
     <p class="poem_title">{{poem.title}}</p>
-    <p class="poem_author">By {{username}}</p>
+    <p class="poem_author">By {{current_user.username}}</p>
 {%for i in poem_lines %}
 <p class="display_poem_line">{{i.line_text}}</p>
     {% if poem.line_break and ((loop.index % poem.line_break) == 0)%}

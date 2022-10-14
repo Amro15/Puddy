@@ -85,4 +85,28 @@ for (let i = 0; i < draft_delete.length; i++) {
     })
 }
 
-
+// display draft
+let show_draft = document.getElementsByClassName("show_draft");
+let poem_div = document.getElementsByClassName("poem_container");
+let arrow_btn = document.getElementsByClassName("arrow_icon");
+let ctr = 0;
+for(let i =0; i<show_draft.length; i++){
+   show_draft[i].addEventListener("click", ()=>{
+      if(ctr==0){
+         console.log("poem_div", poem_div[i])
+         poem_div[i].style.display = "block";
+         arrow_btn[i].setAttribute("src", "/static/icons/up-arrow.png");
+      }
+      else{
+         if(poem_div[i].style.display=="block"){
+            poem_div[i].style.display="none";
+            arrow_btn[i].setAttribute("src", "/static/icons/down-arrow.png");
+         }
+         else{
+            poem_div[i].style.display="block";
+            arrow_btn[i].setAttribute("src", "/static/icons/up-arrow.png");
+         }
+      }
+      ctr++;
+   })
+}

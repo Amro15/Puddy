@@ -1,12 +1,14 @@
 // remind user to save after 20 mins 
 let warning = setTimeout(()=>{
     let warning_div = document.getElementById("warning");
-    warning_div.style.display="inline-block";
-    warning_div.scrollIntoView();
-    let close_warning_btn = document.getElementById("warning_close");
-    close_warning_btn.addEventListener("click", ()=>{
-        warning_div.style.display = "none";
-    })
+    if (warning_div){
+        warning_div.style.display="inline-block";
+        warning_div.scrollIntoView();
+        let close_warning_btn = document.getElementById("warning_close");
+        close_warning_btn.addEventListener("click", ()=>{
+            warning_div.style.display = "none";
+        })
+    }
     
 },(20*60000))
 
@@ -77,7 +79,6 @@ toggle_nav.addEventListener("click", () => {
 })
 
 // toggle notepad
-
 let notepad = document.getElementById("notepad");
 toggle_note.addEventListener("click", () => {
     if ((notepad.style.visibility !== "visible") && (notepad.style.position !== "relative")) {
@@ -399,29 +400,47 @@ let success_msg_div = document.getElementById("msg_container");
 let close_success_msg = document.getElementById("close_success_msg");
 let save_draft_modal = document.getElementById("save_draft_modal");
 let update_draft_btn = document.getElementById("update_draft");
+let error_msg = document.getElementById("err_msg");
+let save_error_msg = document.getElementById("save_err_msg");
 
 // try saving user poem as draft to db
+const urlParams = new URLSearchParams(window.location.search);
 const write_modal = new bootstrap.Modal(document.getElementById('write_modal'), { keyboard: false, backdrop: "static" });
 if(save_draft){
 save_draft.addEventListener("click", () => {
-    console.log("click")
+    error_msg.style.display = "none";
+    save_error_msg.style.display = "none";
+    let input = document.getElementsByClassName("line");
+    let is_empty;
+    for(let i = 0; i<input.length; i++){
+        if (input[i].innerText !== ""){
+            is_empty=false
+            break
+        }
+        else{
+            is_empty=true
+        }
+    }
+    if(is_empty){
+        error_msg.style.display = "block";
+    }
+    else{
     let title = document.getElementById("title").innerText;
     let notepad = document.getElementById("notepad").innerText;
-    const urlParams = new URLSearchParams(window.location.search);
     // if session is draft pass the required parameters
     let send_to_server_draft;
     if(urlParams.has("draft")){
-        let draft_session = true;
-        let draft_num = urlParams.get("draft")
+        let draft_id = urlParams.get("draft")
+        let draft_num = urlParams.get("dnum")
         let poem_num = urlParams.get("pnum");
-        send_to_server_draft = { "title": title, "notes": notepad, "draft_session":draft_session, "draft_num":draft_num,"poem_num":poem_num };
-        
+        send_to_server_draft = { "title": title, "notes": notepad, "draft_id":draft_id, "draft_num":draft_num,"poem_num":poem_num, "rhyme_scheme": urlParams.get("drs")};
+        console.log(send_to_server_draft)
     }
     else{
-        send_to_server_draft = { "title": title, "notes": notepad };
+        send_to_server_draft = { "title": title, "notes": notepad, "rhyme_scheme": urlParams.get("rs") };
     }
-    let input = document.getElementsByClassName("line");
     for (let i = 0; i < input.length; i++) {
+        console.log(input.item(i).id)
         send_to_server_draft[input.item(i).id] = input.item(i).innerText;
     }
     console.log(send_to_server_draft);
@@ -442,18 +461,27 @@ save_draft.addEventListener("click", () => {
             }
             respone.json().then((data) => {
                 console.log("data we got back is", data);
+                if(data["response"]== "input was altered cannot save"){
+                    save_error_msg.style.display = "block";
+                }
                 // if the poem already has a draft ask user what to do 
-                if (data["response"] === "draft already exists") {
+                else if (data["response"] === "draft already exists") {
                     write_modal.show()
                 }
-                // else save and notify the user
-                else {
+                // if draft saved
+                else if(data["response"]=="Draft was saved") {
                     success_msg.innerText = "Draft succesfully saved";
                     success_msg_div.style.cssText = "display:block";
+                    setTimeout(() => {
+                        if(!urlParams.has("draft_id")){
+                            window.location=`/Write?draft=${data["draft_id"]}&dnum=${data["draft_num"]}&pnum=${data["poem_num"]}&drs=${data["rhyme_scheme"]}`
+                        }
+                    }, 2500);
 
                 }
             });
         });
+    }
 });
 }
 if (save_draft_modal) {
@@ -478,8 +506,12 @@ if (save_draft_modal) {
                 }
                 respone.json().then((data) => {
                     write_modal.hide()
-                    success_msg_div.style.display = "block";
-
+                    if(data["response"]==="saved duplicate"){
+                        success_msg_div.style.display = "block";
+                    }
+                    else{
+                        save_error_msg.style.display = "block";
+                    } 
                 });
             });
     })
@@ -505,14 +537,19 @@ if (update_draft_btn) {
                     return;
                 }
                 respone.json().then((data) => {
-                    console.log("updated")
                     write_modal.hide()
-                    success_msg_div.style.display = "block";
-
+                    if(data["response"]=="updated draft"){
+                        console.log("updated")
+                        success_msg_div.style.display = "block";
+                    }
+                    else{
+                        save_error_msg.style.display = "block";
+                    }
                 });
             });
     })
 }
+
 
 close_success_msg.addEventListener("click", () => {
     success_msg_div.style.display = "none";
@@ -523,8 +560,24 @@ close_success_msg.addEventListener("click", () => {
 let save_poem_btn = document.getElementById("save_poem");
 if (save_poem_btn){
 save_poem_btn.addEventListener("click", () => {
+    error_msg.style.display = "none";
+    save_error_msg.style.display="none";
+    let is_empty;
+    for(let i = 0; i<input.length; i++){
+        if (input[i].innerText !== ""){
+            is_empty=false
+            break
+        }
+        else{
+            is_empty=true
+        }
+    }
+    if(is_empty){
+        error_msg.style.display = "block";
+    }
+    else{
     let title = document.getElementById("title").innerText;
-    let send_to_server_format = { "title": title };
+    let send_to_server_format = { "draft_id":urlParams.get("draft"), "title": title };
     let input = document.getElementsByClassName("line");
     for (let i = 0; i < input.length; i++) {
         send_to_server_format[input.item(i).id] = input.item(i).innerText;
@@ -535,7 +588,7 @@ save_poem_btn.addEventListener("click", () => {
         headers: new Headers({
             "X-CSRFToken": document.getElementsByName("csrf_token")[0].value,
             "Content-Type": "application/json",
-            "Request": "format"
+            "Request": "save poem"
         }),
         cache: "no-cache",
         body: JSON.stringify(send_to_server_format)
@@ -547,10 +600,16 @@ save_poem_btn.addEventListener("click", () => {
             }
             respone.json().then((data) => {
                 console.log("data we got back is", data);
-                location.replace(window.origin + "/Format");
+                if(data["respnse"] === "input was altered cannot save"){
+                    save_error_msg.style.display="block";
+                }
+                else if (data["response"]==="successful"){
+                    location.replace(window.origin + "/Format");
+                }
 
             });
         });
+    }
 });
 };
 
@@ -558,10 +617,24 @@ save_poem_btn.addEventListener("click", () => {
 let update_poem_btn = document.getElementById("update_poem")
 if (update_poem_btn){
     update_poem_btn.addEventListener("click", ()=>{
+        error_msg.style.display = "none";
+            let is_empty;
+        for(let i = 0; i<input.length; i++){
+            if (input[i].innerText !== ""){
+                is_empty=false
+                break
+            }
+            else{
+                is_empty=true
+            }
+        }
+        if(is_empty){
+            error_msg.style.display = "block";
+        }
+        else{
         let title = document.getElementById("title").innerText;
         const urlParams = new URLSearchParams(window.location.search);
         let send_to_server_update_poem = {"title": title, "poem_id": urlParams.get("poem") };
-        let input = document.getElementsByClassName("line");
         for (let i = 0; i < input.length; i++) {
             send_to_server_update_poem[input.item(i).id] = input.item(i).innerText;
         }
@@ -587,12 +660,13 @@ if (update_poem_btn){
     
                 });
             });
+        }
     })
 }
 
 
-window.addEventListener("beforeunload", (e) => {
-    e.preventDefault();
-    return e.returnValue = "";
-});
+// window.addEventListener("beforeunload", (e) => {
+//     e.preventDefault();
+//     return e.returnValue = "";
+// });
 

@@ -14,7 +14,7 @@ from asyncio.windows_events import NULL
 from importlib.metadata import requires
 from logging import error
 import re
-import random
+# import random
 # from xmlrpc import server
 # from regex import F
 import requests
@@ -38,9 +38,10 @@ from PIL import Image
 import os
 # import urllib.request
 # import json
-import time
+# import time
 # import pandas as pd
 from flask_wtf.csrf import CSRFProtect
+from flask_paginate import Pagination
 from itsdangerous.url_safe import URLSafeSerializer
 
 
@@ -48,7 +49,7 @@ app = Flask(__name__)
 csrf = CSRFProtect(app)
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 app.config["SECRET_KEY"] = "placeholder"
-serializer= URLSafeSerializer(app.secret_key)
+serializer = URLSafeSerializer(app.secret_key)
 app.config["USE_SESSION_FOR_NEXT"] = True
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
@@ -57,34 +58,30 @@ login_manager.init_app(app)
 login_manager.login_view = "sign_in"
 login_manager.login_message = "Please Sign In To Access The Rest Of The Website"
 
-
-from helpers import *
-from forms import *
 from database import *
+from forms import *
+from helpers import *
+
 
 @login_manager.user_loader
 def load_user(session_token):
     return Users.query.filter_by(session_token=session_token).first()
+
+
 Session(app)
 
-@app.route("/")
-@login_required
-def index():
-    if session.get("request_logout", None)==True:
-        session["request_logout"] = False
-        logout_msg = True
-    else:
-        logout_msg = False
-    return render_template("index.html", username=current_user.username, logout_msg = logout_msg)
-
 # error handling pages
+
+
 @app.errorhandler(404)
 def err_404(e):
     return render_template("404.html"), 404
 
+
 @app.errorhandler(500)
 def err_500(e):
     return render_template("500.html"), 500
+
 
 @app.route("/Register", methods=["GET", "POST"])
 def register():
@@ -100,13 +97,18 @@ def register():
         print("form errs:", form.errors)
         if form.validate_on_submit():
             # add user to db if form is valid(validation logic in forms.py)
-            new_user = Users(username = form.username.data, hash=generate_password_hash(form.password.data), poem_count=0, saved_poem_count=0,
-                            session_token = serializer.dumps(([form.username.data, generate_password_hash(form.password.data)])))
+            new_user = Users(username=form.username.data, hash=generate_password_hash(form.password.data), poem_count=0, saved_poem_count=0,
+                            session_token=serializer.dumps(([form.username.data, generate_password_hash(form.password.data)])))
             db.session.add(new_user)
+            db.session.commit()
+            # used to hold user data until user decides to save
+            unsaved_poem = CurrentUnsavedPoem(user_id=current_user.id)
+            db.session.add(unsaved_poem)
             db.session.commit()
             sigin_in_form = SigninForm()
             return render_template("signin.html", form=sigin_in_form, success_msg="Registered Successfully!")
         return render_template("register.html", form=form)
+
 
 @app.route("/Signin", methods=["GET", "POST"])
 def sign_in():
@@ -122,20 +124,20 @@ def sign_in():
     if request.method == "POST":
         print(form.username.data, form.password.data)
         print("form errs:", form.errors)
-        if form.validate_on_submit(): #validation logic in forms.py
-            user = Users.query.filter_by(username = form.username.data).first()
+        if form.validate_on_submit():  # validation logic in forms.py
+            user = Users.query.filter_by(username=form.username.data).first()
             print(form.remember_me.data)
-            login_user(user, remember = form.remember_me.data)
+            login_user(user, remember=form.remember_me.data)
             session["user_id"] = user.id
             session["current_poem_num"] = user.poem_count
 
             if "next" in session:
                 next = session["next"]
-                if next!=None and is_safe_url(next):
+                if next != None and is_safe_url(next):
                     return redirect(next)
             return redirect(url_for("index"))
         return render_template("signin.html", form=form)
-            
+
 
 @app.route("/Signout")
 @login_required
@@ -144,14 +146,27 @@ def logout():
     session.clear()
     return redirect(url_for("sign_in"))
 
-from flask_paginate import Pagination, get_page_parameter
+
+@app.route("/")
+# @login_required
+def index():
+    if session.get("request_logout", None) == True:
+        session["request_logout"] = False
+        logout_msg = True
+    else:
+        logout_msg = False
+    return render_template("index.html", logout_msg=logout_msg)
+
 
 @app.route("/About")
 def about():
     return render_template("about.html")
 
+# create poems with different preset rhyme schemes or using a custom one
+
+
 @app.route("/Create/", methods=["POST", "GET"])
-@login_required
+# @login_required
 def create():
     if request.method == "GET":
         # check if user has a custom background store it in session to know which to render when rendering the page from post
@@ -174,8 +189,8 @@ def create():
         line_breaks = request.form.get("line_break_frequency")
         print("user rhyme shcme", user_rhyme_scheme)
 
+        # if rhyme scheme custom
         if user_rhyme_scheme == "Custom":
-            print("user rs", user_rhyme_scheme)
             # get user input and clean it up
             user_custom_rhymes = request.form.get("user_custom_rhymes")
             user_custom_rhymes = user_custom_rhymes.upper().replace(" ", "")
@@ -198,15 +213,20 @@ def create():
             rhyme_scheme_class.rhymes = split_string
             if line_breaks:
                 rhyme_scheme_class.line_break_frequency = int(line_breaks)
-            # This is only to return the user scheme if they make a mistake
-            session["rhyme scheme"]= user_rhyme_scheme
-            session["user rhyme scheme"]= split_string
-            # Keep track of how many poems user is creating
-            current_user.poem_count += 1
-            db.session.commit()
-            session["draft_num"] = None
+            # Keep track of how many poems user is creating and of user current rhyme scheme to check against unwanted inputs when saving
+            if current_user.is_authenticated:
+                current_user.poem_count += 1
+                unsaved_poem= CurrentUnsavedPoem.query.filter_by(user_id=current_user.id).first()
+                unsaved_poem.current_rhymes= ",".join(rhyme_scheme_class.get_ids())
+                if line_breaks:
+                    unsaved_poem.current_line_breaks = line_breaks
+                db.session.commit()
+                 # This is only to return the user scheme if they make a mistake
+                session["rhyme scheme"]= user_rhyme_scheme
+                session["user rhyme scheme"]= split_string
             return redirect(url_for("write", rs=user_rhyme_scheme))
 
+        # if rhyme scheme free verse
         if user_rhyme_scheme == "Free Verse":
             print("user rs", user_rhyme_scheme)
             # get user input
@@ -230,12 +250,15 @@ def create():
             if line_breaks:
                 rhyme_scheme_class.line_break_frequency = int(line_breaks)
             print("user rhymes", rhyme_scheme_class.rhymes)
-            session["rhyme scheme"] = user_rhyme_scheme
-            # Keep track of how many poems user is creating
-            # user = Users.query.filter_by(session_token=current_user.get_id()).first()
-            current_user.poem_count += 1
-            db.session.commit()
-            session["draft_num"] = None
+            # Keep track of how many poems user is creating and of user current rhyme scheme to check against unwanted inputs when saving
+            if current_user.is_authenticated:
+                session["rhyme scheme"] = user_rhyme_scheme
+                current_user.poem_count += 1
+                unsaved_poem= CurrentUnsavedPoem.query.filter_by(user_id=current_user.id).first()
+                unsaved_poem.current_rhymes= ",".join(rhyme_scheme_class.get_ids())
+                if line_breaks:
+                    unsaved_poem.current_line_breaks = line_breaks
+                db.session.commit()
             return redirect(url_for("write", rs=user_rhyme_scheme))
 
 
@@ -243,7 +266,7 @@ def create():
         if user_rhyme_scheme not in SPCEIAL_RHYME_SCHEMES:
             if not user_rhyme_scheme or user_rhyme_scheme not in rhyme_schemes:
                 return render_template("create.html", rhyme_schemes=rhyme_schemes, error_msg = "Must choose a valid rhyme scheme",  user_background=user_background, )
-            session["rhyme scheme"] = user_rhyme_scheme
+            # session["rhyme scheme"] = user_rhyme_scheme
             # get line break frequency from rhyme scheme class to determine maximum amount of repeats
             rhyme_scheme_class = str_to_class(user_rhyme_scheme.replace(" ", "_"))
             if rhyme_scheme_class.increment_by == 0:
@@ -259,7 +282,7 @@ def create():
                 return render_template("create.html", rhyme_schemes=rhyme_schemes, error_msg = f"Repetition must be a number between 0 and {maximum_repetition}",  user_background=user_background, )
             else:
                 print("user_rs: ",user_rhyme_scheme)
-                session["rhyme scheme"] = user_rhyme_scheme
+                # session["rhyme scheme"] = user_rhyme_scheme
                 rhyme_scheme_class = str_to_class(user_rhyme_scheme.replace(" ", "_"))
                 # if user rhyme scheme can be repeated add therepeats to the rhymes class
                 if user_rhyme_scheme not in FIXED_RHYME_SCHEMES:
@@ -273,15 +296,21 @@ def create():
                             return render_template("create.html", rhyme_schemes=rhyme_schemes, error_msg = "Line Break Error: Line does not exist",  user_background=user_background, )
                     if line_breaks:
                         rhyme_scheme_class.line_break_frequency = int(line_breaks)
-                # Keep track of how many poems user is creating
-                current_user.poem_count += 1
-                db.session.commit()
-                session["draft_num"] = None
+                # Keep track of how many poems user is creating and of user current rhyme scheme to check against unwanted inputs when saving 
+                if current_user.is_authenticated:
+                    current_user.poem_count += 1
+                    unsaved_poem= CurrentUnsavedPoem.query.filter_by(user_id=current_user.id).first()
+                    unsaved_poem.current_rhymes= ",".join(rhyme_scheme_class.get_ids())
+                    if line_breaks!=0:
+                        unsaved_poem.current_line_breaks = line_breaks
+                    db.session.commit()
+                    session["rhyme scheme"] = user_rhyme_scheme
                 return redirect(url_for("write", rs=user_rhyme_scheme))
 
 
+# check rhymes/check syllables/check meter/save-update-edit drafts/save-update-edit poems/
 @app.route("/Write", methods=["POST", "GET"])
-@login_required
+# @login_required
 def write():
     if request.method == "GET":
         # check if user has a custom background
@@ -293,9 +322,8 @@ def write():
             write_session = "default"
             print("is rs")
             user_rhyme_scheme = session.get("rhyme scheme", None)
-            rhyme_scheme_class = str_to_class(request.args.get("rs").replace(" ", "_"))
-            print("rhyme scheme class rhyme",rhyme_scheme_class.rhymes)
-            return render_template("write.html", rhyme_schemes=rhyme_scheme_class, user_background=user_background, user_rhyme_scheme=user_rhyme_scheme
+            rhyme_scheme = CurrentUnsavedPoem.query.filter_by(user_id=current_user.id).first()
+            return render_template("write.html", rhyme_schemes=rhyme_scheme, user_background=user_background, user_rhyme_scheme=user_rhyme_scheme
         ,write_session = write_session)
 
         elif request.args.get("draft"):
@@ -303,14 +331,14 @@ def write():
             print("is draft")
             # turn it into a poem class 
             draft = Drafts.query.filter_by(user_id=current_user.id, draft_id=request.args.get("draft")).first()
-            draft_lines = Drafts_Lines.query.filter_by(draft_id=draft.draft_id).all()
+            draft_lines = DraftLines.query.filter_by(draft_id=draft.draft_id).all()
             return render_template("write.html", user_background=user_background, user_rhyme_scheme=draft.rhyme_scheme, write_session = write_session, draft=draft, draft_lines=draft_lines)
 
         elif request.args.get("poem"):
             print("is poem")
             write_session = "poem"
             poem = Poems.query.filter_by(user_id=current_user.id, poem_id = request.args.get("poem")).first()
-            poem_lines = Poems_Lines.query.filter_by(poem_id=poem.poem_id).all()
+            poem_lines = PoemLines.query.filter_by(poem_id=poem.poem_id).all()
             return render_template("write.html",user_background=user_background, user_rhyme_scheme=poem.rhyme_scheme, write_session = write_session, poem=poem, poem_lines=poem_lines)
 
 # ===================================================================================================================================
@@ -487,12 +515,11 @@ def write():
                 print("server_request is save draft")
                 print("rquest is", req)
                 # make vars global so we don't have to keep sending them in the following requests
-                global global_title, global_poem_num, global_initial_request, global_notes
+                global global_title, global_initial_request, global_poem_num, global_rhyme_scheme, global_notes
+                # delete each entry after saving to the var so they don't interfere with our for loop for adding lines
                 global_title = req["title"]
-                print("gloabl title", global_title)
                 if not global_title:
                     global_title = "None"
-                    print("title was none")
                 del req["title"]
                 global_notes = req["notes"]
                 if not global_notes:
@@ -500,111 +527,157 @@ def write():
                     print("no notes")
                 del req["notes"]
                 global_initial_request = req
+                # get user poem num
                 global_poem_num = Users.query.filter_by(id=current_user.id).first().poem_count
                 print("poem num inside save is", global_poem_num)
-                # check if this is a new draft 
+                # check if this is a new draft by checking if poem already has entry in db
                 existing_draft = Drafts.query.filter_by(user_id=current_user.id).all()
-                # bool to determine if exists
                 draft_exists = False
                 for i in existing_draft:
                     if global_poem_num == i.poem_count:
                         draft_exists = True
                         break
+                    
                 # if there are no drafts of our current poem make a new one
                 if not draft_exists :
                     print("draft doesn t exist")
                     print("title is", global_title)
                     print("gloabl peom num", global_poem_num)
-                    session["draft_num"] = 1
-                    print("draft num after adding to it", session.get("draft_num", None))
-                    class_id = session.get("rhyme scheme", None).replace(" ","_")
-                    line_breaks = str_to_class((class_id)).line_break_frequency
-                    print("line_breaks", line_breaks)
+                    # rhyme schemes arr of all our rs in helpers.py
+                    if  global_initial_request["rhyme_scheme"] not in rhyme_schemes:
+                        # raise error cz that means user changed url params
+                        return make_response({"response":"input was altered cannot save"})
+                    global_rhyme_scheme =  global_initial_request["rhyme_scheme"]
+                    del global_initial_request["rhyme_scheme"]
+                    current_unsaved_poem = CurrentUnsavedPoem.query.filter_by(user_id=current_user.id).first()
+                    line_breaks = current_unsaved_poem.current_line_breaks
+                    # make sure input is valid by referenicng user's initial rhyme scheme
+                    ctr=0
+                    # turn into array since data is stored as (A0,B0,A1,...)
+                    rhymes = current_unsaved_poem.current_rhymes.split(",")
+                    for key, value in global_initial_request.items():
+                        if (ctr>len(rhymes)) or rhymes[ctr]!=key:
+                            # reject input since it means user has changed keys or added an unwanted value
+                            return make_response({"response":"input was altered cannot save"})
+                        ctr+=1
                     # save draft to db
-                    draft = Drafts(user_id=current_user.id,draft_count=session.get("draft_num",None),poem_count=global_poem_num, rhyme_scheme=session.get("rhyme scheme", None), title=global_title,notes=global_notes, line_break=line_breaks, save_date=datetime.now())
+                    draft = Drafts(user_id=current_user.id,draft_count=1,poem_count=global_poem_num, rhyme_scheme=global_rhyme_scheme, rhymes=current_unsaved_poem.current_rhymes, title=global_title,notes=global_notes, line_break=line_breaks, save_date=datetime.now())
                     db.session.add(draft)
                     db.session.commit()
-                    # save draft lines to db referncing draft_id we just saved
+                    # save draft lines to db       
                     for key, value in global_initial_request.items():
-                            print("Adding to db...")
-                            draft_lines = Drafts_Lines(draft_id=Drafts.query.filter_by(user_id=current_user.id, draft_count=session.get("draft_num",None), poem_count=global_poem_num).first().draft_id, line_num=key, line_text=value )
-                            db.session.add(draft_lines)
-                            db.session.commit()
-                    return make_response({"response":"Draft was saved"}, 200)
-                # if draft exists tell the server
+                        draft_lines = DraftLines(draft_id=Drafts.query.filter_by(user_id=current_user.id, draft_count=1, poem_count=global_poem_num).first().draft_id, line_num=key, line_text=value )
+                        db.session.add(draft_lines)
+                        db.session.commit()
+                    return make_response({"response":"Draft was saved", "rhyme_scheme":global_rhyme_scheme, "draft_id":draft.draft_id, "draft_num":draft.draft_count, "poem_num":draft.poem_count}, 200)
+
+                # if a draft exists already return to server to display modal
                 else:
-                    # if we're editing a draft set the global poem number to the draft poem_num not the user's most recent poem_num
-                    if "draft_session" in req:
-                        global_poem_num = req["poem_num"]
-                    del req["draft_session"]; del req["poem_num"]
-                    return make_response({"response":"draft already exists"}, 200)
-            # make a save of the draft having the same poem number but increasing the current draft number
+                    global_poem_num = req["poem_num"]
+                    global_rhyme_scheme = req["rhyme_scheme"]
+                    del req["poem_num"]; del req["rhyme_scheme"]
+                    return make_response({"response":"draft already exists"})
+                    
+            # make a save of the draft with the same poem number but increasing the draft number each time
             if server_request == "save another draft":
-                if "draft_num" in global_initial_request:
-                    del global_initial_request["draft_num"]
-                print("server_request is save another draft")
                 print("init request", global_initial_request)
-                print(session.get("draft_num", None))
-                last_draft_num = Drafts.query.filter_by(user_id=current_user.id, poem_count=global_poem_num).order_by(Drafts.draft_count.desc()).first()
-                # session["draft_num"]= last_draft_num.draft_count+1
-                # print("Draft num is: ", session.get("draft_num", None))
-                draft_count = last_draft_num.draft_count+1
+                # delete these variables since they will interfere in our for loop for adding lines
+                if "draft_num" in global_initial_request and "draft_id" in global_initial_request:
+                    del global_initial_request["draft_num"]; del global_initial_request["draft_id"]
+                # check for invalid input before adding new draft by refercing draft's rhymes
+                # get most recent draft
+                last_draft = Drafts.query.filter_by(user_id=current_user.id, poem_count=global_poem_num).order_by(Drafts.draft_count.desc()).first()
+                ctr=0
+                # turn rhymes into array since it is stored as (A0,B0,A1,...)
+                draft_rhymes = last_draft.rhymes.split(",")
+                for key, value in global_initial_request.items():
+                    print(key, draft_rhymes[ctr])
+                    if (ctr>len(draft_rhymes)) or draft_rhymes[ctr]!=key:
+                        # reject input since it means user has changed keys or added an unwanted value
+                        return make_response({"response":"input was altered cannot save"})
+                    ctr+=1
+                #increment most recent draft count
+                draft_count = last_draft.draft_count+1
                 # insert new draft
-                new_draft = Drafts(user_id=current_user.id, draft_count=draft_count, poem_count=global_poem_num, rhyme_scheme=session.get("rhyme scheme", None), title=global_title, notes=global_notes,  save_date=datetime.now())
+                new_draft = Drafts(user_id=current_user.id, draft_count=draft_count, poem_count=global_poem_num, rhyme_scheme=global_rhyme_scheme, rhymes=last_draft.rhymes, title=global_title, notes=global_notes, line_break=last_draft.line_break, save_date=datetime.now())
                 db.session.add(new_draft)
                 db.session.commit()
+                # insert draft lines making sure no new lines were added
                 for key, value in global_initial_request.items():
-                    new_draft_lines = Drafts_Lines(draft_id=Drafts.query.filter_by(user_id=current_user.id, draft_count=draft_count, poem_count=global_poem_num).first().draft_id, line_num=key, line_text=value )
+                    new_draft_lines = DraftLines(draft_id=Drafts.query.filter_by(user_id=current_user.id, draft_count=draft_count, poem_count=global_poem_num).first().draft_id, line_num=key, line_text=value )
                     db.session.add(new_draft_lines)
                     db.session.commit()
                 return make_response({"response":"saved duplicate"}, 200)
 
             # update the draft the user is in currently 
             if server_request == "update draft":
-                print("server_request is upd draft")
-                print("intial req", global_initial_request)
-                # db = get_db()
-                # cur = db.cursor()
-                print("title inside update is", global_title)
-                print("peomnum", global_poem_num)
-                print("uid", session.get("user_id", None))
-                # update most recent draft accoridingly
                 if "draft_num" in global_initial_request:
-                    draft_count = global_initial_request["draft_num"]
+                    del global_initial_request["draft_num"]
+                print("intial req", global_initial_request, "\ntitle inside update is", global_title, "\npoemnum", global_poem_num, "\ndraft_id in req","draft_id" in global_initial_request)
+                if "draft_id" in global_initial_request:
+                    draft_to_update = Drafts.query.filter_by(user_id=current_user.id, draft_id=global_initial_request["draft_id"]).first()
+                    del global_initial_request["draft_id"]
                 else:
-                    draft_count =  Drafts.query.filter_by(user_id=current_user.id, poem_count=global_poem_num).order_by(Drafts.draft_count.desc()).first()
-                print("Draft count", draft_count)
-                updated_draft = Drafts.query.filter_by(user_id=current_user.id, draft_count=draft_count, poem_count=global_poem_num).first()
-                del global_initial_request["draft_num"]
-                updated_draft.title = global_title
-                updated_draft.notes = global_notes
-                updated_draft.edit_date = datetime.now()
-                db.session.commit()
+                    draft_to_update =  Drafts.query.filter_by(user_id=current_user.id, poem_count=global_poem_num).order_by(Drafts.draft_count.desc()).first()
+                # check for invalid input by referencing original rhymes when poem was created before updating draft
+                ctr=0
+                draft_to_update = Drafts.query.filter_by(user_id=current_user.id, draft_count=draft_to_update.draft_count, poem_count=global_poem_num).first()
+                # turn rhymes into array since it is stored as (A0,B0,A1,...)
+                rhymes = draft_to_update.rhymes.split(",")
                 for key, value in global_initial_request.items():
-                    updated_draft_lines = Drafts_Lines.query.filter_by(draft_id=updated_draft.draft_id, line_num=key).first()
-                    updated_draft_lines.line_text = value
+                    if (ctr>len(rhymes)) or rhymes[ctr]!=key:
+                        # reject input since it means user has changed keys or added an unwanted value
+                        return make_response({"response":"input was altered cannot save"})
+                    ctr+=1
+                # update current draft
+                draft_to_update.title = global_title
+                draft_to_update.notes = global_notes
+                draft_to_update.edit_date = datetime.now()
+                draft_to_update.saved = 0
+                db.session.commit()
+                # update draft and lines
+                for key, value in global_initial_request.items():
+                    draft_lines_to_update = DraftLines.query.filter_by(draft_id=draft_to_update.draft_id, line_num=key).first()
+                    draft_lines_to_update.line_text = value
                     db.session.commit()
                 return make_response({"response":"updated draft"}, 200)
 
-            # REQUEST FORMAT ============================================================================================================
-            if  server_request == "format":
+            # does not share global initial request with other server_Requests!
+            # REQUEST Save poem ============================================================================================================
+            if  server_request == "save poem":
+                    print("save poem", req)
                     poem_title = req["title"]
                     del req["title"]
-                    user_saved_poem_count = Users.query.filter_by(id=current_user.id).first()
-                    user_saved_poem_count.saved_poem_count += 1
+                    # add saved state to draft
+                    draft= Drafts.query.filter_by(user_id=current_user.id, draft_id=req["draft_id"]).first()
+                    del req["draft_id"]
+                    ctr = 0
+                    # turn rhymes into array since it is stored as (A0,B0,A1,...)
+                    rhymes = draft.rhymes.split(",")
+                    for key, value in req.items():
+                        print(rhymes, key) 
+                        if (ctr>len(rhymes)) or rhymes[ctr]!=key:
+                            # reject input since it means user has changed keys or added an unwanted value
+                            return make_response({"response":"input was altered cannot save"})
+                        ctr+=1
+                    # mark draft as saved
+                    draft.saved = 1
+                    # increment user saved poem count
+                    current_user.saved_poem_count += 1
                     db.session.commit() 
-                    print("user saved poem count",user_saved_poem_count.saved_poem_count)
-                    session["poem_num"] = user_saved_poem_count.saved_poem_count
-                    line_breaks = str_to_class((session.get("rhyme scheme", None).replace(" ","_"))).line_break_frequency
-                    user_poem = Poems(user_id=current_user.id, poem_count=user_saved_poem_count.saved_poem_count, rhyme_scheme=session.get("rhyme scheme", None), title=poem_title, line_break = line_breaks, save_date=datetime.now())
+                    line_breaks = CurrentUnsavedPoem.query.filter_by(user_id=current_user.id).first().current_line_breaks
+                    # add poem to db
+                    user_poem = Poems(user_id=current_user.id, poem_count=current_user.saved_poem_count, rhyme_scheme=draft.rhyme_scheme, title=poem_title, line_break = line_breaks, rhymes=draft.rhymes, save_date=datetime.now())
                     db.session.add(user_poem)
                     db.session.commit()
 
                     for key, value in req.items():
-                        user_poem_lines = Poems_Lines(poem_id=Poems.query.filter_by(user_id=current_user.id, poem_count = session.get("poem_num", None)).first().poem_id, line_num=key, line_text=value)
+                        # add checking if lines no matching
+                        user_poem_lines = PoemLines(poem_id=Poems.query.filter_by(user_id=current_user.id, poem_count = current_user.saved_poem_count).first().poem_id, line_num=key, line_text=value)
                         db.session.add(user_poem_lines)
                         db.session.commit()
                     return make_response({"response":"successful"})
+            # does not share global initial request with other server_Requests!
             # REQUEST UPDATE POEM====================================================================================================================================================================================
             if server_request == "update poem":
                 print(req["poem_id"])
@@ -613,17 +686,18 @@ def write():
                 del req["title"]; del req["poem_id"]
                 updated_poem.edit_date = datetime.now()
                 for key, value in req.items():
-                    updated_poem_lines = Poems_Lines.query.filter_by(poem_id=updated_poem.poem_id, line_num=key).first()
+                    updated_poem_lines = PoemLines.query.filter_by(poem_id=updated_poem.poem_id, line_num=key).first()
                     updated_poem_lines.line_text = value
                 db.session.commit()
                 return make_response({"response":"updated poem"}, 200)
 
 
 @app.route("/Format", methods=["POST", "GET"])
+@login_required
 def format():
     if request.method == "GET":
         user_poem = Poems.query.filter_by(user_id=current_user.id, poem_count=Users.query.filter_by(id=current_user.id).first().saved_poem_count).first()
-        user_poem_lines = Poems_Lines.query.filter_by(poem_id=user_poem.poem_id).all()
+        user_poem_lines = PoemLines.query.filter_by(poem_id=user_poem.poem_id).all()
         return render_template("format.html", user_poem = user_poem, user_poem_lines=user_poem_lines, username=current_user.username)
     if request.method == "POST":
         req = request.get_json()
@@ -631,14 +705,11 @@ def format():
             print("req is", req)
             user_poem = Poems.query.filter_by(user_id= current_user.id, poem_count=Users.query.filter_by(id=current_user.id).first().saved_poem_count).first()
             user_poem.title = user_poem.title
-            user_poem_lines = Poems_Lines.query.filter_by(poem_id=user_poem.poem_id).all()
-            ctr =0
-            print(req)
+            # add lines to db
             for key,value in req.items():
-                if user_poem_lines[ctr]:
-                    user_poem_lines[ctr].line_text = value
-                ctr+=1
-            db.session.commit()
+                    user_poem_lines  = PoemLines.query.filter_by(poem_id=user_poem.poem_id, line_num=key).first()
+                    user_poem_lines.line_text = value
+                    db.session.commit()
             return make_response({"response":"successful"})
 
 
@@ -658,7 +729,7 @@ def rhymes():
             datamuse_api_response = datamuse_api_response.json()
             # if we get no results back
             if len(datamuse_api_response) == 0:
-                return render_template("rhymes.html", form=form, no_results="There are no words that match your search check your spelling or try again")
+                return render_template("rhymes.html", form=form, no_results="There are no words that match your search")
             # if the user is looking for a rhyme filter the response into an array of objects 
             # with the syllable num as the key and an object of the word and the word and it's definition as the value
             # obj = [{numsyllables:{word:def}}, {numsyllables:{word:def}}, ....]
@@ -686,6 +757,7 @@ def rhymes():
             return make_response({"response":isRhyme(req["request"][0],req["request"][1], 1)})
 
 
+# display full definitions for reulst
 @app.route("/Rhymes/Definition")
 def rhymes_def():
     initial_word =  request.args.get("i")
@@ -804,6 +876,7 @@ def search_poems():
                 return make_response({"response":"success"})
 
 
+# displays poem on whole page
 @app.route("/SearchPoems/<string:author>/<string:title>")
 def search_poems_display(author, title):
     url = f"https://poetrydb.org/author,title/{author.replace(' ','%20')};{title.replace(' ','%20')};"
@@ -849,37 +922,33 @@ def customize():
 def drafts():
     if request.method == "GET":
         drafts = Drafts.query.filter_by(user_id=current_user.id).order_by(Drafts.poem_count.asc()).all()
-        return render_template("draft.html", drafts=drafts)
+        draft_lines = DraftLines.query.all()
+        return render_template("draft.html", drafts=drafts, draft_lines=draft_lines)
     if request.method == "POST":
         req = request.get_json()
-        if "draft_resume" in req.keys():
-            print("Resume")
-            for key, value in req.items():
-                # set the draft poem num not to be mistaken with out session poem number which is just a counter
-                session["draft_poem_num"] = str(value).split(";")[0]
-                session["draft_num"] = str(value).split(";")[1]
-            print("request is", req)
-            print("in reusme", str(value).split(";")[0])
-            print("poem num in resume draft", session.get("draft_poem_num"), None)
-            return make_response({"respone":"Values stored"})
         if "draft_delete" in req.keys():
-            print("Delete")
             for key, value in req.items():
                 poem_num = str(value).split(";")[0]
                 draft_num = str(value).split(";")[1]
             draft_title = Drafts.query.filter_by(user_id=current_user.id, poem_count=poem_num, draft_count=draft_num).first().title
-            Drafts_Lines.query.filter_by(draft_id=Drafts.query.filter_by(user_id=current_user.id, poem_count=poem_num, draft_count=draft_num).first().draft_id).delete()
+            DraftLines.query.filter_by(draft_id=Drafts.query.filter_by(user_id=current_user.id, poem_count=poem_num, draft_count=draft_num).first().draft_id).delete()
             Drafts.query.filter_by(user_id=current_user.id, poem_count=poem_num, draft_count=draft_num).delete()
             db.session.commit()
             return{"response":"Draft Deleted", "draft_title":draft_title, "draft_num":draft_num , "poem_num":poem_num}
 
+@app.route("/Account/Draft/Display")
+@login_required
+def display_draft():
+    draft = Drafts.query.filter_by(user_id=current_user.id, draft_id=request.args.get("did")).first()
+    draft_lines = DraftLines.query.filter_by(draft_id= draft.draft_id).all()
+    return render_template("draft_display.html", draft=draft, draft_lines=draft_lines)
 
 @app.route("/Account/Poem", methods=["POST", "GET"])
 @login_required
 def poems():
     if request.method == "GET":
         user_poems = Poems.query.filter_by(user_id=current_user.id).all()
-        poem_lines = Poems_Lines.query.all()
+        poem_lines = PoemLines.query.all()
         return render_template("poem.html", user_poems=user_poems, poem_lines=poem_lines, username=current_user.username)
     if request.method == "POST":
         req=request.get_json()
@@ -890,17 +959,15 @@ def poems():
             print(poem_id)
             poem_title = poem.first().title
             poem_num = poem.first().poem_count
-            Poems_Lines.query.filter_by(poem_id=poem.first().poem_id).delete()
+            PoemLines.query.filter_by(poem_id=poem.first().poem_id).delete()
             poem.delete()
             db.session.commit()
             return make_response({"response":"successful", "poem_title":poem_title,"poem_num":poem_num})
 
 
-@app.route("/Account/Poem/Display", methods=["POST", "GET"])
-def display():
-    if request.method == "GET":
-        poem = Poems.query.filter_by(user_id=current_user.id, poem_id=request.args.get("pid")).first()
-        poem_lines = Poems_Lines.query.filter_by(poem_id= poem.poem_id).all()
-        return render_template("display.html", poem=poem, poem_lines=poem_lines, username=current_user.username)
-    if request.method == "POST":
-        pass
+@app.route("/Account/Poem/Display")
+@login_required
+def display_poem():
+    poem = Poems.query.filter_by(user_id=current_user.id, poem_id=request.args.get("pid")).first()
+    poem_lines = PoemLines.query.filter_by(poem_id= poem.poem_id).all()
+    return render_template("poem_display.html", poem=poem, poem_lines=poem_lines)

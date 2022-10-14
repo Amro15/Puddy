@@ -174,15 +174,15 @@ class rhyme_scheme:
         return return_arr
         
 # name, rhymes, repeats, increment_by, envoi, line_break_frequency
-Monorhyme = rhyme_scheme("Monorhyme", ["A"], 1, 0,None, None) 
-Coupled_Rhyme = rhyme_scheme("Coupled Rhyme",["A","A"], 1, 1, None, 2)
-Triplet = rhyme_scheme("Triplet", ["A","A","A"], 1, 1, None, 3)
-Alternating_Rhyme = rhyme_scheme("Alternating Rhyme", ["A","B","A","B"], 1, 2,None, 4)
-Encolsed_Rhyme = rhyme_scheme("Encolsed Rhyme", ["A","B","B","A"], 1, 2, None, 4)
+Monorhyme = rhyme_scheme("Monorhyme", ["A"], 0, 0,None, None) 
+Coupled_Rhyme = rhyme_scheme("Coupled Rhyme",["A","A"], 0, 1, None, 2)
+Triplet = rhyme_scheme("Triplet", ["A","A","A"], 0, 1, None, 3)
+Alternating_Rhyme = rhyme_scheme("Alternating Rhyme", ["A","B","A","B"], 0, 2,None, 4)
+Encolsed_Rhyme = rhyme_scheme("Encolsed Rhyme", ["A","B","B","A"], 0, 2, None, 4)
 Free_Verse = rhyme_scheme("Free Verse", [], None, None, None, None)
 Custom = rhyme_scheme("Custom", [], None, None, None, None)
 Shakespearean_Sonnet = rhyme_scheme("Shakespearean Sonnet", ["A","B","A","B"], 2, 2, ["G","G"], 4)
-Terza_Rima = rhyme_scheme("Terza_Rima", ["A","B","A"], 3, 1, ["E","E"], 3)
+Terza_Rima = rhyme_scheme("Terza Rima", ["A","B","A"], 3, 1, ["E","E"], 3)
 Limerick = rhyme_scheme("Limerick", ["A","A","B","B","A"], None, None, None, None)
 Haiku = rhyme_scheme("Haiku", ["1","2","3"], None, None, None, None)
 

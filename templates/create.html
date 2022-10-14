@@ -10,6 +10,10 @@
 
 {% block main %}
 <h1>Create</h1>
+{% if current_user.is_anonymous %}
+<div clas="visible_warning"><img src="/static/icons/warning.png" id="warning_icon">You will not be able to save your progess until you are <a href="/Signin">Signed In</a>
+</div>
+{% endif %}
 <form class="form" action="/Create" method="post">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   <div class="input-group mb-3">

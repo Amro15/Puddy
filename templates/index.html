@@ -11,7 +11,11 @@
 {% endif %}
 <img src="/static/icons/Puddy_Logo_writing.png">
 <img src="/static/icons/Puddy_Logo_plume.png">
-<h1>Welcome to Puddy {{username}}!</h1>
+{% if current_user.is_authenticated %}
+<h1>Welcome to Puddy {{current_user.username}}!</h1>
+{% elif current_user.is_anonymous %}
+<h1>Welcome to Puddy Guest!</h1>
+{% endif %}
 <div class="container_div">
     <p>Puddy is your poetry writing buddy here's everything that puddy has to offer:</p>
 <ul>
