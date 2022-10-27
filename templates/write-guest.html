@@ -1,0 +1,162 @@
+{% extends "layout.html" %}
+
+{% block head %}<style>
+    body {
+        background-image: url('{{user_background}}') !important;
+    }
+</style>{% endblock %}
+
+{% block title %} Write Guest {% endblock %}
+
+{% block main %}
+{% if user_rhyme_scheme == "Custom" or user_rhyme_scheme == "Free Verse" %}
+<div class="visible_warning">
+    <img src="/static/icons/warning.png" id="warning_icon">
+    You will not be able to save your progess or use the free verse and custom rhyme schemes until you are <a href="/Signin">Signed In</a>
+</div>
+{% else %}
+<div class="alert alert-primary alert-dismissible  d-flex align-items-center" role="alert">
+    <div>
+      <b><u>Tip:</u></b> Press <b>Shift + Enter</b> to go down a line and <b>Ctrl + Enter</b> to go up a line.
+    </div>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+<div id="btn_div">
+    <input type="text" class="form-control" id="quick_search" placeholder="Quick Search For Rhymes">
+    <button type="button" class="button" id="quick_search_rhymes_btn">
+        <img src="/static/icons/search.png" id="search_icon">
+    </button>
+    <div id="loading_quick_search" class="text-center loading">
+        <div class="spinner-border" style="width: 2rem; height: 2rem;" role="status"></div>
+    </div>
+    <div class="form-check form-switch form-check-reverse switch_div">
+        <input class="form-check-input" id="detatch_util" name="switch" type="checkbox" id="flexSwitchCheckReverse">
+        <label class="form-check-label" for="flexSwitchCheckReverse">Detatch Utility Box</label>
+    </div>
+    <div class="form-check form-switch form-check-reverse switch_div">
+        <input class="form-check-input" id="toggle_nav" name="switch" type="checkbox" id="flexSwitchCheckReverse">
+        <label class="form-check-label" for="flexSwitchCheckReverse">Toggle Navbar</label>
+    </div>
+    <div class="form-check form-switch form-check-reverse switch_div">
+        <input class="form-check-input" id="toggle_note" name="switch" type="checkbox" id="flexSwitchCheckReverse">
+        <label class="form-check-label" for="flexSwitchCheckReverse">Toggle Notepad</label>
+    </div>
+    {% if not ((user_rhyme_scheme=="Free Verse") or (user_rhyme_scheme=="Haiku"))%}
+    <div class="form-check form-switch form-check-reverse switch_div">
+        <input class="form-check-input" id="check_rhymes" name="switch" value="check_rhymes" type="checkbox"
+            id="flexSwitchCheckReverse">
+        <label class="form-check-label" for="flexSwitchCheckReverse" id="check_rhymes_label">Check Rhymes</label><button
+        onclick="show_div('#rhyme_info_div','inline-block')" class="info_btn">?</button>
+        <div id="no_data_rhymes">There must at least two words of the same rhyme in your poem</div>
+        <div id="loading_rhymes" class="text-center loading">
+            <div class="spinner-border" style="width: 2rem; height: 2rem;" role="status">
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    <div class="form-check form-switch form-check-reverse switch_div">
+        <input class="form-check-input" id="display_syllable_count" name="switch" value="display_syllable_count"
+            type="checkbox" id="flexSwitchCheckReverse">
+        <label class="form-check-label" for="flexSwitchCheckReverse">Display Syllable Count</label>
+        <div>
+            <ol id="no_data_syllables">You got 0 for a syllable count make sure:
+                <li>You left no empty fields</li>
+                <li>You did not misspell a word</li>
+                <li>You only used words that appear in the <a id="no_data_syllables_link"
+                        href="http://www.speech.cs.cmu.edu/cgi-bin/cmudict" target="_blank">dictionary</a></li>
+            </ol>
+        </div>
+        <div id="loading_syllables" class="text-center loading">
+            <div class="spinner-border" style="width: 2rem; height: 2rem;" role="status">
+            </div>
+        </div>
+    </div>
+    <div class="form-check form-switch form-check-reverse switch_div">
+        <input class="form-check-input" id="check_meter" name="switch" value="check_meter" type="checkbox"
+            id="flexSwitchCheckReverse">
+        <label class="form-check-label" for="flexSwitchCheckReverse">Display Meter</label><button
+            onclick="show_div('#meter_info_div','inline-block')" class="info_btn">?</button>
+    </div>
+    <div>
+        <p id="no_data_meter">
+        <p>
+    </div>
+    <div id="loading_meter" class="text-center loading">
+        <div class="spinner-border" style="width: 2rem; height: 2rem;" role="status">
+        </div>
+    </div>
+</div>
+<button class="button" id="arrow"><i class="arrow right" id="arrow_symbol"></i></button>
+</div>
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+{% if not user_rhyme_scheme=="Haiku" %}
+<div id="rhyme_info_div">
+    <button onclick="hide_div('#rhyme_info_div')" class="close_btn">x</button>
+    <ul>
+        <li><u style=color:green><span style=color:green>Green:</span></u> Words rhyme</li>
+        <br>
+        <li><u style=color:blue><span style=color:blue>Blue:</span></u> Words rhyme with each other but don't follow the
+            rhyme group's rhyme scheme<br>(example: tree-A, free-A, sun-A, fun-A)</u> </li>
+        <br>
+        <li><u style=color:yellow><span style=color:yellow>Yellow:</span></u> Words rhyme with each other but also rhyme
+            with another rhyme group<br>(example: tree-A, free-B, glee-A, see-B)</u> </li>
+        <br>
+        <li><u style=color:red><span style=color:red>Red:</span></u> Words don't rhyme</li>
+    </ul>
+</div>
+{% endif %}
+
+<div id="meter_info_div">
+    <button onclick="hide_div('#meter_info_div')" class="close_btn">x</button>
+    Display Meter:
+    <ul>
+        <li>Seperates Words Into Syllables</li>
+        <li>Identify <b>STRESSED</b> And <b>unstressed</b> Syllables</li>
+        <li><a>More About Meter...</a></li>
+    </ul>
+</div>
+<div id="search_results">
+    <button onclick="hide_div('#search_results')" class="close_btn">x</button>
+    <ul id="search_results_list"></ul>
+    <button class="button" onclick="window.open('/Rhymes', '_blank')">Advanced Search</button>
+</div>
+
+<span id="notepad" class="notepad" role="textbox" class="line" contenteditable></span>
+<div class="poem-div">
+    <div class="verse title">
+        <span contenteditable id="title"></span><span class="badge bg-secondary, title_symbol">Title</span>
+    </div>
+    <!-- if rhyme scheme calls for numeric line numbers i[0] will not work so we need to check for that -->
+    {% if user_rhyme_scheme=="Haiku" %}
+        {% for i in rhyme_schemes.rhymes%}
+            <div class="verse">
+                <span class="line {{i}}" id="{{i}}" name="{{i}}" role="textbox" contenteditable="true"></span><span
+                    id="symbol{{i}}" class="badge bg-secondary, rhyme_symbols">{{i}}</span>
+            </div>
+            <div class="syllables"><span class="syllables_text"></span></div>
+            <div class="meter"><span class="meter_text"></span></div>
+            {% if rhyme_schemes.line_break_frequency and ((loop.index % rhyme_schemes.line_break_frequency) == 0) %}
+            <br>
+            {% endif %}
+        {% endfor %}
+    {% else%}
+            {% for i in rhyme_schemes.get_ids()%}
+            <div class="verse">
+                <span class="line {{i[0]}}" id="{{i}}" name="{{i[0]}}" role="textbox" contenteditable="true"></span><span
+                    id="symbol{{i}}" class="badge bg-secondary, rhyme_symbols">{{i[0]}}</span>
+            </div>
+            <div class="syllables"><span class="syllables_text"></span></div>
+            <div class="meter"><span class="meter_text"></span></div>
+
+                {% if rhyme_schemes.line_break_frequency and ((loop.index % rhyme_schemes.line_break_frequency) == 0) %}
+                <br>
+                {% endif %}
+            {% endfor %}
+    {% endif %}
+{% endif %}
+    {% endblock %}
+    
+{% block script %}
+<script src="/static/js/guest_write_and_write.js"> </script>
+{% endblock %}

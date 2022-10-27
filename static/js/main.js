@@ -80,5 +80,15 @@ function getCookie(name) {
        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
    }
    return null;
+}
 
+// show and hide div
+function show_div(str, display_mode){
+   div = document.querySelector(str);
+   div.style.display=display_mode;
+   div.scrollIntoView({ behavior: 'smooth'});
+}
+function hide_div(str){
+   div = document.querySelector(str);
+   div.style.display="none";
 }

@@ -1,8 +1,12 @@
+{% from 'macro.html' import flash_msgs %}
+
+
 {% extends "layout.html" %}
 
 {% block title %} Draft {% endblock %}
 
 {% block main %}
+{{flash_msgs()}}
 <!-- draft modal -->
 <div class="modal fade" id="draft_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
 aria-hidden="true">
@@ -78,8 +82,12 @@ aria-hidden="true">
 <h2>Looks like you don't have any drafts saved yet, get to <a href="/Create">Creating!</a></h2>
 </div>
 {% endif %}
+{% endblock %}
+
+{% block script %}
 <script  src="/static/js/draft.js"> </script>
 {% endblock %}
+
 <a href="https://www.flaticon.com/free-icons/play" title="play icons">Resume icons created by Freepik - Flaticon</a>
 <a href="https://www.flaticon.com/free-icons/back" title="back icons">Arrow icons created by Roundicons - Flaticon</a>
 <a href="https://www.flaticon.com/free-icons/edit" title="edit icons">Edit icons created by Pixel perfect - Flaticon</a>

@@ -3,12 +3,6 @@
 {% block title %} Home {% endblock %}
 
 {% block main%}
-{% if logout_msg %}
-<div class="alert alert-danger alert-dismissible" role="alert">
-    Please <a href="/Signout">LogOut</a> to access this part of the website!
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-  </div>
-{% endif %}
 <img src="/static/icons/Puddy_Logo_writing.png">
 <img src="/static/icons/Puddy_Logo_plume.png">
 {% if current_user.is_authenticated %}

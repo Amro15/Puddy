@@ -32,6 +32,20 @@ let check_rhymes_btn = document.getElementById("check_rhymes_btn");
 let rhyme_check_results = document.getElementById("rhyme_check_results");
 let word1 = document.getElementById("word1");
 let word2 = document.getElementById("word2");
+
+word1.addEventListener("keydown", (event)=> {
+    if (event.key === "Enter") {
+        event.preventDefault();
+        word2.focus();
+    }
+    });
+word2.addEventListener("keydown", (event)=> {
+    if (event.key === "Enter") {
+        event.preventDefault();
+        check_rhymes_btn.click();
+    }
+    });
+
 check_rhymes_btn.addEventListener("click", ()=>{
     rhyme_check_results.style.backgroundColor="#e9ecef";
     fetch(window.origin+"/Rhymes",{

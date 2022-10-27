@@ -1,4 +1,4 @@
-{% from 'macro.html' import form_field, err_msg, login_required_msg %}
+{% from 'macro.html' import form_field, err_msg%}
 
 
 {% extends "layout.html" %}
@@ -25,7 +25,6 @@
   </div>
     {{ err_msg(form.username) }}
     {{ err_msg(form.password) }}
-    {{ login_required_msg() }}
     <p class="confirmation_msg">{{success_msg}}</p>
     <div class="login-footer">
       <p>Not a member yet? <a href="/Register">Register</a></p>

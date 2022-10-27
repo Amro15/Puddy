@@ -31,8 +31,18 @@ class Users(db.Model, UserMixin):
 class CurrentUnsavedPoem(db.Model):
     __tablename__ = "current_unsaved_poem"
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"),  primary_key = True)
-    current_rhymes = db.Column(db.String(), nullable=False, default="None")
-    current_line_breaks = db.Column(db.Integer(), nullable=False, default=0)
+    rhyme_scheme = db.Column(db.String(), nullable=False)
+    rhymes = db.Column(db.String(), nullable=False)
+    title = db.Column(db.String())
+    line_break = db.Column(db.Integer(), nullable=False)
+    date = db.Column(db.DateTime, nullable=False, default=datetime.now())
+
+class CurrentUnsavedPoemLines(db.Model):
+    __tablename__="current_unsaved_poem_lines"
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    line_num = db.Column(db.String, nullable = False)
+    line_text = db.Column(db.String, nullable = False)
 
 class Drafts(db.Model):
     __tablename__ ="drafts"
@@ -53,7 +63,7 @@ class DraftLines(db.Model):
     __tablename__="draft_lines"
     draft_lines_id = db.Column(db.Integer, primary_key = True)
     draft_id = db.Column(db.Integer, db.ForeignKey("drafts.draft_id"),  nullable = False)
-    line_num = db.Column(db.Integer, nullable = False)
+    line_num = db.Column(db.String, nullable = False)
     line_text = db.Column(db.String, nullable = False)
 
 class Poems(db.Model):
@@ -72,5 +82,5 @@ class PoemLines(db.Model):
     __tablename__="poem_lines"
     poem_lines_id = db.Column(db.Integer, primary_key = True)
     poem_id = db.Column(db.Integer, db.ForeignKey("poems.poem_id"),  nullable = False)
-    line_num = db.Column(db.Integer, nullable = False)
+    line_num = db.Column(db.String, nullable = False)
     line_text = db.Column(db.String, nullable = False)

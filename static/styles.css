@@ -282,7 +282,9 @@ background-color: rgb(143, 143, 143) ;
 }
 /* ------------------------ */
 /* /Write */
-
+#tip_div{
+  display: none!important;
+}
 #warning{
   position: fixed;
   z-index: 2;
@@ -297,12 +299,15 @@ background-color: rgb(143, 143, 143) ;
   width: 60px;
 }
 .close_btn{
-  position: absolute;
-  top: 0px;
-  right: 0px;
+  position: relative;
+  float: right;
+  width: 35px;
+  height: 35px;
   border: none;
-  background-color: rgb(106, 104, 104);
-}
+  background-color: rgba(105, 113, 132, 0.8);
+  margin-left: 5px;
+};
+
 #rhyme_info_close, #meter_info_close{
   width: 30px;
   height: 30px;
@@ -315,7 +320,7 @@ background-color: rgb(143, 143, 143) ;
   text-align: center;
 }
 
-.verse, .syllables, .meter{
+.verse, .syllables, .meter, .title{
     position: relative;
     display: flex;
     flex-wrap: wrap;
@@ -368,8 +373,8 @@ background-color: rgb(143, 143, 143) ;
   content: "Title(optional)";
 }
 
-#title, .title_symbol{
-  margin: 30px 0px 40px;
+.title, .title_symbol{
+  margin: 40px 0px 40px;;
   text-align: center;
 }
 .title_symbol{
@@ -381,9 +386,11 @@ background-color: rgb(143, 143, 143) ;
 .rhyme_symbols, .title_symbol{
   line-height: normal!important;
   background-color:  rgb(105, 113, 132);
-  color:white;
+  margin: auto 0 auto;
   width:40px;
   height:40px;
+  display: inline-block;
+  overflow: hidden;
 }
 
 .line, .meter_text, .syllables_text{
@@ -396,7 +403,7 @@ background-color: rgb(143, 143, 143) ;
     border-radius: 7px;
 }
 
-span[contenteditable]:empty::before {
+span[contenteditable]:not(.rhyme_symbols):empty::before {
     content: "Text goes here";
   }
 
@@ -412,6 +419,7 @@ span[contenteditable]:empty::before {
     min-width: 245px;
     width: 245px; 
     float: right;
+    background-color: rgba(105, 113, 132, 0.5);
   }
 
 .btn-secondary {
@@ -423,21 +431,22 @@ span[contenteditable]:empty::before {
   margin-bottom: 10px;
 }
 
-.btn-secondary:hover, #rhyme_check_info:hover, #meter_info_btn:hover, .close_btn:hover, .icon_btn:hover {
+.btn-secondary:hover, .close_btn:hover, .icon_btn:hover, .info_btn:hover{
   background-color: rgb(45, 49, 57)!important;
 }
 
-.btn-secondary:active, #rhyme_check_info:active, #meter_info_btn:active, .close_btn:active, .icon_btn:active {
+.btn-secondary:active, .close_btn:active, .icon_btn:active, .info_btn:active {
     background-color:  rgb(79, 86, 100)!important;
 }
 
-#rhyme_check_info, #meter_info_btn{
+.info_btn{
   color:white;
   margin-left: 2px;
   background-color: rgb(105, 113, 132);
   border: 0px;
 }
-#rhyme_info_div, #meter_info_div, #search_results{
+
+.info_div, #edit_add_lines_bulk_div, #edit_add_line_breaks_bulk_div{
   background-color:  rgba(37, 37, 37, 0.5);
   position: relative;
   color:white;
@@ -449,14 +458,13 @@ span[contenteditable]:empty::before {
 #create_btn_div{
   text-align: center;
 }
+
 #random_create_poem, #show_all_res_desc{
   width: 311.98px!important;
 }
 
 .notepad{
-    position: absolute;
-    visibility: hidden;
-    display: block;
+    display: none;
     margin: 10px 10px 0 10px;
     padding-left: 10px;
     min-height: 100px;
@@ -514,7 +522,7 @@ span[contenteditable]:empty::before {
   margin: -10px -25px 2px -15px;
 }
 
-#no_data_rhymes, #no_data_syllables, #no_data_meter{
+#no_data_rhymes, #no_data_syllables, #no_data_meter, #edit_mode_errors{
   padding-left: 25px;
   font-weight: bold;
   color:rgb(255, 0, 0);
@@ -522,8 +530,12 @@ span[contenteditable]:empty::before {
   margin: 10px;
 }
 
-#no_data_syllables,#no_data_rhymes, #msg_container{
+#no_data_syllables,#no_data_rhymes, #msg_container, #edit_mode_errors{
   display: none;
+}
+
+#close_success_msg{
+  height: 27px;
 }
 #msg_container{
   position: relative;
@@ -555,6 +567,122 @@ span[contenteditable]:empty::before {
   width: 100px
 }
 
+/* edit mode in write */
+#edit_mode_indicator, #add_lines_bulk_error, #add_brs_bulk_error, .undo_btn_conatiner
+, .delete_btn_container, .br_btn, #edit_btns_div, #add_lines_bulk_length_error, #add_line_err{
+  display: none;
+}
+
+#edit_mode_btns_div{
+  text-align: center;
+}
+
+.edit_mode_btns{
+    background-color: rgb(105, 113, 132);
+    color: white;
+    padding: 5px;
+    margin: 8px 0;
+    border: none;
+    width: 100px;
+}
+ 
+.edit_info_rhyme_symbol{
+    background-color: rgb(37, 37, 37);
+    line-height: normal!important;
+    color: white;
+    width: 40px;
+    height: 40px;
+    display: inline-block;
+}
+
+#toggle_br_btn{
+  margin-top: 15px!important;
+}
+
+.add_btn_container, .add_bulk_container{
+  text-align: center;
+  display: none;
+}
+
+#add_line_btn, #add_bulk_btn{
+  border: none;
+  background-color:green;
+  border-radius: 0.25rem;
+  margin-top: 10px;
+  width: 200px;
+  margin: 5px 0px 15px;
+}
+
+#add_line_btn:hover, #add_bulk_btn:hover{
+  background-color: rgb(1, 60, 1);
+}
+#add_line_btn:active, #add_bulk_btn:active{
+  background-color: rgba(0, 128, 0, 0.9);
+}
+
+#add_bulk_div{
+  text-align: center;
+}
+
+
+#edit_add_lines_bulk_div, #edit_add_line_breaks_bulk_div{
+  width: 450px;
+  display: none;
+}
+
+.undo_btn{
+    width: 40px;
+    height: 40px;
+    border-radius: inherit;
+    border: none;
+    background-color: blue;
+    margin: -5px;
+}
+.undo_btn:hover{
+  background-color: darkblue;
+}
+.undo_btn:active{
+  background-color: rgba(0, 0, 255, 0.9);
+}
+
+.delete_line_btn{
+    width: 40px;
+    height: 40px;
+    border-radius: inherit;
+    border: none;
+    background-color: red;
+    margin: -5px;
+}
+
+.delete_line_btn:hover{
+  background-color: darkred;
+}
+.delete_line_btn:active{
+  background-color: rgba(255, 0, 0, 0.9);
+}
+.badge:empty{
+  display: inline-block!important;
+}
+
+#add_br{
+  background-color: lightgreen;
+}
+#add_br:hover{
+  background-color: green;
+}
+#add_br:active{
+  background-color: rgba(59, 136, 59, 0.9);
+}
+
+#remove_br{
+  background-color: indianred;
+}
+#remove_br:hover{
+  background-color: red;
+}
+#remove_br:active{
+  background-color: rgba(208, 107, 107, 0.9);
+}
 /* --------------------------------------------- */
 
   

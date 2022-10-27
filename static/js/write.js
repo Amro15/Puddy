@@ -1,403 +1,27 @@
 // remind user to save after 20 mins 
-let warning = setTimeout(()=>{
+let warning = setTimeout(() => {
     let warning_div = document.getElementById("warning");
-    if (warning_div){
-        warning_div.style.display="inline-block";
+    if (warning_div) {
+        warning_div.style.display = "inline-block";
         warning_div.scrollIntoView();
         let close_warning_btn = document.getElementById("warning_close");
-        close_warning_btn.addEventListener("click", ()=>{
+        close_warning_btn.addEventListener("click", () => {
             warning_div.style.display = "none";
         })
     }
-    
-},(20*60000))
 
+}, (20 * 60000))
 
-// quick search for rhymes
-let search_btn = document.getElementById("quick_search_rhymes_btn");
-let search_query = document.getElementById("quick_search");
-let search_results = document.getElementById("search_results");
-let search_results_list = document.getElementById("search_results_list");
-let hide_results_btn = document.getElementById("hide_results");
-search_btn.addEventListener("click", ()=>{
-    search_results_list.innerHTML="";
-    fetch(`https://api.datamuse.com/words?rel_rhy=${search_query.value}`)
-    .then((response)=>{
-        if(response.status!=200){
-            console.log("Could Not Get Rhymes From Api");
-        }
-        return response.json();
-    })
-    .then((data)=>{
-        if(data.length==0){
-            err_msg = document.createElement("p");
-            err_msg.innerText="There Are No Results That Match Your Search";
-            err_msg.classList.add("error_msg");
-            search_results_list.appendChild(err_msg);
-            search_results.style.display="inline-block";
-        }
-        else{
-            let sorted_results ={}
-            for(let i in data){
-            if(!sorted_results.hasOwnProperty(data[i].numSyllables)){
-                sorted_results[data[i].numSyllables]=[data[i].word];
-            }
-            else{
-                sorted_results[data[i].numSyllables].push(data[i].word);
-            }
-        };
-        for(let i in sorted_results){
-            let list_item = document.createElement("li");
-            let line_break = document.createElement("br");
-            list_item.innerHTML = `<b><u>${i} Syllable(s) rhyme(s):</u></b> `
-            for(let j in sorted_results[i]){
-                list_item.innerHTML+=`${sorted_results[i][j]}, `;
-                if(j==15){
-                    break;
-                }
-            }
-            search_results_list.appendChild(list_item);
-            search_results_list.appendChild(line_break);
-            search_results.style.display="inline-block";
-        }
-    }
-    })
-})
-hide_results_btn.addEventListener("click", ()=>{
-    search_results.style.display="none";
-})
-
-//hide nav btn
-let navbar = document.getElementById("nav_div");
-toggle_nav.addEventListener("click", () => {
-    if ((navbar.style.visibility !== "hidden") && (navbar.style.position !== "absolute")) {
-        navbar.style.cssText = "visibility :hidden; position: absolute";
-    }
-    else {
-        navbar.style.cssText = "visibility :visible; position: relative";
-    }
-})
-
-// toggle notepad
-let notepad = document.getElementById("notepad");
-toggle_note.addEventListener("click", () => {
-    if ((notepad.style.visibility !== "visible") && (notepad.style.position !== "relative")) {
-        notepad.style.cssText = "visibility: visible; position:relative";
-    }
-    else {
-        notepad.style.cssText = "visibility: hidden; position:absolute"
-    }
-})
-
-
-// toggle btn div
-let detatch_util = document.getElementById("detatch_util")
-let arrow = document.getElementById("arrow");
-let arrow_symbol = document.getElementById("arrow_symbol")
-let btn_div = document.getElementById("btn_div")
-
-// pin btn div
-detatch_util.addEventListener("click", () => {
-    if (!detatch_util.checked) {
-        btn_div.style.cssText = "position: relative;"
-        arrow.style.cssText = "position: relative;"
-    }
-    else {
-        btn_div.style.cssText = "position: fixed; right:0px"
-        arrow.style.cssText = "position: fixed; right:245px"
-    }
-})
-
-// hide and show div with arrow
-arrow.addEventListener("click", () => {
-    if (btn_div.style.visibility !== "hidden" && btn_div.style.position !== "absoliute") {
-        btn_div.style.cssText = "position: absolute; visibility:hidden";
-        arrow_symbol.classList.remove("right");
-        arrow_symbol.classList.add("left");
-        if (!detatch_util.checked) {
-            arrow.style.cssText = "position:relative;"
-        }
-        else {
-            arrow.style.cssText = "position:fixed; right:0px"
-        }
-    }
-    else {
-        arrow_symbol.classList.remove("left");
-        arrow_symbol.classList.add("right");
-        if (!detatch_util.checked) {
-            btn_div.style.cssText = "position: relative; visibility:visible"
-            arrow.style.cssText = "position: relative; right:0px"
-        }
-        else {
-            btn_div.style.cssText = "position: fixed; visibility:visible"
-            arrow.style.cssText = "position: fixed; right:245px"
-        }
-    }
-})
-
-
-//Check Rhymes
-let loading_rhymes = document.getElementById("loading_rhymes")
-let check_rhyme_btn = document.getElementById("check_rhymes");
-if (check_rhyme_btn){
-check_rhyme_btn.addEventListener("click", () => {
-    if (check_rhyme_btn.checked) {
-        loading_rhymes.style.display="block";
-        let send_to_server_rhymes = {};
-        let input = document.getElementsByClassName("line");
-        console.log(input.length)
-        for (let i = 0; i < input.length; i++) {
-            console.log(input.item(i).innerText);
-            console.log(i);
-            if (send_to_server_rhymes.hasOwnProperty(input.item(i).getAttribute("name"))) {
-                send_to_server_rhymes[input.item(i).getAttribute("name")].push(input.item(i).innerText);
-            }
-            else {
-                send_to_server_rhymes[input.item(i).getAttribute("name")] = [input.item(i).innerText];
-            }
-        }
-        console.log(send_to_server_rhymes)
-
-        //send data to server if btn is checked
-
-        fetch(window.origin + "/Write", {
-            method: "POST",
-            headers: new Headers({
-                "X-CSRFToken": document.getElementsByName("csrf_token")[0].value,
-                "Content-Type": "application/json",
-                "Request": "get rhyme"
-            }),
-            cache: "no-cache",
-            body: JSON.stringify(send_to_server_rhymes)
-        })
-            .then((respone) => {
-                if (respone.status !== 200) {
-                    console.log("request status for rhyme is " + respone.status, respone.statusText, "response.json " + respone.json());
-                    return;
-                }
-                respone.json().then((data) => { 
-                    loading_rhymes.style.display="none";
-                    console.log("this is the workable with data", data)
-                    // check if user is trying to detect rhymes of empty lines
-                    let no_data_rhymes = document.getElementById("no_data_rhymes");
-                    let obj_len = 0;
-                    for (let i in data) {
-                        obj_len += data[i].length;
-                    }
-                    if (obj_len === 0) {
-                        no_data_rhymes.style.display = "block";
-                    }
-                    // change element color corresponding to the returned object's key
-                    if (data["red"]) {
-                        for (let i in data["red"]) {
-                            console.log("data is red")
-                            let rhyme_symbol = document.getElementById("symbol" + data["red"][i]);
-                            if (check_rhyme_btn.checked) {
-                                rhyme_symbol.style.backgroundColor = "red";
-                            }
-                        };
-                    };
-                    if (data["green"]) {
-                        for (let i in data["green"]) {
-                            console.log("data is green")
-                            console.log("symbol" + data["green"][i])
-                            let rhyme_symbol = document.getElementById("symbol" + data["green"][i]);
-                            console.log(rhyme_symbol)
-                            rhyme_symbol.style.backgroundColor = "green";
-                        };
-                    };
-                    if (data["yellow"]) {
-                        for (let i in data["yellow"]) {
-                            console.log("data is yellow")
-                            let rhyme_symbol = document.getElementById("symbol" + data["yellow"][i]);
-                            rhyme_symbol.style.backgroundColor = "yellow";
-                        };
-                    };
-                    if (data["blue"]) {
-                        for (let i in data["blue"]) {
-                            console.log("data is blue")
-                            let rhyme_symbol = document.getElementById("symbol" + data["blue"][i]);
-                            rhyme_symbol.style.backgroundColor = "blue";
-                        };
-                    };
-                });
-            });
-    }
-    //if btn is not checked all background colors go back to normal 
-    else {
-        // remove error msg
-        no_data_rhymes.style.display = "none";
-        // rever all elements to their original color
-        let input = document.getElementsByClassName("line");
-        for (let i = 0; i < input.length; i++) {
-            let symbol_id = "symbol" + input.item(i).id;
-            document.getElementById(symbol_id).style.backgroundColor = "rgb(105, 113, 132)";
-        }
-    }
-});
+let tip_div = document.getElementById("tip_div");
+if (!getCookie("first_visit")) {
+    setCookie("first_visit", "false", 365);
+    tip_div.style.cssText = "display:flex!important;";
 }
-
-// rhyme info
-let rhyme_info_btn = document.getElementById("rhyme_check_info");
-let rhyme_info_div = document.getElementById("rhyme_info_div");
-let ctr=0
-if (rhyme_info_btn){
-rhyme_info_btn.addEventListener("click", ()=>{
-        rhyme_info_div.style.display="inline-block";
-})
-let close_rhyme_info_btn = document.getElementById("rhyme_info_close");
-if(close_rhyme_info_btn){
-    close_rhyme_info_btn.addEventListener("click", ()=>{
-        console.log("click")
-    rhyme_info_div.style.display="none";
-    })
-}
-}
-
-// Check syllables
-let loading_syllables = document.getElementById("loading_syllables");
-let check_syllables_btn = document.getElementById("display_syllable_count");
-let input = document.getElementsByClassName("line");
-let syllables = document.getElementsByClassName("syllables");
-let syllables_text = document.getElementsByClassName("syllables_text");
-check_syllables_btn.addEventListener("click", () => {
-    if (check_syllables_btn.checked) {
-        loading_syllables.style.display="block";
-        let send_to_server_syllables = {};
-        let input = document.getElementsByClassName("line");
-        for (let i = 0; i < input.length; i++) {
-            send_to_server_syllables[input.item(i).id] = input.item(i).innerText;
-        }
-        console.log(send_to_server_syllables);
-        fetch(window.origin + "/Write", {
-            method: "POST",
-            headers: new Headers({
-                "X-CSRFToken": document.getElementsByName("csrf_token")[0].value,
-                "Content-Type": "application/json",
-                "Request": "get syllables"
-            }),
-            cache: "no-cache",
-            body: JSON.stringify(send_to_server_syllables)
-        })
-
-            .then((respone) => {
-                if (respone.status !== 200) {
-                    console.log("request status for syllables is" + respone.status);
-                    return;
-                }
-                respone.json().then((data) => {
-                    loading_syllables.style.display="none";
-                    console.log("this is the workable with data", data)
-                    for (let j = 0; j < input.length; j++) {
-                        console.log(syllables[j])
-                        if (data[input.item(j).id]) {
-                            for (k in data[input.item(j).id]) {
-                                if (data[input.item(j).id][k] === 0) {
-                                    console.log("entry", data[input.item(j).id][k])
-                                    let no_data_syllables = document.getElementById("no_data_syllables");
-                                    if (no_data_syllables.style.display !== "block") {
-                                        no_data_syllables.style.display = "block";
-                                    }
-                                }
-                            }
-                            let total_rhymes = data[input.item(j).id].reduce((a, b) => a + b, 0);
-                            console.log(syllables[j])
-                            if (syllables[j].style.visibility !== "visible" && syllables[j].style.position !== "relative") {
-                                syllables[j].style.cssText = "display:flex";
-                                syllables_text[j].innerText = data[input.item(j).id].join(" / ").concat(" = " + total_rhymes);
-                            }
-                        }
-                    }
-                });
-            });
-    }
-    // if btn isin t checked hide all paragrapahs 
-    else {
-        let no_data_syllables = document.getElementById("no_data_syllables");
-        if (no_data_syllables.style.display !== "none") {
-            no_data_syllables.style.display = "none";
-        }
-        // hide all syllable divs
-        for (let j = 0; j < syllables.length; j++) {
-            syllables[j].style.cssText = "display:none";
-            syllables_text[j].innerText="";
-        }
-    }
-})
-
-
-// check meter
-let loading_meter = document.getElementById("loading_meter");
-let check_meter_btn = document.getElementById("check_meter");
-let meter_divs = document.getElementsByClassName("meter");
-let meter_text = document.getElementsByClassName("meter_text");
-let no_data_meter = document.getElementById("no_data_meter");
-check_meter_btn.addEventListener("click", () => {
-    if(check_meter_btn.checked){
-        loading_meter.style.display="block";
-    let send_to_server_meter = {};
-    let input = document.getElementsByClassName("line");
-    for (let i = 0; i < input.length; i++) {
-        send_to_server_meter[input.item(i).id] = input.item(i).innerText;
-    }
-    fetch(window.origin + "/Write", {
-        method: "POST",
-        headers: new Headers({
-            "X-CSRFToken": document.getElementsByName("csrf_token")[0].value,
-            "Content-Type": "application/json",
-            "Request": "check meter"
-        }),
-        cache: "no-cache",
-        body: JSON.stringify(send_to_server_meter)
-    })
-        .then((respone) => {
-            if (respone.status !== 200) {
-                console.log("request status for is" + respone.status);
-                return;
-            }
-            respone.json().then((data) => {
-                loading_meter.style.display="none";
-                console.log(data)
-                let lines = document.getElementsByClassName("line");
-                for(let i =0; i<lines.length; i++){
-                    console.log(i)
-                    meter_divs[i].style.cssText="display:flex";
-                    meter_text[i].innerHTML= data[lines[i].id].slice(1, -1).replace(/([.|])/g, " $1 ");
-                    if(data[lines[i].id]==="[None]"){
-                        no_data_meter.innerText="Please Check Your Spelling"
-                    }
-                }
-             });
-        });
-    }
-    else{
-                for(let i =0; i<meter_divs.length; i++){
-                    meter_text[i].innerHTML= "";
-                    meter_divs[i].style.cssText="display:none";
-                }
-                no_data_meter.innerText="";
-    }
-
-
-})
-
-// meter info
-let meter_info_btn = document.getElementById("meter_info_btn");
-let meter_info_div = document.getElementById("meter_info_div");
-let close_meter_info_btn = document.getElementById("meter_info_close");
-meter_info_btn.addEventListener("click", ()=>{
-    meter_info_div.style.display = "inline-block";
-});
-close_meter_info_btn.addEventListener("click", ()=>{
-    meter_info_div.style.display = "none";
-});
-
 
 // if user wants to save as draft
 let save_draft = document.getElementById("save_draft");
 let success_msg = document.getElementById("confirmation_msg_write");
 let success_msg_div = document.getElementById("msg_container");
-let close_success_msg = document.getElementById("close_success_msg");
 let save_draft_modal = document.getElementById("save_draft_modal");
 let update_draft_btn = document.getElementById("update_draft");
 let error_msg = document.getElementById("err_msg");
@@ -406,83 +30,85 @@ let save_error_msg = document.getElementById("save_err_msg");
 // try saving user poem as draft to db
 const urlParams = new URLSearchParams(window.location.search);
 const write_modal = new bootstrap.Modal(document.getElementById('write_modal'), { keyboard: false, backdrop: "static" });
-if(save_draft){
-save_draft.addEventListener("click", () => {
-    error_msg.style.display = "none";
-    save_error_msg.style.display = "none";
-    let input = document.getElementsByClassName("line");
-    let is_empty;
-    for(let i = 0; i<input.length; i++){
-        if (input[i].innerText !== ""){
-            is_empty=false
-            break
-        }
-        else{
-            is_empty=true
-        }
-    }
-    if(is_empty){
-        error_msg.style.display = "block";
-    }
-    else{
-    let title = document.getElementById("title").innerText;
-    let notepad = document.getElementById("notepad").innerText;
-    // if session is draft pass the required parameters
-    let send_to_server_draft;
-    if(urlParams.has("draft")){
-        let draft_id = urlParams.get("draft")
-        let draft_num = urlParams.get("dnum")
-        let poem_num = urlParams.get("pnum");
-        send_to_server_draft = { "title": title, "notes": notepad, "draft_id":draft_id, "draft_num":draft_num,"poem_num":poem_num, "rhyme_scheme": urlParams.get("drs")};
-        console.log(send_to_server_draft)
-    }
-    else{
-        send_to_server_draft = { "title": title, "notes": notepad, "rhyme_scheme": urlParams.get("rs") };
-    }
-    for (let i = 0; i < input.length; i++) {
-        console.log(input.item(i).id)
-        send_to_server_draft[input.item(i).id] = input.item(i).innerText;
-    }
-    console.log(send_to_server_draft);
-    fetch(window.origin + "/Write", {
-        method: "POST",
-        headers: new Headers({
-            "X-CSRFToken": document.getElementsByName("csrf_token")[0].value,
-            "Content-Type": "application/json",
-            "Request": "save draft"
-        }),
-        cache: "no-cache",
-        body: JSON.stringify(send_to_server_draft)
-    })
-        .then((respone) => {
-            if (respone.status !== 200) {
-                console.log("request status for draft is" + respone.status);
-                return;
+if (save_draft) {
+    save_draft.addEventListener("click", () => {
+        error_msg.style.display = "none";
+        save_error_msg.style.display = "none";
+        let input = document.getElementsByClassName("line");
+        let is_empty;
+        for (let i = 0; i < input.length; i++) {
+            if (input[i].innerText !== "") {
+                is_empty = false
+                break
             }
-            respone.json().then((data) => {
-                console.log("data we got back is", data);
-                if(data["response"]== "input was altered cannot save"){
-                    save_error_msg.style.display = "block";
-                }
-                // if the poem already has a draft ask user what to do 
-                else if (data["response"] === "draft already exists") {
-                    write_modal.show()
-                }
-                // if draft saved
-                else if(data["response"]=="Draft was saved") {
-                    success_msg.innerText = "Draft succesfully saved";
-                    success_msg_div.style.cssText = "display:block";
-                    setTimeout(() => {
-                        if(!urlParams.has("draft_id")){
-                            window.location=`/Write?draft=${data["draft_id"]}&dnum=${data["draft_num"]}&pnum=${data["poem_num"]}&drs=${data["rhyme_scheme"]}`
+            else {
+                is_empty = true
+            }
+        }
+        if (is_empty) {
+            error_msg.style.display = "block";
+            error_msg.scrollIntoView();
+        }
+        else {
+            let title = document.getElementById("title").innerText;
+            let notepad = document.getElementById("notepad").innerText;
+            // if session is draft pass the required parameters
+            let send_to_server_draft;
+            if (urlParams.has("draft")) {
+                let draft_id = urlParams.get("draft");
+                let draft_num = urlParams.get("dnum");
+                let poem_num = urlParams.get("pnum");
+                send_to_server_draft = { "title": title, "notes": notepad, "draft_id": draft_id, "draft_num": draft_num, "poem_num": poem_num };
+                console.log(send_to_server_draft)
+            }
+            else {
+                send_to_server_draft = { "title": title, "notes": notepad };
+            }
+            for (let i = 0; i < input.length; i++) {
+                console.log(input.item(i).id)
+                send_to_server_draft[input.item(i).id] = input.item(i).innerText;
+            }
+            console.log(send_to_server_draft);
+            fetch(window.origin + "/Write", {
+                method: "POST",
+                headers: new Headers({
+                    "X-CSRFToken": document.getElementsByName("csrf_token")[0].value,
+                    "Content-Type": "application/json",
+                    "Request": "save draft"
+                }),
+                cache: "no-cache",
+                body: JSON.stringify(send_to_server_draft)
+            })
+                .then((respone) => {
+                    if (respone.status !== 200) {
+                        console.log("request status for draft is" + respone.status);
+                        return;
+                    }
+                    respone.json().then((data) => {
+                        console.log("data we got back is", data);
+                        if (data["response"] == "input was altered cannot save") {
+                            save_error_msg.style.display = "block";
+                            save_error_msg.scrollIntoView();
                         }
-                    }, 2500);
+                        // if the poem already has a draft ask user what to do 
+                        else if (data["response"] === "draft already exists") {
+                            write_modal.show()
+                        }
+                        // if draft saved
+                        else if (data["response"] == "successful") {
+                            success_msg.innerText = "Draft succesfully saved";
+                            success_msg_div.style.cssText = "display:block";
+                            setTimeout(() => {
+                                if (!urlParams.has("draft_id")) {
+                                    window.location = `/Write?draft=${data["draft_id"]}&dnum=${data["draft_num"]}&pnum=${data["poem_num"]}`
+                                }
+                            }, 2500);
 
-                }
-            });
-        });
-    }
-});
+                        }
+                    });
+                });
+        }
+    });
 }
 if (save_draft_modal) {
     // if user chooses to save from the modal
@@ -506,12 +132,13 @@ if (save_draft_modal) {
                 }
                 respone.json().then((data) => {
                     write_modal.hide()
-                    if(data["response"]==="saved duplicate"){
+                    if (data["response"] === "successful") {
                         success_msg_div.style.display = "block";
                     }
-                    else{
+                    else if(data["response"]=== "input was altered cannot save") {
                         save_error_msg.style.display = "block";
-                    } 
+                        save_error_msg.scrollIntoView();
+                    }
                 });
             });
     })
@@ -538,12 +165,13 @@ if (update_draft_btn) {
                 }
                 respone.json().then((data) => {
                     write_modal.hide()
-                    if(data["response"]=="updated draft"){
-                        console.log("updated")
+                    if (data["response"] == "successful") {
                         success_msg_div.style.display = "block";
+                        success_msg_div.scrollIntoView();
                     }
-                    else{
+                    else if(data["response"]=== "input was altered cannot save") {
                         save_error_msg.style.display = "block";
+                        save_error_msg.scrollIntoView();
                     }
                 });
             });
@@ -551,122 +179,662 @@ if (update_draft_btn) {
 }
 
 
-close_success_msg.addEventListener("click", () => {
-    success_msg_div.style.display = "none";
-})
-
-
 // /if user wants to save  as poem
 let save_poem_btn = document.getElementById("save_poem");
-if (save_poem_btn){
-save_poem_btn.addEventListener("click", () => {
-    error_msg.style.display = "none";
-    save_error_msg.style.display="none";
-    let is_empty;
-    for(let i = 0; i<input.length; i++){
-        if (input[i].innerText !== ""){
-            is_empty=false
-            break
-        }
-        else{
-            is_empty=true
-        }
-    }
-    if(is_empty){
-        error_msg.style.display = "block";
-    }
-    else{
-    let title = document.getElementById("title").innerText;
-    let send_to_server_format = { "draft_id":urlParams.get("draft"), "title": title };
-    let input = document.getElementsByClassName("line");
-    for (let i = 0; i < input.length; i++) {
-        send_to_server_format[input.item(i).id] = input.item(i).innerText;
-    }
-    console.log(send_to_server_format);
-    fetch(window.origin + "/Write", {
-        method: "POST",
-        headers: new Headers({
-            "X-CSRFToken": document.getElementsByName("csrf_token")[0].value,
-            "Content-Type": "application/json",
-            "Request": "save poem"
-        }),
-        cache: "no-cache",
-        body: JSON.stringify(send_to_server_format)
-    })
-        .then((respone) => {
-            if (respone.status !== 200) {
-                console.log("request status for draft is" + respone.status);
-                return;
+if (save_poem_btn) {
+    save_poem_btn.addEventListener("click", () => {
+        error_msg.style.display = "none";
+        save_error_msg.style.display = "none";
+        let is_empty;
+        for (let i = 0; i < input.length; i++) {
+            if (input[i].innerText !== "") {
+                is_empty = false
+                break
             }
-            respone.json().then((data) => {
-                console.log("data we got back is", data);
-                if(data["respnse"] === "input was altered cannot save"){
-                    save_error_msg.style.display="block";
-                }
-                else if (data["response"]==="successful"){
-                    location.replace(window.origin + "/Format");
-                }
+            else {
+                is_empty = true
+            }
+        }
+        if (is_empty) {
+            error_msg.style.display = "block";
+        }
+        else {
+            let title = document.getElementById("title").innerText;
+            let send_to_server_format = { "draft_id": urlParams.get("draft"), "title": title };
+            let input = document.getElementsByClassName("line");
+            for (let i = 0; i < input.length; i++) {
+                send_to_server_format[input.item(i).id] = input.item(i).innerText;
+            }
+            console.log(send_to_server_format);
+            fetch(window.origin + "/Write", {
+                method: "POST",
+                headers: new Headers({
+                    "X-CSRFToken": document.getElementsByName("csrf_token")[0].value,
+                    "Content-Type": "application/json",
+                    "Request": "save poem"
+                }),
+                cache: "no-cache",
+                body: JSON.stringify(send_to_server_format)
+            })
+                .then((respone) => {
+                    if (respone.status !== 200) {
+                        console.log("request status for draft is" + respone.status);
+                        return;
+                    }
+                    respone.json().then((data) => {
+                        console.log("data we got back is", data);
+                        if (data["response"] === "input was altered cannot save") {
+                            save_error_msg.style.display = "block";
+                            save_error_msg.scrollIntoView();
+                        }
+                        else if (data["response"] === "successful") {
+                            location.replace(window.origin + "/Format");
+                        }
 
-            });
-        });
-    }
-});
+                    });
+                });
+        }
+    });
 };
 
 // update poem
 let update_poem_btn = document.getElementById("update_poem")
-if (update_poem_btn){
-    update_poem_btn.addEventListener("click", ()=>{
+if (update_poem_btn) {
+    update_poem_btn.addEventListener("click", () => {
         error_msg.style.display = "none";
-            let is_empty;
-        for(let i = 0; i<input.length; i++){
-            if (input[i].innerText !== ""){
-                is_empty=false
+        let is_empty;
+        for (let i = 0; i < input.length; i++) {
+            if (input[i].innerText !== "") {
+                is_empty = false
                 break
             }
-            else{
-                is_empty=true
+            else {
+                is_empty = true
             }
         }
-        if(is_empty){
+        if (is_empty) {
             error_msg.style.display = "block";
         }
-        else{
-        let title = document.getElementById("title").innerText;
-        const urlParams = new URLSearchParams(window.location.search);
-        let send_to_server_update_poem = {"title": title, "poem_id": urlParams.get("poem") };
-        for (let i = 0; i < input.length; i++) {
-            send_to_server_update_poem[input.item(i).id] = input.item(i).innerText;
+        else {
+            let title = document.getElementById("title").innerText;
+            const urlParams = new URLSearchParams(window.location.search);
+            let send_to_server_update_poem = { "title": title, "poem_id": urlParams.get("poem") };
+            for (let i = 0; i < input.length; i++) {
+                send_to_server_update_poem[input.item(i).id] = input.item(i).innerText;
+            }
+            console.log(send_to_server_update_poem);
+            fetch(window.origin + "/Write", {
+                method: "POST",
+                headers: new Headers({
+                    "X-CSRFToken": document.getElementsByName("csrf_token")[0].value,
+                    "Content-Type": "application/json",
+                    "Request": "update poem"
+                }),
+                cache: "no-cache",
+                body: JSON.stringify(send_to_server_update_poem)
+            })
+                .then((respone) => {
+                    if (respone.status !== 200) {
+                        console.log("request status for draft is" + respone.status);
+                        return;
+                    }
+                    respone.json().then((data) => {
+                        console.log("data we got back is", data);
+                    if(data["response"]=="successful"){
+                        success_msg_div.style.display = "block";
+                        success_msg_div.scrollIntoView();
+                    }
+                    else if(data["response"]=== "input was altered cannot save") {
+                        error_msg.style.display="block";
+                        error_msg.scrollIntoView();
+                    }
+
+                    });
+                });
         }
-        console.log(send_to_server_update_poem);
+    })
+}
+
+let toggle_edit_btn = document.getElementById("toggle_edit_btn");
+
+if (toggle_edit_btn) {
+    let edit_indicator = document.getElementById("edit_mode_indicator");
+    let edit_btn_div = document.getElementById("edit_btn_div");
+    let edit_btns_div = document.getElementById("edit_btns_div");
+    let edit_mode_errors = document.getElementById("edit_mode_errors");
+    let toggle_br_btn = document.getElementById("toggle_br_btn");
+    let toggle_undo_btn = document.getElementById("toggle_undo_btn");
+
+    let func_buttons_div = document.getElementById("func_btns");
+    let save_btn_div = document.getElementById("save_btn_div");
+
+    let add_btn_container = document.getElementsByClassName("add_btn_container");
+    let add_line_btn = document.getElementById("add_line_btn");
+
+    let add_bulk_container = document.getElementsByClassName("add_bulk_container");
+    let add_lines_bulk_btn = document.getElementById("add_lines_bulk_btn");
+    let add_lines_bulk_input_div = document.getElementById("edit_add_lines_bulk_div");
+    let add_br_bulk_btn = document.getElementById("add_brs_bulk_btn");
+    let add_br_bulk_btn_div = document.getElementById("edit_add_line_breaks_bulk_div");
+    let clear_brs_btn = document.getElementById("clear_brs");
+
+    let poem_body = document.getElementById("poem_body");
+    let extra_line = document.getElementById("extra_line");
+
+    let undo_btn_container = document.getElementsByClassName("undo_btn_container");
+    let undo_btn = document.getElementsByClassName("undo_btn");
+
+    let delete_btn_container = document.getElementsByClassName("delete_btn_container");
+    let delete_line_btn = document.getElementsByClassName("delete_line_btn");
+
+    let br_btn = document.getElementsByClassName("br_btn");
+    let br_icon = document.getElementsByClassName("br_icon");
+    let br_div = document.getElementsByClassName("br_div");
+
+    let verse = document.getElementsByClassName("verse");
+    let line = document.getElementsByClassName("line");
+    let rhyme_symbol = document.getElementsByClassName("rhyme_symbols");
+    // show all edit elements and hide save btns and check rhyme meter and syllables btns
+    toggle_edit_btn.addEventListener("click", () => {
+        if (toggle_edit_btn.checked) {
+            edit_indicator.style.display = "block";
+            edit_btns_div.style.display = "block";
+            func_buttons_div.style.display = "none";
+            save_btn_div.style.display = "none";
+            for (let i = 0; i < delete_line_btn.length; i++) {
+                delete_btn_container[i].style.display = "inline-block";
+                let rhyme_symbol_editable = document.createElement("input"); 
+                // edit fv means the user's rhyme scheme is free verse thus we do not want them to edit the line symbol text since it is autoincremented
+                if(edit_btn_div.getAttribute("name")!=="edit_fv"){
+                    rhyme_symbol_editable.setAttribute("type", "text");
+                    rhyme_symbol[i].setAttribute("contenteditable", "true");
+                    rhyme_symbol[i].setAttribute("role", "textbox");
+                    rhyme_symbol[i].style.backgroundColor = "rgb(37, 37, 37)";
+                }
+                if (toggle_br_btn.checked) {
+                    br_btn[i].style.display = "inline-block";
+                }
+            }
+            add_btn_container[0].style.display = "inline-block";
+            add_bulk_container[0].style.display = "inline-block";
+        }
+        // hide and unhide respective elements
+        else {
+            edit_indicator.style.display = "none";
+            func_buttons_div.style.display = "block";
+            edit_btns_div.style.display = "none";
+            save_btn_div.style.display = "block";
+            for (let i = 0; i < delete_line_btn.length; i++) {
+                delete_btn_container[i].style.display = "none";
+                undo_btn_container[i].style.display = "none";
+                br_btn[i].style.display = "none";
+                if(edit_btn_div.getAttribute("name")!=="edit_fv"){
+                rhyme_symbol[i].removeAttribute("contenteditable");
+                rhyme_symbol[i].removeAttribute("role");
+                rhyme_symbol[i].style.backgroundColor = "rgb(105, 113, 132)";
+                }
+            }
+            add_btn_container[0].style.display = "none";
+            add_bulk_container[0].style.display = "none";
+            add_lines_bulk_input_div.style.display = "none";
+            add_br_bulk_btn_div.style.display = "none";
+            edit_mode_errors.style.display="none";
+        }
+    })
+    // show and hide line break buttons
+    toggle_br_btn.addEventListener("click", () => {
+        for (let i = 0; i < br_btn.length; i++) {
+            if (toggle_br_btn.checked && toggle_edit_btn.checked) {
+                    br_btn[i].style.display = "inline-block";
+            }
+            else {
+                    br_btn[i].style.display = "none";
+            }
+        }
+    })
+    // show and hide undo btns
+    toggle_undo_btn.addEventListener("click", ()=>{
+        for(let i =0; i<undo_btn.length; i++){ 
+            if(toggle_edit_btn.checked && toggle_undo_btn.checked){
+                if(undo_btn_container[i].style.display == "inline-block"){
+                    undo_btn_container[i].style.display = "none";
+                    verse[i].style.display="none";
+                    }
+                }
+            else{
+                if(line[i].style.display == "none"){
+                undo_btn_container[i].style.display = "inline-block";
+                verse[i].style.display="flex";
+                }
+            }
+        }
+    })
+
+    for (let i = 0; i < delete_line_btn.length; i++) {
+        // hide whole line and surrounding elements and display undo btn instead
+        delete_line_btn[i].addEventListener("click", () => {
+            if(toggle_edit_btn.checked){
+                delete_btn_container[i].style.display = "none";
+                line[i].style.display = "none";
+                rhyme_symbol[i].style.cssText = "display:none!important";
+                br_btn[i].style.display = "none";
+                if(toggle_undo_btn.checked){
+                    undo_btn_container[i].style.display="none";
+                }
+                else{
+                    undo_btn_container[i].style.display = "inline-block";
+                }
+            }
+        })
+
+        // show hidden elements and hide undo btn
+        undo_btn[i].addEventListener("click", () => {
+            if(toggle_edit_btn.checked){
+                delete_btn_container[i].style.display = "inline-block";
+                line[i].style.display = "block";
+                if(!edit_btn_div.getAttribute("name")=="edit_fv"){
+                    rhyme_symbol[i].style.cssText = "display:inline-block; background-color:rgb(37, 37, 37)";
+                }
+                else{
+                    rhyme_symbol[i].style.cssText = "display:inline-block;"
+                }
+                if (toggle_br_btn.checked) {
+                    br_btn[i].style.display = "inline-block";
+                }
+                undo_btn_container[i].style.display = "none";
+            }
+        })
+
+        // add and remove line breaks aswell as changing buttons respectively
+        br_btn[i].addEventListener("click", () => {
+            if(toggle_edit_btn.checked){
+                if (br_btn[i].id === "remove_br") {
+                    br_btn[i].id = "add_br";
+                    br_div[i].innerText = "";
+                    if (br_icon[i]) {
+                        br_icon[i].setAttribute("src", "/static/icons/add-br.png");
+                    }
+                }
+                else {
+                    br_btn[i].id = "remove_br";
+                    br_div[i].appendChild(document.createElement("br"));
+                    if (br_icon[i]) {
+                        br_icon[i].setAttribute("src", "/static/icons/remove-br.png");
+                    }
+                }
+            }
+        })
+    }
+
+
+
+    // to add line we need to assign event listeners to all new buttons which are created along with the line
+    // we only need to loop over newly created element so we ignore elements that were already there
+    // let initial_len_stored = false
+    let initial_len;
+    let br_frequency = [];
+    let add_line_err = document.getElementById("add_line_err");
+    add_line_btn.addEventListener("click", () => {
+        if (toggle_edit_btn.checked) {
+            add_line_err.style.display = "none";
+            if(line.length+2>101){
+                add_line_err.style.display = "block";
+            }
+            else{
+            // look for line break frequency to know when to add a line break when adding lines
+           for (let i = 0; i < delete_line_btn.length; i++) {
+               if (br_btn[i].id == "remove_br" && br_frequency.length==0) {
+                   br_frequency.push(i + 1);
+               }
+           }
+            initial_len = delete_line_btn.length;
+            if(edit_btn_div.getAttribute("name")==="edit_fv"){
+                extra_line.content.querySelector(".rhyme_symbols").innerText = line.length+1;
+                extra_line.content.querySelector(".rhyme_symbols").removeAttribute("contenteditable");
+                extra_line.content.querySelector(".rhyme_symbols").removeAttribute("role");
+            }
+            else{
+                extra_line.content.querySelector(".rhyme_symbols").innerText = "";
+                extra_line.content.querySelector(".rhyme_symbols").style.cssText = "background-color:rgb(37, 37, 37)";
+            } 
+            poem_body.appendChild(extra_line.content.cloneNode(true));
+            if ((delete_line_btn.length) % br_frequency[0] == 0) {
+                document.getElementsByClassName("br_div")[delete_line_btn.length-1].appendChild(document.createElement("br"));
+                document.getElementsByClassName("br_btn")[delete_line_btn.length-1].id = "remove_br";
+                document.getElementsByClassName("br_icon")[delete_line_btn.length-1].setAttribute("src", "static/icons/remove-br.png");
+            }
+            else {
+                document.getElementsByClassName("br_div")[delete_line_btn.length-1].innerHtml = "";
+                document.getElementsByClassName("br_btn")[delete_line_btn.length-1].id = "add_br";
+                document.getElementsByClassName("br_icon")[delete_line_btn.length-1].setAttribute("src", "static/icons/add-br.png");
+            }
+            for (let i = initial_len; i < delete_line_btn.length; i++) {
+                if (toggle_br_btn.checked) {
+                    br_btn[i].style.display = "inline-block";
+                }
+                else {
+                    br_btn[i].style.display = "none";
+                }
+                
+
+                delete_line_btn[i].addEventListener("click", () => {
+                    delete_btn_container[i].style.display = "none";
+                    line[i].style.display = "none";
+                    rhyme_symbol[i].style.cssText = "display:none!important";
+                    br_btn[i].style.display = "none";
+                    if(toggle_undo_btn.checked){
+                        undo_btn_container[i].style.display="none";
+                    }
+                    else{
+                        undo_btn_container[i].style.display = "inline-block";
+                    }
+                })
+                undo_btn[i].addEventListener("click", () => {
+                    delete_btn_container[i].style.display = "inline-block";
+                    line[i].style.display = "block";
+                    if(!edit_btn_div.getAttribute("name")=="edit_fv"){
+                        rhyme_symbol[i].style.cssText = "display:inline-block; background-color:rgb(37, 37, 37)";
+                    }
+                    else{
+                        rhyme_symbol[i].style.cssText = "display:inline-block;"
+                    }
+                    if (toggle_br_btn.checked) {
+                        br_btn[i].style.display = "inline-block";
+                    }
+                    undo_btn_container[i].style.display = "none";
+                })
+                br_btn[i].addEventListener("click", () => {
+                    if (br_btn[i].id === "remove_br") {
+                        br_btn[i].id = "add_br";
+                        br_div[i].innerText = "";
+                        br_icon[i].setAttribute("src", "/static/icons/add-br.png");
+                    }
+                    else {
+                        br_btn[i].id = "remove_br";
+                        br_div[i].appendChild(document.createElement("br"));
+                        br_icon[i].setAttribute("src", "/static/icons/remove-br.png");
+                    }
+                })
+        }
+        }
+        }
+    })
+
+
+    let add_lines_input = document.getElementById("add_lines_input");
+    let add_lines_bulk_len_error = document.getElementById("add_lines_bulk_length_error");
+    let add_lines_bulk_error = document.getElementById("add_lines_bulk_error");
+    add_lines_input.addEventListener("keydown", (event) => {
+        if (event.key == "Enter") {
+            add_lines_bulk_btn.click();
+        }
+    })
+    add_lines_bulk_btn.addEventListener("click", () => {
+        if(toggle_edit_btn.checked){
+        let lines_to_add = add_lines_input.value.replace(/\s/g, '');
+        add_lines_bulk_error.style.display = "none";
+        add_lines_bulk_len_error.style.display = "none";
+        let pattern;
+        if(edit_btn_div.getAttribute("name")=="edit_fv"){
+            pattern = /^[0-9]{0,3}$/g
+        }
+        else{
+            pattern = /^[a-zA-Z\-]{1,100}$/;
+        }
+        if ((pattern.test(lines_to_add))===false) {
+            add_lines_bulk_error.style.display = "block";
+        }
+        else {
+                initial_len = delete_line_btn.length;
+                add_lines_input.value = "";
+                for (let i = 0; i < delete_line_btn.length; i++) {
+                    if (br_btn[i].id == "remove_br" && br_frequency.length==0) {
+                        br_frequency.push(i + 1);
+                    }
+                }
+                // same as add lines but in a loop 
+                let iterable;
+                if(edit_btn_div.getAttribute("name")=="edit_fv"){
+                    if((parseInt(lines_to_add)+line.length+1)>101){
+                        add_lines_bulk_len_error.style.display = "block";
+                    }
+                    else{
+                            iterable = lines_to_add;
+                    }
+                }
+                else{
+                    lines_arr = lines_to_add.split("");
+                    if((lines_arr.length+line.length+1)>101){
+                        add_lines_bulk_len_error.style.display = "block";
+                        }
+                    else{
+                        console.log("lines_Arr",lines_arr)
+                        iterable= lines_arr.length;
+                    }
+                }
+                for (let j =0; j<iterable; j++) {
+                    console.log(j)
+                    if(edit_btn_div.getAttribute("name")=="edit_fv"){
+                        extra_line.content.querySelector(".rhyme_symbols").innerText = line.length+1;
+                        extra_line.content.querySelector(".rhyme_symbols").removeAttribute("contenteditable");
+                        extra_line.content.querySelector(".rhyme_symbols").removeAttribute("role");
+                    }
+                    else{
+                        extra_line.content.querySelector(".rhyme_symbols").innerText = lines_arr[j].toUpperCase();
+                        extra_line.content.querySelector(".rhyme_symbols").style.cssText = "background-color:rgb(37, 37, 37)";
+                    } 
+                    poem_body.appendChild(extra_line.content.cloneNode(true));
+                    if ((delete_line_btn.length) % br_frequency[0] == 0) {
+                        document.getElementsByClassName("br_div")[delete_line_btn.length - 1].appendChild(document.createElement("br"));
+                        document.getElementsByClassName("br_btn")[delete_line_btn.length-1].id = "remove_br";
+                        document.getElementsByClassName("br_icon")[delete_line_btn.length-1].setAttribute("src", "static/icons/remove-br.png");
+                    }
+                    else {
+                        document.getElementsByClassName("br_div")[delete_line_btn.length - 1].innerHtml = "";
+                        document.getElementsByClassName("br_btn")[delete_line_btn.length-1].id = "add_br";
+                        document.getElementsByClassName("br_icon")[delete_line_btn.length-1].setAttribute("src", "static/icons/add-br.png");
+                    }
+                }
+        }
+        for (let i = initial_len; i < delete_line_btn.length; i++) {
+            if (toggle_br_btn.checked) {
+                br_btn[i].style.display = "inline-block";
+            }
+            else {
+                br_btn[i].style.display = "none";
+            }
+            
+            delete_line_btn[i].addEventListener("click", () => {
+                console.log("delete inside add")
+                delete_btn_container[i].style.display = "none";
+                line[i].style.display = "none";
+                rhyme_symbol[i].style.cssText = "display:none!important";
+                br_btn[i].style.display = "none";
+                if(toggle_undo_btn.checked){
+                    undo_btn_container[i].style.display="none";
+                }
+                else{
+                    undo_btn_container[i].style.display = "inline-block";
+                }
+            })
+            undo_btn[i].addEventListener("click", () => {
+                delete_btn_container[i].style.display = "inline-block";
+                line[i].style.display = "block";
+                if(!edit_btn_div.getAttribute("name")=="edit_fv"){
+                rhyme_symbol[i].style.cssText = "display:inline-block; background-color:rgb(37, 37, 37)";
+                }
+                else{
+                    rhyme_symbol[i].style.cssText = "display:inline-block;"
+                }
+                if (toggle_br_btn.checked) {
+                    br_btn[i].style.display = "inline-block";
+                }
+                undo_btn_container[i].style.display = "none";
+            })
+            br_btn[i].addEventListener("click", () => {
+                if (br_btn[i].id === "remove_br") {
+                    br_btn[i].id = "add_br";
+                    br_div[i].innerText = "";
+                    br_icon[i].setAttribute("src", "/static/icons/add-br.png");
+                }
+                else {
+                    br_btn[i].id = "remove_br";
+                    br_div[i].appendChild(document.createElement("br"));
+                    br_icon[i].setAttribute("src", "/static/icons/remove-br.png");
+                }
+            })
+        }
+    }
+    })
+
+    let add_brs_input = document.getElementById("add_brs_input");
+    let add_brs_bulk_error = document.getElementById("add_brs_bulk_error");
+    add_brs_input.addEventListener("keydown", (event)=>{
+        if(event.key == "Enter"){
+            add_br_bulk_btn.click();
+        }
+    })
+    add_br_bulk_btn.addEventListener("click", ()=>{
+        if(Number.isNaN(add_brs_input.value) || add_brs_input.value%1 !=0){
+            add_brs_bulk_error.style.display="block";
+        }
+        else{
+            // clear line break and change the frequency by clearing it so it s calculated again next time
+            br_frequency = [];
+            add_brs_bulk_error.style.display="none";
+            for(let i =0; i<br_btn.length; i++){
+                br_btn[i].id = "add_br";
+                br_icon[i].setAttribute("src", "/static/icons/add-br.png");
+                br_div[i].innerText = "";
+                if((i!==0) && (((i+1)% parseInt(add_brs_input.value)) == 0)){
+                    br_btn[i].id = "remove_br";
+                    br_div[i].appendChild(document.createElement("br"));
+                    br_icon[i].setAttribute("src", "/static/icons/remove-br.png");
+                }
+            }
+        }
+    })
+
+    clear_brs_btn.addEventListener("click", ()=>{
+        for(let i =0; i<br_btn.length; i++){
+            br_btn[i].id = "add_br";
+            br_icon[i].setAttribute("src", "/static/icons/add-br.png");
+            br_div[i].innerText = "";
+        }
+    })
+
+    let undo_edits = document.getElementById("undo_edits");
+    let save_edits = document.getElementById("save_edits");
+    let send_to_server_edits = {};
+    undo_edits.addEventListener("click", () => {
+        if(toggle_edit_btn.checked){
+            edit_mode_errors.style.display="none";
+            send_to_server_edits = {"title":document.getElementById("title").innerText ,"line_breaks": [] };
+            for (let i = 0; i < line.length; i++) {
+                send_to_server_edits[i] = line[i].innerText;
+            }
+            fetch(window.origin+"/Write",{
+                method:"POST",
+                   headers: new Headers({
+                    "X-CSRFToken": document.getElementsByName("csrf_token")[0].value,
+                    "Content-Type":"application/json",
+                    "Request":"undo edits"
+                   }),
+                   cache:"no-cache",
+                   body: JSON.stringify(send_to_server_edits)
+                })
+                // this is executed right after the fetch request
+                .then((respone)=>{
+                   // if request fails
+                   if (respone.status !== 200){
+                      console.log("request status for is"+respone.status);
+                      return;
+                   }
+                   // if request succeeds 
+                respone.json().then((data)=>{
+                    if(data["response"]=="bad input"){
+                        edit_mode_errors.style.display = "block";
+                    }
+                    else if(data["response"]=="success"){
+                        window.location="/Write?resume=resume";
+                    }
+                 });
+            });
+        }
+    })
+    save_edits.addEventListener("click", () => {
+        let temp = {}
+        if(toggle_edit_btn.checked){
+        edit_mode_errors.style.display="none";
+        send_to_server_edits = {"title":document.getElementById("title").innerText ,"line_breaks": [] };
+        for (let i = 0; i < line.length; i++) {
+            if(edit_btn_div.getAttribute("name")!=="edit_fv"){
+                if (line[i].style.display === "none") {
+                    if(temp.hasOwnProperty(rhyme_symbol[i].innerText)){
+                    temp[rhyme_symbol[i].innerText]+=1;
+                    send_to_server_edits[rhyme_symbol[i].innerText.concat(temp[rhyme_symbol[i].innerText])] = false;
+                }
+                else{
+                    temp[rhyme_symbol[i].innerText]=0;
+                    send_to_server_edits[rhyme_symbol[i].innerText.concat(temp[rhyme_symbol[i].innerText])] = false;
+                }
+            }
+            else {
+                if(temp.hasOwnProperty(rhyme_symbol[i].innerText)){
+                    temp[rhyme_symbol[i].innerText]+=1;
+                    send_to_server_edits[rhyme_symbol[i].innerText.concat(temp[rhyme_symbol[i].innerText])] = line[i].innerText;
+                }
+                else{
+                    temp[rhyme_symbol[i].innerText]=0;
+                    send_to_server_edits[rhyme_symbol[i].innerText.concat(temp[rhyme_symbol[i].innerText])] = line[i].innerText;
+                }
+            }
+        }
+        else{
+            if(line[i].style.display==="none"){
+                send_to_server_edits[i] = false;
+            }
+            else{
+                send_to_server_edits[i] = line[i].innerText;
+            }
+        }
+        if (br_btn[i].id == "remove_br") {
+            console.log("br")
+            send_to_server_edits["line_breaks"].push(i);
+        }
+    }
+        send_to_server_edits["line_breaks"] = send_to_server_edits["line_breaks"].join(",").toString();
+        console.log(send_to_server_edits);
         fetch(window.origin + "/Write", {
             method: "POST",
             headers: new Headers({
                 "X-CSRFToken": document.getElementsByName("csrf_token")[0].value,
                 "Content-Type": "application/json",
-                "Request": "update poem"
+                "Request": "save edits"
             }),
             cache: "no-cache",
-            body: JSON.stringify(send_to_server_update_poem)
+            body: JSON.stringify(send_to_server_edits)
         })
+            // this is executed right after the fetch request
             .then((respone) => {
+                // if request fails
                 if (respone.status !== 200) {
-                    console.log("request status for draft is" + respone.status);
+                    console.log("request status for save edits is " + respone.status);
                     return;
                 }
-                respone.json().then((data) => {
-                    console.log("data we got back is", data);
-                    success_msg_div.style.display = "block";
-    
+                // if request succeeds 
+                respone.json().then((data) => { 
+                    if(data["response"] === "bad input"){
+                        edit_mode_errors.style.display = "block";
+                    }
+                    else if(data["response"] === "successful"){
+                        window.location = "/Write?resume=resume"
+                    }
                 });
             });
+
         }
     })
+
 }
-
-
-// window.addEventListener("beforeunload", (e) => {
-//     e.preventDefault();
-//     return e.returnValue = "";
-// });
 

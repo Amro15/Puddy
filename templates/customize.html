@@ -5,6 +5,7 @@
 {% block main%}
 <h1>Want to set the right mood while writing? Customize your background image!</h1>
 <form class = "form"  id="customize_form" action="/Account/Customize" method=post enctype=multipart/form-data>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <input type=file name=file class="custom-file-upload">
     <input class="button" type=submit value=Set-Background >
     <p id="customize_text">Recommended to use a <strong>1920 x 1080 image on desktop</strong> or a <strong>640 x 960 image on mobile</strong> for the cleanest background.</p>

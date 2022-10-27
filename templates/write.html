@@ -10,8 +10,6 @@
 
 {% block main %}
 
-
-{% if write_session != poem and current_user.is_authenticated %}
 <!-- write Modal -->
 <div class="modal fade" id="write_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
     aria-hidden="true">
@@ -34,16 +32,22 @@
     </div>
 </div>
 <!-- ============ -->
-{% endif %}
-{% if current_user.is_authenticated %}
+
 <div id="warning"><img src="/static/icons/warning.png" id="warning_icon">You Haven't Saved In A While<button class="close_btn" id="warning_close">x</button>
 </div>
+{% if user_rhyme_scheme == "Custom" or user_rhyme_scheme == "Free Verse" %}
+<h2 id="edit_mode_indicator" class="bg-dark">Edit Mode</h2>
 {% endif %}
 <div id="btn_div">
-
+    {% if not user_rhyme_scheme == "Haiku" %}
     <input type="text" class="form-control" id="quick_search" placeholder="Quick Search For Rhymes">
-    <button type="button" class="button" id="quick_search_rhymes_btn"><img src="/static/icons/search.png"
-            id="search_icon"></button>
+    <button type="button" class="button" id="quick_search_rhymes_btn">
+        <img src="/static/icons/search.png" id="search_icon">
+    </button>
+    <div id="loading_quick_search" class="text-center loading">
+        <div class="spinner-border" style="width: 2rem; height: 2rem;" role="status"></div>
+    </div>
+    {% endif %}
     <div class="form-check form-switch form-check-reverse switch_div">
         <input class="form-check-input" id="detatch_util" name="switch" type="checkbox" id="flexSwitchCheckReverse">
         <label class="form-check-label" for="flexSwitchCheckReverse">Detatch Utility Box</label>
@@ -56,13 +60,13 @@
         <input class="form-check-input" id="toggle_note" name="switch" type="checkbox" id="flexSwitchCheckReverse">
         <label class="form-check-label" for="flexSwitchCheckReverse">Toggle Notepad</label>
     </div>
+    <div id="func_btns">
     <!-- Dont show check rhymes btn if rhyme scheme is either of these two -->
     {% if not ((user_rhyme_scheme=="Free Verse") or (user_rhyme_scheme=="Haiku"))%}
     <div class="form-check form-switch form-check-reverse switch_div">
-        <input class="form-check-input" id="check_rhymes" name="switch" value="check_rhymes" type="checkbox"
-            id="flexSwitchCheckReverse">
-        <label class="form-check-label" for="flexSwitchCheckReverse" id="check_rhymes_label">Check Rhymes</label><button
-            id="rhyme_check_info">?</button>
+        <input class="form-check-input" id="check_rhymes" name="switch" value="check_rhymes" type="checkbox">
+        <label class="form-check-label" for="check_rhymes" id="check_rhymes_label">Check Rhymes</label><button
+        onclick="show_div('#rhyme_info_div','inline-block')" class="info_btn">?</button>
         <div id="no_data_rhymes">There must at least two words of the same rhyme in your poem</div>
         <div id="loading_rhymes" class="text-center loading">
             <div class="spinner-border" style="width: 2rem; height: 2rem;" role="status">
@@ -72,8 +76,8 @@
     {% endif %}
     <div class="form-check form-switch form-check-reverse switch_div">
         <input class="form-check-input" id="display_syllable_count" name="switch" value="display_syllable_count"
-            type="checkbox" id="flexSwitchCheckReverse">
-        <label class="form-check-label" for="flexSwitchCheckReverse">Display Syllable Count</label>
+            type="checkbox">
+        <label class="form-check-label" for="display_syllable_count">Display Syllable Count</label>
         <div>
             <ol id="no_data_syllables">You got 0 for a syllable count make sure:
                 <li>You left no empty fields</li>
@@ -87,12 +91,40 @@
             </div>
         </div>
     </div>
+    {% if not user_rhyme_scheme == "Haiku" %}
     <div class="form-check form-switch form-check-reverse switch_div">
-        <input class="form-check-input" id="check_meter" name="switch" value="check_meter" type="checkbox"
-            id="flexSwitchCheckReverse">
-        <label class="form-check-label" for="flexSwitchCheckReverse">Display Meter</label><button
-            id="meter_info_btn">?</button>
+            <input class="form-check-input" id="check_meter" name="switch" value="check_meter" type="checkbox">
+            <label class="form-check-label" for="check_meter">Display Meter</label><button
+                onclick="show_div('#meter_info_div','inline-block')" class="info_btn">?</button>
     </div>
+    {%endif%}
+    </div>
+    {% if user_rhyme_scheme == "Custom" or user_rhyme_scheme == "Free Verse" %}
+        {% if user_rhyme_scheme == "Free Verse" %}
+        <div class="form-check form-switch form-check-reverse switch_div" id="edit_btn_div" name="edit_fv">
+        {% else %}
+        <div class="form-check form-switch form-check-reverse switch_div" id="edit_btn_div">
+        {% endif %}
+        <input class="form-check-input" id="toggle_edit_btn" name="switch" value="toggle_edit_mode" type="checkbox">
+        <label class="form-check-label" for="toggle_edit_btn">Toggle Edit Mode</label><button
+        onclick="show_div('#edit_info_div','inline-block')" class="info_btn">?</button>
+    </div>
+    <div id="edit_btns_div">
+        <div class="form-check form-switch form-check-reverse switch_div" id="toggle_br_btn_div">
+            <input class="form-check-input" id="toggle_br_btn" name="switch" value="toggle_br_btn_mode" type="checkbox">
+            <label class="form-check-label" for="toggle_br_btn">Toggle Line <br>Break Buttons</label>
+        </div>
+        <div class="form-check form-switch form-check-reverse switch_div" id="toggle_undo_btn_div">
+            <input class="form-check-input" id="toggle_undo_btn" name="switch" value="toggle_undo_btn" type="checkbox">
+            <label class="form-check-label" for="toggle_undo_btn">Toggle Undo Buttons</label>
+        </div>
+        <div id="edit_mode_btns_div">
+            <button class="edit_mode_btns button" id="undo_edits">Undo All Edits</button>
+            <button class="edit_mode_btns button" id="save_edits">Save All Edits</button>
+        </div>
+        <div id="edit_mode_errors">There must only be one letter or - (dash symbol) per rhyme square </div>
+    </div>
+    {% endif %}
     <div>
         <p id="no_data_meter">
         <p>
@@ -105,8 +137,10 @@
 <button class="button" id="arrow"><i class="arrow right" id="arrow_symbol"></i></button>
 </div>
 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-<div id="rhyme_info_div">
-    <button id="rhyme_info_close" class="close_btn">x</button>
+
+{% if not ((user_rhyme_scheme=="Free Verse") or (user_rhyme_scheme=="Haiku"))%}
+<div id="rhyme_info_div" class="info_div">
+    <button onclick="hide_div('#rhyme_info_div')" class="close_btn">x</button>
     <ul>
         <li><u style=color:green><span style=color:green>Green:</span></u> Words rhyme</li>
         <br>
@@ -119,8 +153,10 @@
         <li><u style=color:red><span style=color:red>Red:</span></u> Words don't rhyme</li>
     </ul>
 </div>
-<div id="meter_info_div">
-    <button id="meter_info_close" class="close_btn">x</button>
+{% endif %}
+
+<div id="meter_info_div" class="info_div">
+    <button onclick="hide_div('#meter_info_div')" class="close_btn">x</button>
     Display Meter:
     <ul>
         <li>Seperates Words Into Syllables</li>
@@ -128,47 +164,175 @@
         <li><a>More About Meter...</a></li>
     </ul>
 </div>
-<div id="search_results">
+<div id="search_results" class="info_div">
+    <button onclick="hide_div('#search_results')" class="close_btn">x</button>
     <ul id="search_results_list"></ul>
-    <button id="hide_results" class="button">Hide</button>
     <button class="button" onclick="window.open('/Rhymes', '_blank')">Advanced Search</button>
 </div>
-
-<!-- if default sess -->
+{% if user_rhyme_scheme == "Custom" or user_rhyme_scheme == "Free Verse" %}
+<div id="edit_info_div" class="info_div">
+    <button id="edit_info_close" class="close_btn" onclick="hide_div('#edit_info_div')">x</button>
+    <p><b>Edit mode allows you to:</b></p>
+    <ul>
+        <li><img src="static/icons/minus.png" class="small_icon"  style="background-color:red"> Delete unwanted lines</li>
+        <br>
+        <li><img src="static/icons/undo.png" class="small_icon" style="background-color:blue"> Undo accidental deletions</li>
+        <br>
+        <li><img src="static/icons/add.png" class="small_icon" style="background-color:green"> Add singular lines</li>
+        <br>
+        <li>Click the <b>Toggle Line Break Buttons</b> button to show or hide all line break buttons:</li>
+        <li><img src="static/icons/add-br.png" class="small_icon" style="background-color: lightgreen;"> Add line break</li>
+        <br>
+        <li><img src="static/icons/remove-br.png" class="small_icon" style="background-color: indianred;"> Remove line break</li>
+        <br>
+        <li><img src="static/icons/add-bulk.png" class="small_icon" style="background-color:green"> Add multiple lines <i>and/or</i> line breaks at once. Also allows you to clear all line breaks at once</li>
+        <br>
+        {% if user_rhyme_scheme == "Cutsom" %}
+        <li><span class="small_icon badge edit_info_rhyme_symbol">-</span> Click to edit the rhymes of any lines (make sure you only type one letter or <b>-</b> (dash symbol) in each square (upper and lower case are accepted))</li>
+        {% endif %}
+    </ul>
+    <p>When done just click the <b>Save All Edits</b> button in the <b><a href="#btn_div">utility box</a></b> to save your changes or undo all changes by clicking <b>Undo All Edits</b></p>
+    <p><img src="static/icons/warning.png" class="small_icon"> Toggling edit mode off without undoing or saving changes will restrict you from saving your poem. Poem text <b>will be saved</b> and the page will be reloaded when undoing or saving.</p>
+</div>
+{% endif %}
 {% if write_session == "default" %}
+<div class="alert alert-primary alert-dismissible  d-flex align-items-center" id="tip_div" style="display: none;" role="alert">
+    <div>
+      <b><u>Tip:</u></b> Press <b>Shift + Enter</b> to go down a line and <b>Ctrl + Enter</b> to go up a line
+    </div>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
 <span id="notepad" class="notepad" role="textbox" class="line" contenteditable></span>
 <div class="poem-div">
-    <div class="verse">
+    <div id="poem_body">
+    <div class="title">
         <span contenteditable id="title"></span><span class="badge bg-secondary, title_symbol">Title</span>
     </div>
-    <!-- if rhyme scheme calls for numeric line numbers i[0] will not work so we need to check for that -->
     {% if ( (user_rhyme_scheme=="Free Verse") or (user_rhyme_scheme=="Haiku") ) %}
-        {% for i in rhyme_schemes.current_rhymes.split(",") %}
+
+        {% for i in rhyme_schemes.rhymes.split(",") %}
             <div class="verse">
+                {% if user_rhyme_scheme == "Free Verse"%}
+                <span class="undo_btn_container badge" style="display: none;"><button class="undo_btn">
+                    <img src="/static/icons/undo.png" class="small_icon">
+                </button></span>
+                <span class="delete_btn_container badge" style="display: none;"><button class="delete_line_btn">
+                    <img src="/static/icons/minus.png" class="small_icon">
+                </button></span>
+                {% endif %}
                 <span class="line {{i}}" id="{{i}}" name="{{i}}" role="textbox" contenteditable="true"></span><span
                     id="symbol{{i}}" class="badge bg-secondary, rhyme_symbols">{{i}}</span>
             </div>
             <div class="syllables"><span class="syllables_text"></span></div>
             <div class="meter"><span class="meter_text"></span></div>
-            {% if rhyme_schemes.current_line_breaks!=0 and (loop.index % rhyme_schemes.current_line_breaks == 0) %}
-            <br>
+            {% if rhyme_schemes.line_break and (loop.index % (rhyme_schemes.line_break|int) == 0) %}
+                {% if user_rhyme_scheme == "Free Verse"%}
+                <div class="br_div"><br></div>
+                <button class="br_btn" id="remove_br"><img src="static/icons/remove-br.png" class="small_icon br_icon"></button>
+                {% else %}
+                <br>
+                {% endif %}
+            {% else %}
+                {% if user_rhyme_scheme == "Free Verse"%}
+                <div class="br_div"></div>
+                    <button class="br_btn" id="add_br"><img src="static/icons/add-br.png" class="small_icon br_icon"></button>
+                {% endif %}
             {% endif %}
         {% endfor %}
+
     {% else%}
-            {% for i in rhyme_schemes.current_rhymes.split(",") %}
+     
+            {% for i in rhyme_schemes.rhymes.split(",") %}
             <div class="verse">
+                {% if user_rhyme_scheme == "Custom"%}
+                <span class="undo_btn_container badge" style="display: none;"><button class="undo_btn">
+                    <img src="/static/icons/undo.png" class="small_icon">
+                </button></span>
+                <span class="delete_btn_container badge" style="display: none;"><button class="delete_line_btn">
+                    <img src="/static/icons/minus.png" class="small_icon">
+                </button></span>
+                {% endif %}
                 <span class="line {{i[0]}}" id="{{i}}" name="{{i[0]}}" role="textbox" contenteditable="true"></span><span
                     id="symbol{{i}}" class="badge bg-secondary, rhyme_symbols">{{i[0]}}</span>
             </div>
             <div class="syllables"><span class="syllables_text"></span></div>
             <div class="meter"><span class="meter_text"></span></div>
-
-                {% if rhyme_schemes.current_line_breaks!=0 and (loop.index % rhyme_schemes.current_line_breaks == 0) %}
-                <br>
+                {% if rhyme_schemes.line_break and (loop.index % (rhyme_schemes.line_break| int) == 0) %}
+                    {% if user_rhyme_scheme == "Custom"%}
+                    <div class="br_div"><br></div>
+                    <button class="br_btn" id="remove_br"><img src="static/icons/remove-br.png" class="small_icon br_icon"></button>
+                    {% else %}
+                    <br>
+                    {% endif %}
+                {% else %}
+                    {% if user_rhyme_scheme == "Custom"%}
+                    <div class="br_div"></div>
+                    <button class="br_btn" id="add_br"><img src="static/icons/add-br.png" class="small_icon br_icon"></button>
+                    {% endif %}
                 {% endif %}
             {% endfor %}
     {% endif %}
-    {% if current_user.is_authenticated %}
+
+
+            {% if user_rhyme_scheme == "Custom" or user_rhyme_scheme == "Free Verse" %}
+            <template id="extra_line">
+                <div class="verse">
+                    <span class="undo_btn_container badge" style="display: none;">
+                        <button class="undo_btn">
+                        <img src="/static/icons/undo.png" class="small_icon">
+                        </button>
+                    </span>
+                    <span class="delete_btn_container badge" style="display: inline-block;">
+                        <button class="delete_line_btn">
+                        <img src="/static/icons/minus.png" class="small_icon">
+                        </button>
+                    </span>
+                    <span class="line" role="textbox" contenteditable="true"></span><span
+                     class="badge bg-secondary, rhyme_symbols" role="textbox" contenteditable="true"></span>
+                </div>
+                <div class="br_div"></div>
+                <button class="br_btn" id="add_br"><img src="static/icons/add-br.png" class="small_icon br_icon"></button>
+        </template>
+    </div>
+        <div class="add_btn_container">
+        <button id="add_line_btn"  id="add_line_btn"><img src="/static/icons/add.png" class="small_icon"></button>
+        <p class="error_msg" id="add_line_err">Cannot exceed 100 lines!</p>
+        </div>
+        <div class="add_bulk_container">
+            <button id="add_bulk_btn" onclick="show_div('#edit_add_lines_bulk_div', 'inline-block'); show_div('#edit_add_line_breaks_bulk_div', 'inline-block'); document.getElementById('add_lines_input').focus()" id="add_bulk_btn"><img src="/static/icons/add-bulk.png" class="small_icon"></button>
+        </div>
+        <div id="add_bulk_div">
+            <div id="edit_add_lines_bulk_div">
+                <button class="close_btn" onclick="hide_div('#edit_add_lines_bulk_div')">x</button>
+                <p>Add Multiple Lines</p>
+                <div class="input-group mb-3">
+                    <span class="input-group-text" id="basic-addon1">Add Lines</span>
+                    {% if user_rhyme_scheme == "Cutsom" %}
+                    <input type="text" class="form-control" id="add_lines_input" placeholder="ABAB..." aria-label="Username" aria-describedby="basic-addon1">
+                    {% elif user_rhyme_scheme == "Free Verse" %}
+                    <input type="number" min="0" max="100" class="form-control" id="add_lines_input" placeholder="X Lines" aria-label="Username" aria-describedby="basic-addon1">
+                    {% endif %}
+                </div>
+                <button class="button" id="add_lines_bulk_btn">Add</button>
+                <p class="error_msg" id="add_lines_bulk_length_error">Cannot exceed 100 lines!</p>
+                <p class="error_msg" id="add_lines_bulk_error">Rhymes must not be empty and can only contain letters and/or - (dash symbol) for empty rhymes</p>
+            </div>
+            <div id="edit_add_line_breaks_bulk_div">
+                <button class="close_btn" onclick="hide_div('#edit_add_line_breaks_bulk_div')">x</button>
+                <p>Add Multiple Line Breaks</p>
+                <div class="input-group mb-3">
+                    <span class="input-group-text" id="basic-addon1">Add Linebreak after every</span>
+                    <input type="number" min="0" class="form-control" id="add_brs_input" placeholder="X lines" aria-label="Username" aria-describedby="basic-addon1">
+                    <p class="error_msg" id="add_brs_bulk_error">Line break value must be a <b>whole number</b></p>
+                </div>
+                <p>All current line breaks will be deleted when editing multiple line breaks</p>
+                <button class="button" id="add_brs_bulk_btn">Add</button>
+                <button class="button" id="clear_brs">Clear All Line Breaks</button>
+            </div>
+        </div>
+        {% endif %}
+
+    <div id="save_btn_div">
     <button value="Save Draft" class="button" name="write_btn" id="save_draft">Save As Draft</button>
     <button value="save_poem" class="button" name="write_btn" id="save_poem">Save Poem</button>
     <div id="msg_container"><button type="button" class="close_btn" id="close_success_msg">hide</button>
@@ -176,109 +340,211 @@
     </div>
     <p id="err_msg" class="error_msg">You cannot save an empty poem</p>
     <p id="save_err_msg" class="error_msg">There was a problem saving your poem, you may need to reload the page. Unfortunately progress will be lost.</p>
-    {% else %}
-    <div class="visible_warning"><img src="/static/icons/warning.png" id="warning_icon">You cannot save until you are <a href="/Signin">Signed In</a>
     </div>
-    {% endif %}
 </div>
+{% elif write_session=="resume" or write_session=="draft" or write_session=="poem" %}
 
-<!-- if sess is draft get all of our info from our databse-->
-{% elif write_session == "draft" %}
-<span id="notepad" class="notepad" role="textbox" class="line" contenteditable>{{draft.notes}}</span>
-<div class="poem-div">
-    <div class="verse">
-        <span contenteditable id="title">{{draft.title}}</span><span
-            class="badge bg-secondary, title_symbol">Title</span>
-    </div>
-    {% if ( (draft.rhyme_scheme=="Free Verse") or (draft.rhyme_scheme=="Haiku") ) %}
-        {% for i in draft_lines %}
-            <div class="verse">
-                <span class="line {{i.line_num}}" id="{{i.line_num}}" name="{{i.line_num}}" role="textbox"
-                    contenteditable="true">{{i.line_text}}</span><span id="symbol{{i.line_num}}"
-                    class="badge bg-secondary, rhyme_symbols">{{i.line_num}}</span>
-            </div>
-            <div class="syllables"><span class="syllables_text"></span></div>
-            <div class="meter"><span class="meter_text"></span></div>
-                {% if draft.line_break and ((loop.index % draft.line_break) == 0) %}
-                <br>
-                {% endif %}
-        {% endfor %}
-    {% else%}
-        {% for i in draft_lines %}
-            <div class="verse">
-                <span class="line {{i.line_num[0]}}" id="{{i.line_num}}" name="{{i.line_num[0]}}" role="textbox"
-                    contenteditable="true">{{i.line_text}}</span><span id="symbol{{i.line_num}}"
-                    class="badge bg-secondary, rhyme_symbols">{{i.line_num[0]}}</span>
-            </div>
-            <div class="syllables"><span class="syllables_text"></span></div>
-            <div class="meter"><span class="meter_text"></span></div>
-                {% if draft.line_break and ((loop.index % draft.line_break) == 0) %}
-                <br>
-                {% endif %}
-        {% endfor %}
-    {% endif %}
-    {% if current_user.is_authenticated %}
-    <button value="Save Draft" class="button" name="write_btn" id="save_draft">Save As Draft</button>
-    <button value="save_poem" class="button" name="write_btn" id="save_poem">Save Poem</button>
-    <div id="msg_container"><button type="button" class="close_btn" id="close_success_msg">hide</button>
-        <p class="confirmation_msg" id="confirmation_msg_write">Draft succesfully saved</p>
-    </div>
-    <p id="err_msg" class="error_msg">You cannot save an empty poem</p>
-    <p id="save_err_msg" class="error_msg">There was a problem saving your poem, you may need to reload the page. Unfortunately progress will be lost.</p>
-    {% else %}
-    <div class="visible_warning"><img src="/static/icons/warning.png" id="warning_icon">You cannot save until you are <a href="/Signin">Signed In</a>
-    </div>
-    {% endif %}
-</div>
-
-<!-- if sess is poem get all of our info from our databse-->
-{% elif write_session == "poem" %}
 <span id="notepad" class="notepad" role="textbox" class="line" contenteditable></span>
 <div class="poem-div">
-    <div class="verse">
-        <span contenteditable id="title">{{poem.title}}</span><span
-            class="badge bg-secondary, title_symbol">Title</span>
+    <div id="poem_body">
+    <div class="title">
+        <span contenteditable id="title">{{title}}</span><span class="badge bg-secondary, title_symbol">Title</span>
     </div>
-    {% if ( (poem.rhyme_scheme=="Free Verse") or (poem.rhyme_scheme=="Haiku") ) %}
-        {% for i in poem_lines %}
-        <div class="verse">
-            <span class="line {{i.line_num}}" id="{{i.line_num}}" name="{{i.line_num}}" role="textbox"
-                contenteditable="true">{{i.line_text}}</span><span id="symbol{{i.line_num}}"
-                class="badge bg-secondary, rhyme_symbols">{{i.line_num}}</span>
-        </div>
-        <div class="syllables"><span class="syllables_text"></span></div>
-        <div class="meter"><span class="meter_text"></span></div>
-            {% if poem.line_break and ((loop.index % poem.line_break) == 0) %}
-            <br>
-            {% endif %}
-    {% endfor %}
+    {% if ( (user_rhyme_scheme=="Free Verse") or (user_rhyme_scheme=="Haiku") ) %}
+        {% set count = namespace(value=0) %}
+        {% for key, value in poem_lines.items() %}
+            <div class="verse">
+                {% if user_rhyme_scheme == "Free Verse"%}
+                <span class="undo_btn_container badge" style="display: none;"><button class="undo_btn">
+                    <img src="/static/icons/undo.png" class="small_icon">
+                </button></span>
+                <span class="delete_btn_container badge" style="display: none;"><button class="delete_line_btn">
+                    <img src="/static/icons/minus.png" class="small_icon">
+                </button></span>
+                {% endif %}
+                <span class="line {{loop.index}}" id="{{loop.index}}" name="{{loop.index}}" role="textbox" contenteditable="true">{{value}}</span><span
+                    id="symbol{{loop.index}}" class="badge bg-secondary, rhyme_symbols">{{loop.index}}</span>
+            </div>
+            <div class="syllables"><span class="syllables_text"></span></div>
+            <div class="meter"><span class="meter_text"></span></div>
+            {% if user_rhyme_scheme == "Free Verse" %}
+                {% if not line_breaks %}
+                    <div class="br_div"></div>
+                    <button class="br_btn" id="add_br"><img src="static/icons/add-br.png" class="small_icon br_icon"></button>
+                {% elif ((line_breaks|string)|length)==1 %}
+                    {% if line_breaks == loop.index-1 %}
+                    <div class="br_div"><br></div>
+                    <button class="br_btn" id="remove_br"><img src="static/icons/remove-br.png" class="small_icon br_icon"></button>
+                    {% else %}
+                    <div class="br_div"></div>
+                    <button class="br_btn" id="add_br"><img src="static/icons/add-br.png" class="small_icon br_icon"></button>
+                    {% endif %}
+                {% else %}
+                    {% set is_br = namespace(value=false) %}
+                    {% for i in line_breaks %}
+                        {% if (count.value == (i| int)) %}
+                            {% set is_br.value = namespace(value=true) %}
+                            <div class="br_div"><br></div>
+                            <button class="br_btn" id="remove_br"><img src="static/icons/remove-br.png" class="small_icon br_icon"></button>
+                        {% endif %}
+                    {% endfor %}
+                    {% if is_br.value == false %}
+                        <div class="br_div"></div>
+                        <button class="br_btn" id="add_br"><img src="static/icons/add-br.png" class="small_icon br_icon"></button>
+                    {% endif %}
+                {% endif %}
+            {% else %}
+                {% if line_breaks and (loop.index % (line_breaks| int)) == 0 %}
+                    <br>
+                {% endif %}
+                {% endif %}
+            {% set count.value = count.value + 1 %}
+        {% endfor %}
+        
     {% else%}
-    {% for i in poem_lines %}
+
+        {% set count = namespace(value=0) %}
+        {% for key, value in poem_lines.items() %}
         <div class="verse">
-            <span class="line {{i.line_num[0]}}" id="{{i.line_num}}" name="{{i.line_num[0]}}" role="textbox"
-                contenteditable="true">{{i.line_text}}</span><span id="symbol{{i.line_num}}"
-                class="badge bg-secondary, rhyme_symbols">{{i.line_num[0]}}</span>
+            {% if user_rhyme_scheme == "Custom"%}
+            <span class="undo_btn_container badge" style="display: none;"><button class="undo_btn">
+                <img src="/static/icons/undo.png" class="small_icon">
+            </button></span>
+            <span class="delete_btn_container badge" style="display: none;"><button class="delete_line_btn">
+                <img src="/static/icons/minus.png" class="small_icon">
+            </button></span>
+            {% endif %}
+            <span class="line {{key[0]}}" id="{{key}}" name="{{key[0]}}" role="textbox" contenteditable="true">{{value}}
+            </span><span
+                id="symbol{{key}}" class="badge bg-secondary, rhyme_symbols">{{key[0]}}</span>
         </div>
         <div class="syllables"><span class="syllables_text"></span></div>
         <div class="meter"><span class="meter_text"></span></div>
-            {% if poem.line_break and ((loop.index % poem.line_break) == 0) %}
-            <br>
+        {% if user_rhyme_scheme == "Custom" %}
+            {% if not line_breaks %}
+                <div class="br_div"></div>
+                <button class="br_btn" id="add_br"><img src="static/icons/add-br.png" class="small_icon br_icon"></button>
+            {% elif ((line_breaks|string)|length)==1 %}
+                {% if line_breaks == loop.index-1 %}
+                <div class="br_div"><br></div>
+                <button class="br_btn" id="remove_br"><img src="static/icons/remove-br.png" class="small_icon br_icon"></button>
+                {% else %}
+                <div class="br_div"></div>
+                <button class="br_btn" id="add_br"><img src="static/icons/add-br.png" class="small_icon br_icon"></button>
+                {% endif %}
+            {% else %}
+                {% set is_br = namespace(value=false) %}
+                {% for i in line_breaks %}
+                    {% if (count.value == (i| int)) %}
+                        {% set is_br.value = namespace(value=true) %}
+                        <div class="br_div"><br></div>
+                        <button class="br_btn" id="remove_br"><img src="static/icons/remove-br.png" class="small_icon br_icon"></button>
+                    {% endif %}
+                {% endfor %}
+                {% if is_br.value == false %}
+                    <div class="br_div"></div>
+                    <button class="br_btn" id="add_br"><img src="static/icons/add-br.png" class="small_icon br_icon"></button>
+                {% endif %}
             {% endif %}
-    {% endfor %}
+        {% else %}
+            {% if line_breaks and (loop.index % (line_breaks| int)) == 0 %}
+                <br>
+            {% endif %}
+            {% endif %}
+            {% set count.value = count.value + 1 %}
+        {% endfor %}
     {% endif %}
-    {% if current_user.is_authenticated %}
+
+
+        {% if user_rhyme_scheme == "Custom" or user_rhyme_scheme == "Free Verse"%}
+        <template id="extra_line">
+            <div class="verse">
+                <span class="undo_btn_container badge" style="display: none;">
+                    <button class="undo_btn">
+                    <img src="/static/icons/undo.png" class="small_icon">
+                    </button>
+                </span>
+                <span class="delete_btn_container badge" style="display: inline-block;">
+                    <button class="delete_line_btn">
+                    <img src="/static/icons/minus.png" class="small_icon">
+                    </button>
+                </span>
+                <span class="line" role="textbox" contenteditable="true"></span><span
+                    class="badge bg-secondary, rhyme_symbols" role="textbox" contenteditable="true"></span>
+            </div>
+            <div class="br_div"></div>
+            <button class="br_btn" id="add_br"><img src="static/icons/add-br.png" class="small_icon br_icon"></button>
+    </template>
+</div>
+    <div class="add_btn_container">
+    <button id="add_line_btn"  id="add_line_btn"><img src="/static/icons/add.png" class="small_icon"></button>
+    <p class="error_msg" id="add_line_err">Cannot exceed 100 lines!</p>
+    </div>
+    <div class="add_bulk_container">
+        <button id="add_bulk_btn" onclick="show_div('#edit_add_lines_bulk_div', 'inline-block'); show_div('#edit_add_line_breaks_bulk_div', 'inline-block'); document.getElementById('add_lines_input').focus()" id="add_bulk_btn"><img src="/static/icons/add-bulk.png" class="small_icon"></button>
+    </div>
+    <div id="add_bulk_div">
+        <div id="edit_add_lines_bulk_div">
+            <button class="close_btn" onclick="hide_div('#edit_add_lines_bulk_div')">x</button>
+            <p>Add Multiple Lines</p>
+            <div class="input-group mb-3">
+                <span class="input-group-text" id="basic-addon1">Add Lines</span>
+                {% if user_rhyme_scheme == "Cutsom" %}
+                <input type="text" class="form-control" id="add_lines_input" placeholder="ABAB..." aria-label="Username" aria-describedby="basic-addon1">
+                {% elif user_rhyme_scheme == "Free Verse" %}
+                <input type="number" min="0" max="100" class="form-control" id="add_lines_input" placeholder="X Lines" aria-label="Username" aria-describedby="basic-addon1">
+                {% endif %}
+            </div>
+            <button class="button" id="add_lines_bulk_btn">Add</button>
+            <p class="error_msg" id="add_lines_bulk_length_error">Cannot exceed 100 lines!</p>
+            <p class="error_msg" id="add_lines_bulk_error">Rhymes must not be empty and can only contain letters and/or - (dash symbol) for empty rhymes</p>
+        </div>
+        <div id="edit_add_line_breaks_bulk_div">
+            <button class="close_btn" onclick="hide_div('#edit_add_line_breaks_bulk_div')">x</button>
+            <p>Add Multiple Line Breaks</p>
+            <div class="input-group mb-3">
+                <span class="input-group-text" id="basic-addon1">Add Linebreak after every</span>
+                <input type="number" min="0" class="form-control" id="add_brs_input" placeholder="X lines" aria-label="Username" aria-describedby="basic-addon1">
+                <p class="error_msg" id="add_brs_bulk_error">Line break value must be a <b>whole number</b></p>
+            </div>
+            <p>All current line breaks will be deleted when editing multiple line breaks</p>
+            <button class="button" id="add_brs_bulk_btn">Add</button>
+            <button class="button" id="clear_brs">Clear All Line Breaks</button>
+        </div>
+    </div>
+        {% endif %}
+
+    <div id="save_btn_div">
+    {% if write_session != "poem" %}
+    <button value="Save Draft" class="button" name="write_btn" id="save_draft">Save As Draft</button>
+    <button value="save_poem" class="button" name="write_btn" id="save_poem">Save As Poem</button>
+    <div id="msg_container"><button type="button" class="close_btn" id="close_success_msg" onclick="hide('#msg_container')">hide</button>
+        <p class="confirmation_msg" id="confirmation_msg_write">Draft succesfully saved</p>
+    </div>
+    {% else %}
     <button class="button" id="update_poem">Save Changes</button>
-    <div id="msg_container"><button type="button" class="close_btn" id="close_success_msg">hide</button>
+    <div id="msg_container"><button type="button" class="close_btn" id="close_success_msg" onclick="hide('#update_poem')">hide</button>
         <p class="confirmation_msg" id="confirmation_msg_write">Poem succesfully updated</p>
     </div>
+    {% endif %}
     <p id="err_msg" class="error_msg">You cannot save an empty poem</p>
     <p id="save_err_msg" class="error_msg">There was a problem saving your poem, you may need to reload the page. Unfortunately progress will be lost.</p>
-    {% else %}
-    <div class="visible_warning"><img src="/static/icons/warning.png" id="warning_icon">You cannot save until you are <a href="/Signin">Signed In</a>
-    </div>
-    {% endif %}
 </div>
+{% else %}
+<h1>Page Not Found</h1>
 {% endif %}
+
+{% endblock %}
+
+{% block script %}
+<script src="/static/js/guest_write_and_write.js"> </script>
 <script src="/static/js/write.js"> </script>
 {% endblock %}
+
+
+<!-- if rs is custom or FV -->
 <a href="https://www.datamuse.com/api/" target="_blank">Copyright © 2022 Datamuse</a>
+<a href="https://www.flaticon.com/free-icons/warning" title="warning icons">Warning icons created by Good Ware - Flaticon</a>
+<a href="https://www.flaticon.com/free-icons/plus" title="plus icons">Plus, Minus icons created by Bingge Liu - Flaticon</a>
+<a href="https://www.flaticon.com/free-icons/plus" title="plus icons">Plus bulk, Undo icons created by Freepik - Flaticon</a>
+<a href="https://www.flaticon.com/free-icons/menu" title="menu icons">Add-Remove line break icons created by Icontive - Flaticon</a>

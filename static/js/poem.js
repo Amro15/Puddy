@@ -104,19 +104,4 @@ else{
 })
 }
 
-let copy_btn = document.getElementById("copy");
-copy_btn.addEventListener("click", ()=>{
-   let poem = document.createElement("div");
-   poem.innerHTML = document.getElementById("poem_title").innerText;
-   let poem_lines = document.getElementsByClassName("poem_lines");
-   for(let i =0; i<poem_lines.length; i++){
-      poem.innerHTML+=poem_lines[i].innerText;
-   }
-   document.body.appendChild(poem);
-   poem.select();
-   poem.setSelectionRange(0, 99999); 
-   navigator.clipboard.writeText(poem.innerHTML);
-   document.body.removeChild(poem);
-})
-
 

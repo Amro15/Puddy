@@ -1,4 +1,7 @@
+{% from 'macro.html' import flash_msgs %}
+
 {% extends "layout.html" %}
+
 {% block head %}
 <style>
 body{
@@ -11,6 +14,8 @@ body{
 {% block title %} Poems {% endblock %}
 
 {% block main%}
+{{flash_msgs()}}
+{%if user_poems|length != 0%}
 <!-- poem modal -->
 <div class="modal fade" id="poem_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
 aria-hidden="true">
@@ -35,7 +40,6 @@ aria-hidden="true">
 
 <h1>My Poems</h1>
 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-{%if user_poems|length != 0%}
 <div class="input-group mb-3" id="select_draft_div">
     <label class="input-group-text" for="poem_select">Quick Navigation Menu
     </label>
@@ -82,8 +86,12 @@ aria-hidden="true">
 <h2>Looks like you don't have any poems saved yet, get to <a href="/Create">Creating!</a></h2>
 </div>
 {% endif %}
+{% endblock %}
+
+{% block script %}
 <script  src="/static/js/poem.js"> </script>
 {% endblock %}
+
 <a href="https://www.flaticon.com/free-icons/play" title="play icons">Resume icons created by Freepik - Flaticon</a>
 <a href="https://www.flaticon.com/free-icons/edit" title="edit icons">Edit icons created by Pixel perfect - Flaticon</a>
 <a href="https://www.flaticon.com/free-icons/delete" title="delete icons">Display-Delete icons created by bqlqn - Flaticon</a>
