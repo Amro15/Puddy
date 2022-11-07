@@ -1,16 +1,16 @@
 // remind user to save after 20 mins 
+let warning_div = document.getElementById("warning");
+if (warning_div) {
 let warning = setTimeout(() => {
-    let warning_div = document.getElementById("warning");
-    if (warning_div) {
         warning_div.style.display = "inline-block";
         warning_div.scrollIntoView();
         let close_warning_btn = document.getElementById("warning_close");
         close_warning_btn.addEventListener("click", () => {
             warning_div.style.display = "none";
         })
-    }
-
-}, (20 * 60000))
+        
+    }, (20 * 60000))
+}
 
 let tip_div = document.getElementById("tip_div");
 if (!getCookie("first_visit")) {
@@ -228,7 +228,12 @@ if (save_poem_btn) {
                             save_error_msg.scrollIntoView();
                         }
                         else if (data["response"] === "successful") {
-                            location.replace(window.origin + "/Format");
+                            if(data["skip_format"]=="True"){
+                                window.location="/Account/Poems";
+                            }
+                            else{
+                                window.location="/Format";
+                            }
                         }
 
                     });
@@ -432,7 +437,7 @@ if (toggle_edit_btn) {
             if(toggle_edit_btn.checked){
                 delete_btn_container[i].style.display = "inline-block";
                 line[i].style.display = "block";
-                if(!edit_btn_div.getAttribute("name")=="edit_fv"){
+                if(edit_btn_div.getAttribute("name")!=="edit_fv"){
                     rhyme_symbol[i].style.cssText = "display:inline-block; background-color:rgb(37, 37, 37)";
                 }
                 else{
@@ -532,7 +537,7 @@ if (toggle_edit_btn) {
                 undo_btn[i].addEventListener("click", () => {
                     delete_btn_container[i].style.display = "inline-block";
                     line[i].style.display = "block";
-                    if(!edit_btn_div.getAttribute("name")=="edit_fv"){
+                    if(edit_btn_div.getAttribute("name")!=="edit_fv"){
                         rhyme_symbol[i].style.cssText = "display:inline-block; background-color:rgb(37, 37, 37)";
                     }
                     else{
@@ -660,7 +665,7 @@ if (toggle_edit_btn) {
             undo_btn[i].addEventListener("click", () => {
                 delete_btn_container[i].style.display = "inline-block";
                 line[i].style.display = "block";
-                if(!edit_btn_div.getAttribute("name")=="edit_fv"){
+                if(edit_btn_div.getAttribute("name")!=="edit_fv"){
                 rhyme_symbol[i].style.cssText = "display:inline-block; background-color:rgb(37, 37, 37)";
                 }
                 else{
@@ -727,11 +732,24 @@ if (toggle_edit_btn) {
     let save_edits = document.getElementById("save_edits");
     let send_to_server_edits = {};
     undo_edits.addEventListener("click", () => {
+        let temp = {};
         if(toggle_edit_btn.checked){
             edit_mode_errors.style.display="none";
             send_to_server_edits = {"title":document.getElementById("title").innerText ,"line_breaks": [] };
             for (let i = 0; i < line.length; i++) {
-                send_to_server_edits[i] = line[i].innerText;
+                if(edit_btn_div.getAttribute("name")==="edit_fv"){
+                    send_to_server_edits[i] = line[i].innerText;
+                }
+                else{
+                    if(temp.hasOwnProperty(rhyme_symbol[i].innerText)){
+                        temp[rhyme_symbol[i].innerText]+=1;
+                        send_to_server_edits[rhyme_symbol[i].innerText.concat(temp[rhyme_symbol[i].innerText])] = line[i].innerText;
+                    }
+                    else{
+                        temp[rhyme_symbol[i].innerText]=0;
+                        send_to_server_edits[rhyme_symbol[i].innerText.concat(temp[rhyme_symbol[i].innerText])] = line[i].innerText;
+                    }
+                }
             }
             fetch(window.origin+"/Write",{
                 method:"POST",

@@ -1,0 +1,81 @@
+
+{% extends "layout.html" %}
+
+
+{% block main %}
+<form method="post" action="/Account/Settings">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+{{form.hidden_tag()}}
+<div id="settings_username_div">
+<h4 id="settings_username_read">{{current_user.username}}</h4>
+<input type="text" value="{{current_user.username}}" id="settings_username">
+<p id="settings_username_reqs">Username must start with a letter, can only contain letter numbers and underscores and be between 3 to 30 characters long</p>
+<button type="button" class="info_btn" id="edit_username_btn" onclick="show_div('#settings_username', 'inline-block'); show_div('#change_username_btn', 'inline-block'); show_div('#cancel_btn', 'inline-block'); hide_div('#settings_username_read'); hide_div('#edit_username_btn')"><img class="small_icon" src="/static/icons/edit.png" id="change_username"></button>
+<button type="button" class="info_btn" id="change_username_btn">Change Username</button>
+<button type="button" class="info_btn" id="cancel_btn" onclick="hide_div('#cancel_btn'); hide_div('#change_username_btn'); hide_div('#settings_username'); show_div('#settings_username_read', 'inline-block'); show_div('#edit_username_btn' ,'inline-block')">Cancel</button>
+<p id="username_error" class="error_msg">Username must start with a letter, can only contain letter numbers and underscores and be between 3 to 30 characters long</p>
+</div>
+<div id="settings_btns_div">
+    <button type="button" class="settings_btns info_btn">Change Profile Picture</button>
+    <button type="button" class="settings_btns info_btn">Change Password</button>
+    <button type="button" class="info_btn settings_btns" style="display: inline-block;">Change Write Background</button><button type="button"  class="info_btn settings_btns" style="display: inline-block;" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Change the background you see when you are writing your poem to a picture of your choosing">?</button>
+    <button type="button" class="settings_btns info_btn" onclick="show_div('#shortcuts','block')">Display Shortcuts</button>
+    <div id="shortcuts">
+      <p>Toggle Notes: Alt + N</p>
+      <p>Check Rhymes: Alt + R</p>
+      <p>Check Syllables: Alt + S</p>
+      <p>Check Meter: Alt + M</p> 
+      <p>Toggle Edit Mode: Alt + E</p> 
+      <button type="button" class="info_btn" onclick="hide_div('#shortcuts')">Hide</button>
+    </div>
+  </div>
+  <div id="settings_switches_div">
+        <div class="form-check form-switch settings_switches ">
+          {% if detatch_util=="True" %}
+            {{form.detatch_util(class="form-check-input", checked=true)}}
+          {% else %}
+            {{form.detatch_util(class="form-check-input", checked=false)}}
+          {% endif %}
+            <label class="form-check-label" for="flexSwitchCheckDefault">Always Detatch Utility Box</label>
+          </div>
+        <div class="form-check form-switch settings_switches ">
+          {% if hide_detatch_btn=="True" %}
+            {{form.hide_detatch_btn (class="form-check-input", checked=true)}}
+          {% else %}
+            {{form.hide_detatch_btn (class="form-check-input", checked=false)}}
+          {% endif %}
+            <label class="form-check-label" for="flexSwitchCheckDefault">Hide Detatch Utility Box Button</label>
+          </div>
+    <div class="form-check form-switch settings_switches ">
+      {% if disable_reminder =="True" %}
+        {{form.disable_reminder(class= "form-check-input", checked=true)}}
+        {% else %}
+        {{form.disable_reminder(class= "form-check-input", checked=false)}}
+      {% endif %}
+        <label class="form-check-label" for="flexSwitchCheckDefault">Disable Reminder To Save As Draft</label>
+        <button type="button" class="info_btn" data-bs-toggle="tooltip" data-bs-placement="bottom" title="A pop-up appears every 20 minutes when you have been working on your poem for a while without having manually saved which is advised despite our autosaving feature">?</button>
+      </div>
+    <div class="form-check form-switch settings_switches ">
+      {% if skip_format == "True" %}
+        {{form.skip_format(class="form-check-input", checked=true)}}
+      {% else %}
+        {{form.skip_format(class="form-check-input", checked=false)}}
+      {% endif %}
+        <label class="form-check-label" for="flexSwitchCheckDefault">Skip Format When Saving Poems</label>
+      </div>
+    <div class="form-check form-switch settings_switches ">
+      {% if del_draft == "True" %}
+        {{form.del_draft(class= "form-check-input", checked=true)}}
+      {% else %}
+        {{form.del_draft(class= "form-check-input", checked=false)}}
+      {% endif %}
+        <label class="form-check-label" for="flexSwitchCheckDefault">Delete Drafts After They Are Saved As A Poem</label>
+      </div>
+    </div>
+<button type="submit" class="button" style="width: 50%;">Save Changes</button>
+</form>
+{% endblock %}
+
+{% block script %}
+<script src="/static/js/settings.js"></script>
+{% endblock %}

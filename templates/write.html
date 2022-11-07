@@ -32,14 +32,19 @@
     </div>
 </div>
 <!-- ============ -->
-
+{% if disable_reminder!="True" %}
 <div id="warning"><img src="/static/icons/warning.png" id="warning_icon">You Haven't Saved In A While<button class="close_btn" id="warning_close">x</button>
+{% endif %}
 </div>
-{% if user_rhyme_scheme == "Custom" or user_rhyme_scheme == "Free Verse" %}
+{% if user_rhyme_scheme == "Custom" or user_rhyme_scheme == "Free Verse" or user_rhyme_scheme == "Blank Verse" %}
 <h2 id="edit_mode_indicator" class="bg-dark">Edit Mode</h2>
 {% endif %}
+{% if detatch_util=="True" %}
+<div id="btn_div" style="position:fixed; right:0px">
+{% else %}
 <div id="btn_div">
-    {% if not user_rhyme_scheme == "Haiku" %}
+{% endif %}
+    {% if not user_rhyme_scheme == "Haiku" or not user_rhyme_scheme == "Free Verse" %}
     <input type="text" class="form-control" id="quick_search" placeholder="Quick Search For Rhymes">
     <button type="button" class="button" id="quick_search_rhymes_btn">
         <img src="/static/icons/search.png" id="search_icon">
@@ -48,23 +53,30 @@
         <div class="spinner-border" style="width: 2rem; height: 2rem;" role="status"></div>
     </div>
     {% endif %}
-    <div class="form-check form-switch form-check-reverse switch_div">
-        <input class="form-check-input" id="detatch_util" name="switch" type="checkbox" id="flexSwitchCheckReverse">
+    {% if hide_detatch_btn=="True" %}
+    <div class="form-check form-switch util_btn_div form-check-reverse switch_div" style="display: none;">
+    {% else %}
+    <div class="form-check form-switch util_btn_div form-check-reverse switch_div">
+    {% endif %}
+        {% if detatch_util=="True" %}
+        <input class="form-check-input util_btn" checked id="detatch_util" name="switch" type="checkbox" id="flexSwitchCheckReverse">
+        {% else %}
+        <input class="form-check-input util_btn" id="detatch_util" name="switch" type="checkbox" id="flexSwitchCheckReverse">
+        {% endif %}
         <label class="form-check-label" for="flexSwitchCheckReverse">Detatch Utility Box</label>
     </div>
-    <div class="form-check form-switch form-check-reverse switch_div">
-        <input class="form-check-input" id="toggle_nav" name="switch" type="checkbox" id="flexSwitchCheckReverse">
+    <div class="form-check form-switch util_btn_div form-check-reverse switch_div">
+        <input class="form-check-input util_btn" id="toggle_nav" name="switch" type="checkbox" id="flexSwitchCheckReverse">
         <label class="form-check-label" for="flexSwitchCheckReverse">Toggle Navbar</label>
     </div>
-    <div class="form-check form-switch form-check-reverse switch_div">
-        <input class="form-check-input" id="toggle_note" name="switch" type="checkbox" id="flexSwitchCheckReverse">
+    <div class="form-check form-switch util_btn_div form-check-reverse switch_div">
+        <input class="form-check-input util_btn" id="toggle_note" name="switch" type="checkbox" id="flexSwitchCheckReverse">
         <label class="form-check-label" for="flexSwitchCheckReverse">Toggle Notepad</label>
     </div>
     <div id="func_btns">
-    <!-- Dont show check rhymes btn if rhyme scheme is either of these two -->
-    {% if not ((user_rhyme_scheme=="Free Verse") or (user_rhyme_scheme=="Haiku"))%}
-    <div class="form-check form-switch form-check-reverse switch_div">
-        <input class="form-check-input" id="check_rhymes" name="switch" value="check_rhymes" type="checkbox">
+    {% if not ((user_rhyme_scheme=="Free Verse") or (user_rhyme_scheme=="Haiku") or (user_rhyme_scheme=="Blank Verse"))%}
+    <div class="form-check form-switch util_btn_div form-check-reverse switch_div">
+        <input class="form-check-input util_btn" id="check_rhymes" name="switch" value="check_rhymes" type="checkbox">
         <label class="form-check-label" for="check_rhymes" id="check_rhymes_label">Check Rhymes</label><button
         onclick="show_div('#rhyme_info_div','inline-block')" class="info_btn">?</button>
         <div id="no_data_rhymes">There must at least two words of the same rhyme in your poem</div>
@@ -74,16 +86,14 @@
         </div>
     </div>
     {% endif %}
-    <div class="form-check form-switch form-check-reverse switch_div">
-        <input class="form-check-input" id="display_syllable_count" name="switch" value="display_syllable_count"
+    <div class="form-check form-switch util_btn_div form-check-reverse switch_div">
+        <input class="form-check-input util_btn" id="display_syllable_count" name="switch" value="display_syllable_count"
             type="checkbox">
         <label class="form-check-label" for="display_syllable_count">Display Syllable Count</label>
         <div>
             <ol id="no_data_syllables">You got 0 for a syllable count make sure:
-                <li>You left no empty fields</li>
+                <li>You left no empty lines</li>
                 <li>You did not misspell a word</li>
-                <li>You only used words that appear in the <a id="no_data_syllables_link"
-                        href="http://www.speech.cs.cmu.edu/cgi-bin/cmudict" target="_blank">dictionary</a></li>
             </ol>
         </div>
         <div id="loading_syllables" class="text-center loading">
@@ -91,31 +101,29 @@
             </div>
         </div>
     </div>
-    {% if not user_rhyme_scheme == "Haiku" %}
-    <div class="form-check form-switch form-check-reverse switch_div">
-            <input class="form-check-input" id="check_meter" name="switch" value="check_meter" type="checkbox">
-            <label class="form-check-label" for="check_meter">Display Meter</label><button
-                onclick="show_div('#meter_info_div','inline-block')" class="info_btn">?</button>
+    <div class="form-check form-switch util_btn_div form-check-reverse switch_div">
+            <input class="form-check-input util_btn" id="check_meter" name="switch" value="check_meter" type="checkbox">
+            <label class="form-check-label" for="check_meter">Display Meter</label>
+            <button onclick="show_div('#meter_info_div','inline-block')" class="info_btn">?</button>
     </div>
-    {%endif%}
     </div>
-    {% if user_rhyme_scheme == "Custom" or user_rhyme_scheme == "Free Verse" %}
-        {% if user_rhyme_scheme == "Free Verse" %}
-        <div class="form-check form-switch form-check-reverse switch_div" id="edit_btn_div" name="edit_fv">
+    {% if user_rhyme_scheme == "Custom" or user_rhyme_scheme == "Free Verse" or user_rhyme_scheme == "Blank Verse" %}
+        {% if user_rhyme_scheme == "Free Verse" or user_rhyme_scheme == "Blank Verse" %}
+        <div class="form-check form-switch util_btn_div form-check-reverse switch_div" id="edit_btn_div" name="edit_fv">
         {% else %}
-        <div class="form-check form-switch form-check-reverse switch_div" id="edit_btn_div">
+        <div class="form-check form-switch util_btn_div form-check-reverse switch_div" id="edit_btn_div">
         {% endif %}
-        <input class="form-check-input" id="toggle_edit_btn" name="switch" value="toggle_edit_mode" type="checkbox">
+        <input class="form-check-input util_btn" id="toggle_edit_btn" name="switch" value="toggle_edit_mode" type="checkbox">
         <label class="form-check-label" for="toggle_edit_btn">Toggle Edit Mode</label><button
         onclick="show_div('#edit_info_div','inline-block')" class="info_btn">?</button>
     </div>
     <div id="edit_btns_div">
-        <div class="form-check form-switch form-check-reverse switch_div" id="toggle_br_btn_div">
-            <input class="form-check-input" id="toggle_br_btn" name="switch" value="toggle_br_btn_mode" type="checkbox">
+        <div class="form-check form-switch util_btn_div form-check-reverse switch_div" id="toggle_br_btn_div">
+            <input class="form-check-input util_btn" id="toggle_br_btn" name="switch" value="toggle_br_btn_mode" type="checkbox">
             <label class="form-check-label" for="toggle_br_btn">Toggle Line <br>Break Buttons</label>
         </div>
-        <div class="form-check form-switch form-check-reverse switch_div" id="toggle_undo_btn_div">
-            <input class="form-check-input" id="toggle_undo_btn" name="switch" value="toggle_undo_btn" type="checkbox">
+        <div class="form-check form-switch util_btn_div form-check-reverse switch_div" id="toggle_undo_btn_div">
+            <input class="form-check-input util_btn" id="toggle_undo_btn" name="switch" value="toggle_undo_btn" type="checkbox">
             <label class="form-check-label" for="toggle_undo_btn">Toggle Undo Buttons</label>
         </div>
         <div id="edit_mode_btns_div">
@@ -134,11 +142,15 @@
         </div>
     </div>
 </div>
+{% if detatch_util=="True" %}
+<button class="button" id="arrow" style="position: fixed; right:245px;"><i class="arrow right" id="arrow_symbol" ></i></button>
+{% else %}
 <button class="button" id="arrow"><i class="arrow right" id="arrow_symbol"></i></button>
+{% endif %}
 </div>
 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-{% if not ((user_rhyme_scheme=="Free Verse") or (user_rhyme_scheme=="Haiku"))%}
+{% if not ((user_rhyme_scheme=="Free Verse") or (user_rhyme_scheme=="Haiku") or (user_rhyme_scheme=="Blank Verse"))%}
 <div id="rhyme_info_div" class="info_div">
     <button onclick="hide_div('#rhyme_info_div')" class="close_btn">x</button>
     <ul>
@@ -167,9 +179,9 @@
 <div id="search_results" class="info_div">
     <button onclick="hide_div('#search_results')" class="close_btn">x</button>
     <ul id="search_results_list"></ul>
-    <button class="button" onclick="window.open('/Rhymes', '_blank')">Advanced Search</button>
+    <button class="button" id="advanced_search">Advanced Search</button>
 </div>
-{% if user_rhyme_scheme == "Custom" or user_rhyme_scheme == "Free Verse" %}
+{% if user_rhyme_scheme == "Custom" or user_rhyme_scheme == "Free Verse" or user_rhyme_scheme == "Blank Verse" %}
 <div id="edit_info_div" class="info_div">
     <button id="edit_info_close" class="close_btn" onclick="hide_div('#edit_info_div')">x</button>
     <p><b>Edit mode allows you to:</b></p>
@@ -208,11 +220,11 @@
     <div class="title">
         <span contenteditable id="title"></span><span class="badge bg-secondary, title_symbol">Title</span>
     </div>
-    {% if ( (user_rhyme_scheme=="Free Verse") or (user_rhyme_scheme=="Haiku") ) %}
+    {% if ( (user_rhyme_scheme=="Free Verse") or (user_rhyme_scheme=="Haiku") or (user_rhyme_scheme == "Blank Verse") ) %}
 
         {% for i in rhyme_schemes.rhymes.split(",") %}
             <div class="verse">
-                {% if user_rhyme_scheme == "Free Verse"%}
+                {% if user_rhyme_scheme == "Free Verse" or user_rhyme_scheme == "Blank Verse" %}
                 <span class="undo_btn_container badge" style="display: none;"><button class="undo_btn">
                     <img src="/static/icons/undo.png" class="small_icon">
                 </button></span>
@@ -226,14 +238,14 @@
             <div class="syllables"><span class="syllables_text"></span></div>
             <div class="meter"><span class="meter_text"></span></div>
             {% if rhyme_schemes.line_break and (loop.index % (rhyme_schemes.line_break|int) == 0) %}
-                {% if user_rhyme_scheme == "Free Verse"%}
+                {% if user_rhyme_scheme == "Free Verse" or user_rhyme_scheme == "Blank Verse" %}
                 <div class="br_div"><br></div>
                 <button class="br_btn" id="remove_br"><img src="static/icons/remove-br.png" class="small_icon br_icon"></button>
                 {% else %}
                 <br>
                 {% endif %}
             {% else %}
-                {% if user_rhyme_scheme == "Free Verse"%}
+                {% if user_rhyme_scheme == "Free Verse" or user_rhyme_scheme == "Blank Verse" %}
                 <div class="br_div"></div>
                     <button class="br_btn" id="add_br"><img src="static/icons/add-br.png" class="small_icon br_icon"></button>
                 {% endif %}
@@ -257,7 +269,7 @@
             </div>
             <div class="syllables"><span class="syllables_text"></span></div>
             <div class="meter"><span class="meter_text"></span></div>
-                {% if rhyme_schemes.line_break and (loop.index % (rhyme_schemes.line_break| int) == 0) %}
+                {% if rhyme_schemes.line_break  and (loop.index % (rhyme_schemes.line_break| int) == 0) %}
                     {% if user_rhyme_scheme == "Custom"%}
                     <div class="br_div"><br></div>
                     <button class="br_btn" id="remove_br"><img src="static/icons/remove-br.png" class="small_icon br_icon"></button>
@@ -274,7 +286,7 @@
     {% endif %}
 
 
-            {% if user_rhyme_scheme == "Custom" or user_rhyme_scheme == "Free Verse" %}
+            {% if user_rhyme_scheme == "Custom" or user_rhyme_scheme == "Free Verse" or user_rhyme_scheme == "Blank Verse" %}
             <template id="extra_line">
                 <div class="verse">
                     <span class="undo_btn_container badge" style="display: none;">
@@ -307,9 +319,9 @@
                 <p>Add Multiple Lines</p>
                 <div class="input-group mb-3">
                     <span class="input-group-text" id="basic-addon1">Add Lines</span>
-                    {% if user_rhyme_scheme == "Cutsom" %}
+                    {% if user_rhyme_scheme == "Custom" %}
                     <input type="text" class="form-control" id="add_lines_input" placeholder="ABAB..." aria-label="Username" aria-describedby="basic-addon1">
-                    {% elif user_rhyme_scheme == "Free Verse" %}
+                    {% elif user_rhyme_scheme == "Free Verse" or user_rhyme_scheme == "Blank Verse" %}
                     <input type="number" min="0" max="100" class="form-control" id="add_lines_input" placeholder="X Lines" aria-label="Username" aria-describedby="basic-addon1">
                     {% endif %}
                 </div>
@@ -350,11 +362,11 @@
     <div class="title">
         <span contenteditable id="title">{{title}}</span><span class="badge bg-secondary, title_symbol">Title</span>
     </div>
-    {% if ( (user_rhyme_scheme=="Free Verse") or (user_rhyme_scheme=="Haiku") ) %}
+    {% if ( (user_rhyme_scheme=="Free Verse") or (user_rhyme_scheme=="Haiku") or (user_rhyme_scheme == "Blank Verse") ) %}
         {% set count = namespace(value=0) %}
         {% for key, value in poem_lines.items() %}
             <div class="verse">
-                {% if user_rhyme_scheme == "Free Verse"%}
+                {% if user_rhyme_scheme == "Free Verse" or user_rhyme_scheme == "Blank Verse" %}
                 <span class="undo_btn_container badge" style="display: none;"><button class="undo_btn">
                     <img src="/static/icons/undo.png" class="small_icon">
                 </button></span>
@@ -367,7 +379,7 @@
             </div>
             <div class="syllables"><span class="syllables_text"></span></div>
             <div class="meter"><span class="meter_text"></span></div>
-            {% if user_rhyme_scheme == "Free Verse" %}
+            {% if user_rhyme_scheme == "Free Verse" or user_rhyme_scheme == "Blank Verse" %}
                 {% if not line_breaks %}
                     <div class="br_div"></div>
                     <button class="br_btn" id="add_br"><img src="static/icons/add-br.png" class="small_icon br_icon"></button>
@@ -456,7 +468,7 @@
     {% endif %}
 
 
-        {% if user_rhyme_scheme == "Custom" or user_rhyme_scheme == "Free Verse"%}
+        {% if user_rhyme_scheme == "Custom" or user_rhyme_scheme == "Free Verse" or user_rhyme_scheme == "Blank Verse"%}
         <template id="extra_line">
             <div class="verse">
                 <span class="undo_btn_container badge" style="display: none;">
@@ -489,9 +501,9 @@
             <p>Add Multiple Lines</p>
             <div class="input-group mb-3">
                 <span class="input-group-text" id="basic-addon1">Add Lines</span>
-                {% if user_rhyme_scheme == "Cutsom" %}
+                {% if user_rhyme_scheme == "Custom" %}
                 <input type="text" class="form-control" id="add_lines_input" placeholder="ABAB..." aria-label="Username" aria-describedby="basic-addon1">
-                {% elif user_rhyme_scheme == "Free Verse" %}
+                {% elif user_rhyme_scheme == "Free Verse" or user_rhyme_scheme == "Blank Verse" %}
                 <input type="number" min="0" max="100" class="form-control" id="add_lines_input" placeholder="X Lines" aria-label="Username" aria-describedby="basic-addon1">
                 {% endif %}
             </div>
@@ -543,8 +555,12 @@
 
 
 <!-- if rs is custom or FV -->
+{% block footer %}
 <a href="https://www.datamuse.com/api/" target="_blank">Copyright © 2022 Datamuse</a>
 <a href="https://www.flaticon.com/free-icons/warning" title="warning icons">Warning icons created by Good Ware - Flaticon</a>
+{% if user_rhyme_scheme == "Custom" or user_rhyme_scheme == "Free Verse" or user_rhyme_scheme == "Blank Verse" %}
 <a href="https://www.flaticon.com/free-icons/plus" title="plus icons">Plus, Minus icons created by Bingge Liu - Flaticon</a>
 <a href="https://www.flaticon.com/free-icons/plus" title="plus icons">Plus bulk, Undo icons created by Freepik - Flaticon</a>
 <a href="https://www.flaticon.com/free-icons/menu" title="menu icons">Add-Remove line break icons created by Icontive - Flaticon</a>
+{% endif %}
+{% endblock %}

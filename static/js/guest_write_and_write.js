@@ -76,6 +76,11 @@ search_btn.addEventListener("click", ()=>{
     })
 })
 
+let advanced_search_btn = document.getElementById("advanced_search");
+advanced_search_btn.addEventListener("click", ()=>{
+    window.open(`/Rhymes?query=${search_query.value}&search=Search&filters=rel_rhy`, "_blank");
+})
+
 //hide nav btn
 let navbar = document.getElementById("nav_div");
 toggle_nav.addEventListener("click", () => {
@@ -105,7 +110,7 @@ let arrow = document.getElementById("arrow");
 let arrow_symbol = document.getElementById("arrow_symbol")
 let btn_div = document.getElementById("btn_div")
 
-// pin btn div
+// detatch btn div
 detatch_util.addEventListener("click", () => {
     if (!detatch_util.checked) {
         btn_div.style.cssText = "position: relative;"
@@ -253,7 +258,8 @@ let check_syllables_btn = document.getElementById("display_syllable_count");
 let input = document.getElementsByClassName("line");
 let syllables = document.getElementsByClassName("syllables");
 let syllables_text = document.getElementsByClassName("syllables_text");
-check_syllables_btn.addEventListener("click", () => {
+if(check_syllables_btn){
+    check_syllables_btn.addEventListener("click", () => {
     if (check_syllables_btn.checked) {
         loading_syllables.style.display="block";
         let send_to_server_syllables = {};
@@ -312,6 +318,14 @@ check_syllables_btn.addEventListener("click", () => {
                                         syllables_text[j].style.color = "red";
                                     }
                                 }
+                                if (rs=="Shakespearean Sonnet"){
+                                    if(total_rhymes==10){
+                                        syllables[j].style.color="lime";
+                                    }
+                                    else{
+                                        syllables[j].style.color="red";
+                                    }
+                                }
                             }
                         }
                     }
@@ -331,7 +345,7 @@ check_syllables_btn.addEventListener("click", () => {
         }
     }
 })
-
+}
 
 // check meter
 let loading_meter = document.getElementById("loading_meter");
@@ -347,6 +361,7 @@ check_meter_btn.addEventListener("click", () => {
     for (let i = 0; i < input.length; i++) {
         send_to_server_meter[input.item(i).id] = input.item(i).innerText;
     }
+    console.log(send_to_server_meter)
     fetch(window.origin + "/Write", {
         method: "POST",
         headers: new Headers({

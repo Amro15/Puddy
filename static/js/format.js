@@ -23,8 +23,7 @@ save.addEventListener("click", () => {
                 return;
             }
             respone.json().then((data) => {
-                console.log(data)
-                window.location.replace(window.origin + ("/Account/Poem"))
+                window.location="/Account/Poems";
             });
         });
 

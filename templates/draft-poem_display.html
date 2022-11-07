@@ -1,6 +1,12 @@
 {% extends "layout.html" %}
 
-{% block title %} Display Poem {% endblock %}
+{% block title %} 
+    {% if session=="poem" %}
+    Display Poem 
+    {% elif session=="draft" %}
+    Display Draft
+    {% endif %}
+{% endblock %}
 
 
 {% block main%}
@@ -16,5 +22,4 @@
 {%endfor%}
 </div>
 </div>
-<script  src="/static/js/display.js"> </script>
 {% endblock %}

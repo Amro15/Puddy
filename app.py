@@ -13,7 +13,9 @@
 # from asyncio.windows_events import NULL
 # from importlib.metadata import requires
 # from logging import error
+# from asyncio import constants
 import re
+from numpy import reshape
 # import random
 # from xmlrpc import server
 # from regex import F
@@ -44,6 +46,7 @@ import os
 from flask_wtf.csrf import CSRFProtect
 from flask_paginate import Pagination
 from itsdangerous.url_safe import URLSafeSerializer
+from datetime import datetime, timedelta
 
 
 app = Flask(__name__)
@@ -134,25 +137,17 @@ def sign_in():
 @login_required
 def logout():
     logout_user()
-    # session.clear()
     return redirect(url_for("sign_in"))
 
 
 @app.route("/")
-# @login_required
 def index():
     return render_template("index.html")
-
-
-@app.route("/About")
-def about():
-    return render_template("about.html")
 
 # create poems with different preset rhyme schemes or using a custom one
 
 
 @app.route("/Create/", methods=["POST", "GET"])
-# @login_required
 def create():
     if request.method == "GET":
         # check if user has a custom background store it in session to know which to render when rendering the page from post
@@ -192,12 +187,13 @@ def create():
             if len(user_custom_rhymes)>100:
                 flash("Rhyme scheme can only be 100 letters long")
                 return redirect(url_for("create"))
+            print("BR", line_breaks)
             if not line_breaks:
                 line_breaks = 0
-            else:
-                if line_breaks and int(line_breaks)>len(user_custom_rhymes) or int(line_breaks)<0:
+            elif line_breaks and int(line_breaks)>len(user_custom_rhymes) or int(line_breaks)<0:
                     flash("Line Break Error: Line does not exist")
                     return redirect(url_for("create"))
+            print("BR after", line_breaks)
             # Transfrom user custom rhyme scheme into an array of single letters :"ABBA" => ["A","B","B","A"]
             n = 1
             split_string = [user_custom_rhymes[i:i+n]
@@ -205,22 +201,18 @@ def create():
             # Add user input to rhyme scheme class
             rhyme_scheme_class = str_to_class(user_rhyme_scheme.replace(" ", "_"))
             rhyme_scheme_class.rhymes = split_string
-            if line_breaks:
-                rhyme_scheme_class.line_break_frequency = int(line_breaks)
+            rhyme_scheme_class.line_break_frequency = int(line_breaks)
             # Keep track of how many poems user is creating and of user current rhyme scheme to check against unwanted inputs when saving
             if current_user.is_authenticated:
                 current_user.poem_count += 1
                 unsaved_poem= CurrentUnsavedPoem.query.filter_by(user_id=current_user.id).first()
                 rhymes = ",".join(rhyme_scheme_class.get_ids())
                 if unsaved_poem:
-                    print("unsaved")
                     unsaved_poem.rhymes= rhymes
                     unsaved_poem.rhyme_scheme = user_rhyme_scheme
                     print(unsaved_poem.rhymes)
-                    if not line_breaks:
-                        unsaved_poem.line_breaks = 0
-                    else:
-                        unsaved_poem.line_break = line_breaks
+                    unsaved_poem.line_break = line_breaks
+                    print("unsaved brs",unsaved_poem.line_break)
                     db.session.commit()
                 else:
                     unsaved_poems = CurrentUnsavedPoem(user_id = current_user.id, rhyme_scheme = user_rhyme_scheme ,rhymes= rhymes, current_line_breaks=line_breaks)
@@ -229,7 +221,7 @@ def create():
             return redirect(url_for("write", rs=user_rhyme_scheme))
 
         # if rhyme scheme free verse
-        if user_rhyme_scheme == "Free Verse":
+        if user_rhyme_scheme == "Free Verse" or user_rhyme_scheme == "Blank Verse":
             print("user rs", user_rhyme_scheme)
             # get user input
             lines = request.form.get("lines")
@@ -353,7 +345,10 @@ def write():
                     flash("Please Select A Rhyme Scheme From Create Before Heading To Write")
                     return redirect(url_for("create"))
                 session["rs"]=rhyme_scheme.rhyme_scheme
-                return render_template("write.html", rhyme_schemes=rhyme_scheme, user_rhyme_scheme=rhyme_scheme.rhyme_scheme, user_background=user_background,write_session = write_session)
+                return render_template("write.html", rhyme_schemes=rhyme_scheme,
+                 user_rhyme_scheme=rhyme_scheme.rhyme_scheme, user_background=user_background, write_session = write_session, 
+                 detatch_util=request.cookies.get("detatch_util"), hide_detatch_btn=request.cookies.get("hide_detatch_btn"), disable_reminder=request.cookies.get("disable_reminder"),
+                 skip_format=request.cookies.get("skip_format"))
             else:
                 user_rhyme_scheme = user_rs
                 session["rs"] = user_rhyme_scheme
@@ -401,28 +396,10 @@ def write():
                     poem_lines_obj[i.line_num] = i.line_text
                 print("poem_lines_obj",poem_lines_obj)
                 print("write br",line_breaks)
-                return render_template("write.html", user_background=user_background, user_rhyme_scheme=user_rhyme_scheme, title=title, poem_lines=poem_lines_obj, line_breaks=line_breaks, write_session=write_session)
-                
-            # elif request.args.get("draft"):
-            #     write_session = "draft"
-            #     draft = Drafts.query.filter_by(user_id=current_user.id, draft_id=request.args.get("draft")).first()
-            #     if not draft:
-            #         flash("Draft Does Not Exist")
-            #         return redirect(url_for("drafts"))
-            #     user_rhyme_scheme=draft.rhyme_scheme
-            #     session["rs"] = user_rhyme_scheme
-            #     title = draft.title
-            #     draft_lines = DraftLines.query.filter_by(draft_id=draft.draft_id).all()
-            #     return render_template("write.html", user_background=user_background, user_rhyme_scheme=draft.rhyme_scheme, title=title, poem_lines=poem_lines_obj, line_breaks=line_breaks, write_session = write_session)
-
-            # elif request.args.get("poem"):
-            #     write_session = "poem"
-            #     poem = Poems.query.filter_by(user_id=current_user.id, poem_id = request.args.get("poem")).first()
-            #     if not poem:
-            #         flash("Poem Does Not Exist")
-            #         return redirect(url_for("poems"))
-            #     poem_lines = PoemLines.query.filter_by(poem_id=poem.poem_id).all()
-            #     return render_template("write.html",user_background=user_background, user_rhyme_scheme=poem.rhyme_scheme, write_session = write_session, poem=poem, poem_lines=poem_lines)
+                return render_template("write.html", user_background=user_background, 
+                user_rhyme_scheme=user_rhyme_scheme, title=title, poem_lines=poem_lines_obj, line_breaks=line_breaks, write_session=write_session,
+                 detatch_util=request.cookies.get("detatch_util"), hide_detatch_btn=request.cookies.get("hide_detatch_btn"), disable_reminder=request.cookies.get("disable_reminder"),
+                 skip_format=request.cookies.get("skip_format"))
         else:
             return redirect(url_for("create"))
 # ===================================================================================================================================
@@ -587,6 +564,8 @@ def write():
                 print(session.get("rs", None))
                 if session.get("rs", None) == "Haiku":
                     server_response_syllables["rs"]="Haiku"
+                if session.get("rs", None) == "Shakespearean Sonnet":
+                    server_response_syllables["rs"]="Shakespearean Sonnet"
                 print("server response is: ", server_response_syllables)
                 syllables_resp = make_response((server_response_syllables), 200)
                 return syllables_resp
@@ -606,21 +585,25 @@ def write():
                 del req["title"]; del req["line_breaks"]
                 poem = CurrentUnsavedPoem.query.filter_by(user_id=current_user.id).first()
                 rhyme_check = poem.rhymes.split(",")
-                filtered_req = {}
-                for key, value in req.items():
-                    if int(key)<= len(rhyme_check)-1:
-                        filtered_req[key] = value
-                print("flt rq", filtered_req) 
+                filtered_req = []
+                ctr =0
                 # only check for rhymes user started with
+                for key, value in req.items():
+                    if ctr<(len(rhyme_check)):
+                        filtered_req.append(value)
+                    ctr+=1
                 poem.title = title
                 poem_lines = CurrentUnsavedPoemLines.query.filter_by(user_id=current_user.id)
+                # delete any current lines
                 if poem_lines.all():
                     poem_lines.delete()
                     db.session.commit()
-                    for key, value in req.items():
-                        new_poem_lines = CurrentUnsavedPoemLines(user_id = current_user.id, line_num=key.upper(), line_text=value)
-                        db.session.add(new_poem_lines)
-                        db.session.commit()
+                # replace with line num from our current unsaved rhymes and text we got in the request
+                for i, j in zip(rhyme_check, filtered_req):
+                    print(i, j)
+                    new_poem_lines = CurrentUnsavedPoemLines(user_id = current_user.id, line_num=i, line_text=j)
+                    db.session.add(new_poem_lines)
+                    db.session.commit()
                 return make_response({"response":"success"})
 
             # server request save edits =============================================================================================================
@@ -629,7 +612,7 @@ def write():
                 brs = req["line_breaks"]
                 del req["title"]; del req["line_breaks"]
                 # check if any rhymes are not alphabetical or -
-                pattern = re.compile("[a-zA-Z-]+")
+                pattern = re.compile("[a-zA-Z-]")
                 if session.get("rs", None)=="Custom":
                     for key in req:
                         if not pattern.match(str(key[0])) or not pattern.match(str(key[0])).group()==str(key[0]) or not len(key)==2:
@@ -682,13 +665,17 @@ def write():
                     global_notes = "None"
                     print("no notes")
                 del req["notes"]
-                global_initial_request = req
                 # get user poem num
-                global_poem_num = Users.query.filter_by(id=current_user.id).first().poem_count
+                if "poem_num" in req:
+                    global_poem_num = req["poem_num"]
+                    del req["poem_num"]
+                else:
+                    global_poem_num = Users.query.filter_by(id=current_user.id).first().poem_count
+                global_initial_request = req
                 print("poem num inside save is", global_poem_num)
                 # check if this is a new draft by checking if poem already has entry in db
-                existing_draft = Drafts.query.filter_by(user_id=current_user.id, poem_count=global_poem_num).all()
-                    
+                existing_draft = Drafts.query.filter_by(user_id=current_user.id, poem_count=global_poem_num).first()
+                print("DRAFT EXISTS",existing_draft.poem_count)
                 # if there are no drafts of our current poem make a new one
                 if not existing_draft :
                     print("draft doesn t exist")
@@ -697,16 +684,13 @@ def write():
                     current_unsaved_poem = CurrentUnsavedPoem.query.filter_by(user_id=current_user.id).first()
                     line_breaks = current_unsaved_poem.line_break
                     # make sure input is valid by referenicng user's initial rhyme scheme
-                    ctr=0
                     # turn into array since data is stored as (A0,B0,A1,...)
                     rhymes = current_unsaved_poem.rhymes.split(",")
                     print(rhymes)
-                    for key, value in global_initial_request.items():
-                        print(len(rhymes), rhymes[ctr], key)
-                        if (ctr>len(rhymes)) or rhymes[ctr]!=key:
+                    for key, rhyme in zip(global_initial_request, rhymes):
+                        if (len(global_initial_request)>len(rhymes)) or rhyme!=key:
                             # reject input since it means user has changed keys or added an unwanted value
                             return make_response({"response":"input was altered cannot save"})
-                        ctr+=1
                     # save draft to db
                     draft = Drafts(user_id=current_user.id,draft_count=1,poem_count=global_poem_num, rhyme_scheme=current_unsaved_poem.rhyme_scheme, rhymes=current_unsaved_poem.rhymes, title=global_title,notes=global_notes, line_break=line_breaks, save_date=datetime.now())
                     db.session.add(draft)
@@ -720,8 +704,6 @@ def write():
 
                 # if a draft exists already return to server to display modal
                 else:
-                    global_poem_num = req["poem_num"]
-                    del req["poem_num"]
                     return make_response({"response":"draft already exists"})
                     
             # make a save of the draft with the same poem number but increasing the draft number each time
@@ -733,15 +715,12 @@ def write():
                 # check for invalid input before adding new draft by refercing draft's rhymes
                 # get most recent draft
                 last_draft = Drafts.query.filter_by(user_id=current_user.id, poem_count=global_poem_num).order_by(Drafts.draft_count.desc()).first()
-                ctr=0
                 # turn rhymes into array since it is stored as (A0,B0,A1,...)
                 draft_rhymes = last_draft.rhymes.split(",")
-                for key, value in global_initial_request.items():
-                    print(key, draft_rhymes[ctr])
-                    if (ctr>len(draft_rhymes)) or draft_rhymes[ctr]!=key:
+                for key, rhyme in zip(global_initial_request, draft_rhymes):
+                    if (len(global_initial_request)>len(draft_rhymes)) or rhyme!=key:
                         # reject input since it means user has changed keys or added an unwanted value
                         return make_response({"response":"input was altered cannot save"})
-                    ctr+=1
                 #increment most recent draft count
                 draft_count = last_draft.draft_count+1
                 # insert new draft
@@ -766,15 +745,13 @@ def write():
                 else:
                     draft_to_update =  Drafts.query.filter_by(user_id=current_user.id, poem_count=global_poem_num).order_by(Drafts.draft_count.desc()).first()
                 # check for invalid input by referencing original rhymes when poem was created before updating draft
-                ctr=0
                 draft_to_update = Drafts.query.filter_by(user_id=current_user.id, draft_count=draft_to_update.draft_count, poem_count=global_poem_num).first()
                 # turn rhymes into array since it is stored as (A0,B0,A1,...)
                 rhymes = draft_to_update.rhymes.split(",")
-                for key, value in global_initial_request.items():
-                    if (ctr>len(rhymes)) or rhymes[ctr]!=key:
+                for key, rhyme in zip(global_initial_request, rhymes):
+                    if (len(global_initial_request)>len(rhymes)) or rhyme!=key:
                         # reject input since it means user has changed keys or added an unwanted value
                         return make_response({"response":"input was altered cannot save"})
-                    ctr+=1
                 # update current draft
                 draft_to_update.title = global_title
                 draft_to_update.notes = global_notes
@@ -795,24 +772,27 @@ def write():
                     poem_title = req["title"]
                     del req["title"]
                     # add saved state to draft
-                    draft= Drafts.query.filter_by(user_id=current_user.id, draft_id=req["draft_id"]).first()
+                    if req["draft_id"]==None:
+                        draft = CurrentUnsavedPoem.query.filter_by(user_id=current_user.id)
+                    else:
+                        draft= Drafts.query.filter_by(user_id=current_user.id, draft_id=req["draft_id"])
                     del req["draft_id"]
                     ctr = 0
                     # turn rhymes into array since it is stored as (A0,B0,A1,...)
-                    rhymes = draft.rhymes.split(",")
+                    rhymes = draft.first().rhymes.split(",")
                     for key, value in req.items():
                         if (ctr>len(rhymes)) or rhymes[ctr]!=key:
                             # reject input since it means user has changed keys or added an unwanted value
                             return make_response({"response":"input was altered cannot save"})
                         ctr+=1
                     # mark draft as saved
-                    draft.saved = 1
+                    draft.first().saved = 1
                     # increment user saved poem count
                     current_user.saved_poem_count += 1
                     db.session.commit() 
                     line_breaks = CurrentUnsavedPoem.query.filter_by(user_id=current_user.id).first().line_break
                     # add poem to db
-                    user_poem = Poems(user_id=current_user.id, poem_count=current_user.saved_poem_count, rhyme_scheme=draft.rhyme_scheme, title=poem_title, line_break = line_breaks, rhymes=draft.rhymes, save_date=datetime.now())
+                    user_poem = Poems(user_id=current_user.id, poem_count=current_user.saved_poem_count, rhyme_scheme=draft.first().rhyme_scheme, title=poem_title, line_break = line_breaks, rhymes=draft.first().rhymes, save_date=datetime.now())
                     db.session.add(user_poem)
                     db.session.commit()
 
@@ -821,21 +801,23 @@ def write():
                         user_poem_lines = PoemLines(poem_id=Poems.query.filter_by(user_id=current_user.id, poem_count = current_user.saved_poem_count).first().poem_id, line_num=key, line_text=value)
                         db.session.add(user_poem_lines)
                         db.session.commit()
-                    return make_response({"response":"successful"})
+                    if request.cookies.get("del_draft")=="True":
+                        draft.delete()
+                        db.session.commit()
+                    return make_response({"response":"successful", "skip_format":request.cookies.get("skip_format")})
             # does not share global initial request with other server_Requests!
             # REQUEST UPDATE POEM====================================================================================================================================================================================
             if server_request == "update poem":
-                print(req["poem_id"])
+                title = req["title"]
                 updated_poem = Poems.query.filter_by(user_id=current_user.id, poem_id=req["poem_id"]).first()
-                ctr=0
+                del req["title"]; del req["poem_id"]
                 rhymes= updated_poem.rhymes.split(",")
-                for key, value in req.items():
-                    if (ctr>len(rhymes)) or rhymes[ctr]!=key:
+                for key, rhyme in zip(req,rhymes):
+                    if (len(req)>len(rhymes)) or rhyme!=key:
                         # reject input since it means user has changed keys or added an unwanted value
                         return make_response({"response":"input was altered cannot save"})
                     ctr+=1
-                updated_poem.title = req["title"]
-                del req["title"]; del req["poem_id"]
+                updated_poem.title = title
                 updated_poem.edit_date = datetime.now()
                 for key, value in req.items():
                     updated_poem_lines = PoemLines.query.filter_by(poem_id=updated_poem.poem_id, line_num=key).first()
@@ -978,6 +960,7 @@ def search_poems():
             else:
                 url = f"https://poetrydb.org/{form.filters.data}/{query}"
             poetrydb_api_response = requests.get(url)
+            print(poetrydb_api_response)
             poetrydb_api_response = poetrydb_api_response.json()
             # if user has a min and max lincount filter modify enteries
             if (request.args.get("min_length")):
@@ -1037,36 +1020,38 @@ def search_poems_display(author, title):
 
 
 # Account dropdown
-@app.route("/Account/Customize", methods=["POST", "GET"])
+
+@app.route("/Account/Settings", methods=["POST", "GET"])
 @login_required
-def customize():
+def settings():
+    form = SettingsForm()
     if request.method == "GET":
-        return render_template("customize.html")
-    if request.method == 'POST':
-        # check if the post request has the file part
-        if 'file' not in request.files:
-            return render_template("customize.html", error_msg="No file part")
-        file = request.files['file']
-        # If the user does not select a file, the browser submits an
-        # empty file without a filename.
-        if file.filename == '':
-            return render_template("customize.html", error_msg="No file was selected")
-        if not allowed_file(file.filename):
-            return render_template("customize.html", error_msg="wrong file format")
-        if file and allowed_file(file.filename):
-            filename = secure_filename(
-                "user_background."+file.filename.rsplit('.', 1)[1].lower())
-            file.save(os.path.join(UPLOAD_FOLDER, filename))
-            # if file not jpg convert to jpg
-            if file.filename.rsplit('.', 1)[1].lower() != "jpg":
-                img = Image.open(os.path.join(UPLOAD_FOLDER, filename))
-                jpg_img = img.convert("RGB")
-                jpg_img.thumbnail((1920, 1080))
-                jpg_img.save(os.path.join(
-                    UPLOAD_FOLDER, "user_background.jpg"))
-                # delete non jpg file
-                os.remove(os.path.join(UPLOAD_FOLDER, filename))
-        return redirect("/Create")
+        print("cookies",request.cookies.get('detatch_util'))
+        # detatch_util=session.get("detatch_util",None)
+        detatch_util = request.cookies.get('detatch_util')
+        hide_detatch_btn= request.cookies.get("hide_detatch_btn")
+        disable_reminder= request.cookies.get("disable_reminder")
+        skip_format= request.cookies.get("skip_format")
+        del_draft= request.cookies.get("del_draft")
+        return render_template("settings.html", form=form, detatch_util=detatch_util, hide_detatch_btn=hide_detatch_btn, disable_reminder=disable_reminder, skip_format=skip_format, del_draft=del_draft)
+    if request.method == "POST":
+        if "Request" in request.headers and request.headers["Request"] == "change username":
+            req = request.get_json()
+            pattern = re.compile("^[A-Za-z][A-Za-z0-9_]{2,29}$")
+            username = req["request"]
+            if pattern.match(str(username)) and pattern.match(str(username)).group()==str(username):
+                current_user.username = username
+                db.session.commit()
+                return make_response({"response":"successful"})
+            else:
+                return make_response({"response":"invalid username"})
+        resp = make_response(redirect(url_for("settings")))
+        resp.set_cookie("detatch_util", value=str(form.detatch_util.data),  expires=datetime.now() + timedelta(days=365))
+        resp.set_cookie("hide_detatch_btn", value=str(form.hide_detatch_btn.data),  expires=datetime.now() + timedelta(days=365))
+        resp.set_cookie("disable_reminder", value=str(form.disable_reminder.data),  expires=datetime.now() + timedelta(days=365))
+        resp.set_cookie("skip_format", value=str(form.skip_format.data),  expires=datetime.now() + timedelta(days=365))
+        resp.set_cookie("del_draft", value=str(form.del_draft.data),  expires=datetime.now() + timedelta(days=365))
+        return resp
 
 
 @app.route("/Account/Draft", methods=["POST", "GET"])
@@ -1075,40 +1060,40 @@ def drafts():
     if request.method == "GET":
         drafts = Drafts.query.filter_by(user_id=current_user.id).order_by(Drafts.poem_count.asc()).all()
         draft_lines = DraftLines.query.all()
-        return render_template("draft.html", drafts=drafts, draft_lines=draft_lines)
+        del_draft= request.cookies.get("del_draft")
+        return render_template("drafts-poems.html", user_poems=drafts, poem_lines=draft_lines, del_draft=del_draft, session="draft")
     if request.method == "POST":
         req = request.get_json()
-        if "draft_delete" in req.keys():
-            for key, value in req.items():
-                poem_num = str(value).split(";")[0]
-                draft_num = str(value).split(";")[1]
-            draft_title = Drafts.query.filter_by(user_id=current_user.id, poem_count=poem_num, draft_count=draft_num).first().title
-            DraftLines.query.filter_by(draft_id=Drafts.query.filter_by(user_id=current_user.id, poem_count=poem_num, draft_count=draft_num).first().draft_id).delete()
-            Drafts.query.filter_by(user_id=current_user.id, poem_count=poem_num, draft_count=draft_num).delete()
+        print("req is", req)
+        if "Request" in  request.headers and request.headers["Request"]=="delete draft" :
+            draft = Drafts.query.filter_by(user_id=current_user.id, draft_id=req["draft_id"])
+            draft_num = draft.first().draft_count
+            poem_num = draft.first().poem_count
+            draft_title = draft.first().title
+            DraftLines.query.filter_by(draft_id=draft.first().draft_id).delete()
+            draft.delete()
             db.session.commit()
             return{"response":"Draft Deleted", "draft_title":draft_title, "draft_num":draft_num , "poem_num":poem_num}
 
 @app.route("/Account/Draft/Display")
 @login_required
 def display_draft():
-    draft = Drafts.query.filter_by(user_id=current_user.id, draft_id=request.args.get("did")).first()
+    draft = Drafts.query.filter_by(user_id=current_user.id, draft_id=request.args.get("pid")).first()
     draft_lines = DraftLines.query.filter_by(draft_id= draft.draft_id).all()
-    return render_template("draft_display.html", draft=draft, draft_lines=draft_lines)
+    return render_template("draft-poem_display.html", poem=draft, poem_lines=draft_lines, session="draft")
 
-@app.route("/Account/Poem", methods=["POST", "GET"])
+@app.route("/Account/Poems", methods=["POST", "GET"])
 @login_required
 def poems():
     if request.method == "GET":
         user_poems = Poems.query.filter_by(user_id=current_user.id).all()
         poem_lines = PoemLines.query.all()
-        return render_template("poem.html", user_poems=user_poems, poem_lines=poem_lines, username=current_user.username)
+        return render_template("drafts-poems.html", user_poems=user_poems, poem_lines=poem_lines, username=current_user.username, session="poem")
     if request.method == "POST":
         req=request.get_json()
         if request.headers["Request"] == "delete poem":
-            print("del poem")
             poem_id = req["poem_id"]
-            poem = Poems.query.filter_by(user_id=current_user.id, poem_count=poem_id)
-            print(poem_id)
+            poem = Poems.query.filter_by(user_id=current_user.id, poem_id=poem_id)
             poem_title = poem.first().title
             poem_num = poem.first().poem_count
             PoemLines.query.filter_by(poem_id=poem.first().poem_id).delete()
@@ -1121,5 +1106,5 @@ def poems():
 @login_required
 def display_poem():
     poem = Poems.query.filter_by(user_id=current_user.id, poem_id=request.args.get("pid")).first()
-    poem_lines = PoemLines.query.filter_by(poem_id= poem.poem_id).all()
-    return render_template("poem_display.html", poem=poem, poem_lines=poem_lines)
+    poem_lines = PoemLines.query.filter_by(poem_id=poem.poem_id).all()
+    return render_template("draft-poem_display.html", poem=poem, poem_lines=poem_lines, session="poem")

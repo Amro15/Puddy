@@ -48,9 +48,6 @@
               Puddy
             </a>
 
-            <li class="nav-item">
-              <a class="nav-link" href="/About">What is this website?</a> 
-            </li>
             <li class="nav-item" >
               <a class="nav-link" href="/Create">Create Your Own Poem</a>
             </li>
@@ -64,9 +61,9 @@
           <div class="dropdown">  
             <button id="dropdown-btn" class="button">Account</button>  
             <div id="list-items">  
-              <a href="/Account/Customize" > Customize </a>  
+              <a href="/Account/Settings" > Settings </a>  
               <a href="/Account/Draft"> My Drafts </a>  
-              <a href="/Account/Poem"> My Poems </a>  
+              <a href="/Account/Poems"> My Poems </a>  
               <a href="#" id="logout"> Log Out </a>  
             </div>  
             {% else %}
@@ -104,7 +101,9 @@
     {%block main %}{% endblock %}
     </main>
     {% if current_user.is_authenticated %}
-    <footer>foo bar baz{% block footer %}{% endblock %}</footer>
+    <footer>
+      {% block footer %}{% endblock %}
+    </footer>
     {% endif %}
     <script  src="/static/js/main.js"> </script>
     {% block script %}{% endblock %}

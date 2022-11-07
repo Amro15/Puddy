@@ -4,7 +4,7 @@
 
 {% block main%}
 <img src="/static/icons/Puddy_Logo_writing.png">
-<img src="/static/icons/Puddy_Logo_plume.png">
+<img src="/static/icons/Puddy_Logo_plume.png" style="float: right;">
 {% if current_user.is_authenticated %}
 <h1>Welcome to Puddy {{current_user.username}}!</h1>
 {% elif current_user.is_anonymous %}
@@ -14,18 +14,18 @@
     <p>Puddy is your poetry writing buddy here's everything that puddy has to offer:</p>
 <ul>
     <li>
-<p>To start creating your first poem <a href="/Create">go to create</a> choose a rhyme scheme which is explained there and get to writing!</p>
+<p>To start creating your first poem <a href="/Create">go to create</a> choose a rhyme scheme and get to writing!</p>
     </li>
     <li>
-        <p>Are you experiencing writer's block? Fear not<a>go to get inspired</a> to check out some famous poemsand get inspired!.</p>
+        <p>Are you experiencing writer's block? Fear not <a href="/SearchPoems">search for poems</a> to check out some famous poems and get inspired!</p>
     </li>
     <li>
-        <p>Can't think of rhymes for a word? <a>Go to have fun with rhymes.</a></p>
+        <p>Can't think of rhymes for a word? <a href="/Rhymes"> Search for rhymes</a> will help you with that.</p>
     </li>
     <li>
-        <p>Set the perfect writing mood! Just click on the account button and go to <a href="/Account/Customize">Customize</a> to change the background image to one of your liking!</p>
+        <p>Customize your experience and from your <a href="/Account/Settings">account settings</a>.</p>
     </li>
 </ul>
-<p>Disclaimer:</p>
+<p>Disclaimer: This is a one man project so results are not 100% accurate for rhyme checking, syllable count and meter checking used resources are shown in <a>contributors</a>.</p>
 </div>
 {% endblock %}

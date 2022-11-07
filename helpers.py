@@ -111,6 +111,7 @@ rhyme_schemes = [
                  "Triplet",
                  "Alternating Rhyme", 
                  "Encolsed Rhyme", 
+                 "Blank Verse",
                  "Free Verse",
                  "Custom",
                  "Fixed Rhyme Schemes...",
@@ -180,6 +181,7 @@ Triplet = rhyme_scheme("Triplet", ["A","A","A"], 0, 1, None, 3)
 Alternating_Rhyme = rhyme_scheme("Alternating Rhyme", ["A","B","A","B"], 0, 2,None, 4)
 Encolsed_Rhyme = rhyme_scheme("Encolsed Rhyme", ["A","B","B","A"], 0, 2, None, 4)
 Free_Verse = rhyme_scheme("Free Verse", [], None, None, None, None)
+Blank_Verse = rhyme_scheme("Blank Verse", [], None, None, None, None)
 Custom = rhyme_scheme("Custom", [], None, None, None, None)
 Shakespearean_Sonnet = rhyme_scheme("Shakespearean Sonnet", ["A","B","A","B"], 2, 2, ["G","G"], 4)
 Terza_Rima = rhyme_scheme("Terza Rima", ["A","B","A"], 3, 1, ["E","E"], 3)

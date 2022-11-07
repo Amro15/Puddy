@@ -20,7 +20,7 @@ def check_username_dup(form, username):
 class RegisterForm(FlaskForm):
     username = StringField("Username", validators=[InputRequired(message="Username Field Required"), 
                                                     Length(min=3, max=30, message="Username Must Contain 3 to 30 Characters"),
-                                                    Regexp("^[A-Za-z][A-Za-z0-9_]{2,29}$", message="Username can only contain letter numbers and underscores and must start with a letter"),
+                                                    Regexp("^[A-Za-z][A-Za-z0-9_]{2,29}$", message="Username must start with a letter and can only contain letter numbers and underscores"),
                                                     check_username_dup])
                                                     
     password = PasswordField("Password", validators=[InputRequired(message="Password Field Required"),
@@ -63,3 +63,10 @@ class RhymesForm(FlaskForm):
     query = StringField("query")
     filters = SelectField("filter", choices=[("rel_rhy","Search For Rhymes"),("rel_syn","Search For Synonyms"),("rel_ant","Search For Antonyms")])
     search = SubmitField()
+
+class SettingsForm(FlaskForm):
+    detatch_util = BooleanField()
+    hide_detatch_btn = BooleanField()
+    disable_reminder = BooleanField()
+    skip_format = BooleanField()
+    del_draft = BooleanField()

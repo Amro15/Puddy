@@ -26,6 +26,17 @@ footer{
   background-color: rgba(var(--bs-dark-rgb),var(--bs-bg-opacity))!important;
   color: white;
 }
+textarea{
+  resize: none!important;
+}
+#feedback_div{
+  display: inline-block;
+}
+#submit_feedback{
+  width: 125px;
+  height: 35px;
+  margin-top: 5px;
+}
 h1{
   text-align: center;
   background-color: rgba(105, 113, 132, 0.8);
@@ -219,8 +230,8 @@ background-color: rgb(143, 143, 143) ;
   background-color: rgb(105, 113, 132);
   width: 135px;
 }
-.form-switch .form-check-input{
-  margin-left:35px !important ;
+.util_btn_div .util_btn{
+  margin-left:30px !important ;
 
 }
 .form-check label{
@@ -455,7 +466,7 @@ span[contenteditable]:not(.rhyme_symbols):empty::before {
   display: none;
   padding: 10px;
 }
-#create_btn_div{
+#create_btn_div, #meter_plus{
   text-align: center;
 }
 
@@ -530,7 +541,7 @@ span[contenteditable]:not(.rhyme_symbols):empty::before {
   margin: 10px;
 }
 
-#no_data_syllables,#no_data_rhymes, #msg_container, #edit_mode_errors{
+#no_data_syllables,#no_data_rhymes, #msg_container, #edit_mode_errors, #meter_plus{
   display: none;
 }
 
@@ -702,21 +713,13 @@ span[contenteditable]:not(.rhyme_symbols):empty::before {
 .flex-item {
   background: rgba(105, 113, 132, 0.8);
   padding: 5px;
-  min-width: 30%;
-  min-height: 310px;
   margin-top: 10px;
   width: 30%;
-  flex-basis:content;
   color: white;
   font-size: 17px;
   text-align: center;
 }
-.draft_title, .poem_title{
-  word-break: break-word;
-  font-size: 30px;
-  text-decoration: underline;
-  font-weight: bold;
-}
+
 #select_draft_div{
   background-color: rgba(230, 207, 207, 0.2);
   width: 50%;
@@ -761,7 +764,7 @@ span[contenteditable]:not(.rhyme_symbols):empty::before {
 }
 #poem, .display_poem{
   font-size: 20px;
-  background-color: rgba(105, 113, 132, 0.8);
+  background-color: slategray;
   text-align: left;
   word-wrap: break-word;
   max-width: 700px;
@@ -778,10 +781,14 @@ span[contenteditable]:not(.rhyme_symbols):empty::before {
   text-align: center;
 }
 
-.poem_title{
+.poem_title, .draft_title{
   font-size: 35px;
   font-weight: bold;
   margin-bottom: 0px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-decoration: underline;
 }
 .poem_author{
   font-size: inherit;
@@ -920,3 +927,42 @@ hr{
   min-width: 240px;
 }
 /* ========================================================================================= */
+#settings_username_div{
+  text-align: center;
+  color: white;
+  font-weight: bolder;
+  margin: 10px 0px 10px;
+}
+#settings_username_read{
+  display: inline-block;
+}
+#settings_username, #settings_username_reqs, #cancel_btn, #username_error, #change_username_btn{
+  display: none;
+}
+#settings_username_reqs{
+  color: red;
+}
+#settings_btns_div{
+  margin: 0px 0px 10px 5px;
+}
+.settings_btns{
+  margin: 10px 0px 10px;
+  height: 40px;
+}
+@media only screen and (max-width: 695px){
+  .settings_btns {
+    display: block;
+  }
+}
+#settings_switches_div{
+  margin-left: 5px;
+  font-size: 17px;
+}
+.settings_switches{
+  margin: 10px 0px 10px;
+}
+#shortcuts{
+  color: white;
+  display: none;
+  font-weight: bold;
+}

@@ -1,3 +1,4 @@
+let flex_container = document.getElementsByClassName("flex-item");
 let show_poem = document.getElementsByClassName("show_poem");
 let poem_div = document.getElementsByClassName("poem_container");
 let arrow_btn = document.getElementsByClassName("arrow_icon");
@@ -7,15 +8,18 @@ for(let i =0; i<show_poem.length; i++){
       if(ctr==0){
          console.log("poem_div", poem_div[i])
          poem_div[i].style.display = "block";
+         flex_container[i].style.cssText = "flex-basis:100%";
          arrow_btn[i].setAttribute("src", "/static/icons/up-arrow.png");
       }
       else{
          if(poem_div[i].style.display=="block"){
             poem_div[i].style.display="none";
+            flex_container[i].style.cssText = "flex-basis:";
             arrow_btn[i].setAttribute("src", "/static/icons/down-arrow.png");
          }
          else{
             poem_div[i].style.display="block";
+            flex_container[i].style.cssText = "flex-basis:100%";
             arrow_btn[i].setAttribute("src", "/static/icons/up-arrow.png");
          }
       }
@@ -37,7 +41,7 @@ let delete_poem = document.getElementsByClassName("delete_poem");
             }
             poem_modal.hide();
             let send_to_server_poem_delete = {"poem_id":document.getElementsByClassName("poem count")[i].getAttribute("value")}
-      fetch(window.origin+"/Account/Poem",{
+      fetch(window.origin+"/Account/Poems",{
          method:"POST",
             headers: new Headers({
                "X-CSRFToken":document.getElementsByName("csrf_token")[0].value,
@@ -56,10 +60,10 @@ let delete_poem = document.getElementsByClassName("delete_poem");
          respone.json().then((data)=>{
             if (data["response"] === "successful"){
                for (let i=0; i<selectobject.length; i++) {
-                  if (selectobject.options[i].value == `#${data["poem_title"]}/${data["poem_num"]}`)
+                  if (selectobject.options[i].id == send_to_server_poem_delete["poem_id"])
                      selectobject.remove(i);
                }
-               document.getElementById(data["poem_title"]+"/"+data["poem_num"]).style.cssText = "position: absolute; visibility: hidden";
+               document.getElementsByName(send_to_server_poem_delete["poem_id"])[0].style.display = "none";
                if(selectobject.length==1){
                   window.location.reload();
                }
@@ -71,7 +75,7 @@ let delete_poem = document.getElementsByClassName("delete_poem");
 // if cookie hide draft  == true delete poem without warning
 else{
    let send_to_server_poem_delete = {"poem_id":document.getElementsByClassName("poem count")[i].getAttribute("value")}
-   fetch(window.origin+"/Account/Poem",{
+   fetch(window.origin+"/Account/Poems",{
       method:"POST",
          headers: new Headers({
             "X-CSRFToken":document.getElementsByName("csrf_token")[0].value,
@@ -90,10 +94,11 @@ else{
       respone.json().then((data)=>{
          if (data["response"] === "successful"){
             for (let i=0; i<selectobject.length; i++) {
-               if (selectobject.options[i].value == `#${data["poem_title"]}/${data["poem_num"]}`)
+               console.log(selectobject.options[i].id)
+               if (selectobject.options[i].id == send_to_server_poem_delete["poem_id"])
                   selectobject.remove(i);
             }
-            document.getElementById(data["poem_title"]+"/"+data["poem_num"]).style.cssText = "position: absolute; visibility: hidden";
+            document.getElementsByName(send_to_server_poem_delete["poem_id"])[0].style.display = "none";
             if(selectobject.length==1){
                window.location.reload();
             }

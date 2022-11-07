@@ -11,7 +11,6 @@
 {% block title %} Create {% endblock %}
 
 {% block main %}
-<h1>Create</h1>
 {% if current_user.is_anonymous %}
 <div class="visible_warning">
   <img src="/static/icons/warning.png" id="warning_icon">
@@ -28,7 +27,7 @@
       {% for i in rhyme_schemes %}
         {% if i == "Fixed Rhyme Schemes..."%}
           <option value="{{i}}" id="{{i}}" disabled>{{i}}</option>
-        {% elif i=="Custom" or i=="Free Verse" %}
+        {% elif i=="Custom" or i=="Free Verse" or i=="Blank Verse" %}
           {% if not current_user.is_authenticated %}
           <option value="{{i}}" id="{{i}}" disabled>{{i}}</option>
           {% else%}
@@ -84,5 +83,8 @@
 <script src="/static/js/create.js"> </script>
 {% endblock %}
 
-<!-- if not authen -->
+{% if not current_user.isauthenticated %}
+{% block footer %}
 <a href="https://www.flaticon.com/free-icons/warning" title="warning icons">Warning icons created by Good Ware - Flaticon</a>
+{% endblock %}
+{% endif %}
