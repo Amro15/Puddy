@@ -87,6 +87,7 @@ aria-hidden="true">
     </select>
 </div>
 <ul class="flex-container">
+{% set count = namespace(value=0) %}
 {% for i in user_poems %}
     {% if session=="draft" %}
     <li class = "flex-item" id="{{i.title}}/{{i.poem_count}}/{{i.draft_count}}" name="{{i.draft_id}}">
@@ -119,11 +120,11 @@ aria-hidden="true">
 <p>Edit Date : {{i.edit_date.strftime("%d-%b-%Y at %I:%M%p")}}</p>
 {% endif %}
 {% if session=="poem" %}
-<button class="icon_btn" name="container{{i.title}}/{{i.poem_count}}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Full Page Display"><img src="/static/icons/display.png" class="icon" alt="display" id="{{i.title}}/{{i.poem_count}}" onclick="window.location='/Account/Poem/Display?pid={{i.poem_id}}'"></button>
+<button class="icon_btn" name="container{{i.title}}/{{i.poem_count}}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Full Display"><img src="/static/icons/display.png" class="icon" alt="display" id="{{i.title}}/{{i.poem_count}}" onclick="window.location='/Account/Poem/Display?pid={{i.poem_id}}'"></button>
 {% elif session=="draft" %}
-<button class="icon_btn" name="container{{i.title}}/{{i.poem_count}}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Full Page Display"><img src="/static/icons/display.png" class="icon" alt="display" id="{{i.title}}/{{i.poem_count}}" onclick="window.location='/Account/Draft/Display?pid={{i.draft_id}}'"></button>
+<button class="icon_btn" name="container{{i.title}}/{{i.poem_count}}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Full Display"><img src="/static/icons/display.png" class="icon" alt="display" id="{{i.title}}/{{i.poem_count}}" onclick="window.location='/Account/Draft/Display?pid={{i.draft_id}}'"></button>
 {% endif %}
-<button class="icon_btn show_poem" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Display On Page"><img src="/static/icons/down-arrow.png" class="icon arrow_icon"></button>
+<button class="icon_btn show_poem" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Quick Display"><img src="/static/icons/down-arrow.png" class="icon arrow_icon"></button>
 {% if session=="poem" %}
 <button class="icon_btn" onclick="window.location='/Write?poem={{i.poem_id}}'" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Edit"><img src="/static/icons/edit.png" class="icon" alt="resume"></button>
 <button class="icon_btn delete_poem" name="{{i.poem_id}}" value="delete" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Delete"><img src="/static/icons/delete.png" class="icon" alt="delete"></button>
@@ -135,14 +136,12 @@ aria-hidden="true">
          <div class ="display_poem">
          <p class="poem_title" >{{i.title}}</p>
          <p class="poem_author">By {{username}}</p>
+    {% set count.value = 0 %}
      {%for j in poem_lines%}
+     {{count.value}}
      {% if j.poem_id == i.poem_id%}
      <p class="poem_lines" >{{j.line_text}}</p>
-         {% if i.line_break and ((loop.index%i.line_break) == 0)%}
-         <br>
-         {%endif%}
-         {% endif %}
-         {%endfor%}
+    {%endfor%}
         </div>
     </div>
 </li>

@@ -16,9 +16,15 @@
     <p class="poem_author">By {{current_user.username}}</p>
 {%for i in poem_lines %}
 <p class="display_poem_line">{{i.line_text}}</p>
-    {% if poem.line_break and ((loop.index % poem.line_break) == 0)%}
+{% if poem.rhyme_scheme == "Custom" or poem.rhyme_scheme == "Free Verse" or poem.rhyme_scheme == "Blank Verse" %}
+    {% if poem.line_break and ((loop.index-1)|string) in poem.line_break %}
+        <br>
+    {%endif%}
+{% else %}
+    {% if poem.line_break and ((loop.index % (poem.line_break|int)) == 0)%}
     <br>
     {%endif%}
+{%endif%}
 {%endfor%}
 </div>
 </div>

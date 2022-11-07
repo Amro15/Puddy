@@ -98,12 +98,9 @@ if (save_draft) {
                         else if (data["response"] == "successful") {
                             success_msg.innerText = "Draft succesfully saved";
                             success_msg_div.style.cssText = "display:block";
-                            setTimeout(() => {
-                                if (!urlParams.has("draft_id")) {
-                                    window.location = `/Write?draft=${data["draft_id"]}&dnum=${data["draft_num"]}&pnum=${data["poem_num"]}`
-                                }
-                            }, 2500);
-
+                            if (!urlParams.has("draft_id")) {
+                                window.location = `/Write?draft=${data["draft_id"]}&dnum=${data["draft_num"]}&pnum=${data["poem_num"]}`
+                            }
                         }
                     });
                 });

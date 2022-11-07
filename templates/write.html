@@ -173,7 +173,7 @@
     <ul>
         <li>Seperates Words Into Syllables</li>
         <li>Identify <b>STRESSED</b> And <b>unstressed</b> Syllables</li>
-        <li><a>More About Meter...</a></li>
+        <li><a href="/Meter" target="_blank">More About Meter...</a></li>
     </ul>
 </div>
 <div id="search_results" class="info_div">
@@ -459,7 +459,7 @@
                 {% endif %}
             {% endif %}
         {% else %}
-            {% if line_breaks and (loop.index % (line_breaks| int)) == 0 %}
+            {% if line_breaks!=[""] and (loop.index % (line_breaks| int)) == 0 %}
                 <br>
             {% endif %}
             {% endif %}

@@ -1,48 +1,10 @@
-# from asyncio import constants
-# from cgi import print_form
-# from distutils.log import error
-# from doctest import TestResults
-# import email
-# from email.mime import image
-# from errno import EROFS
-# from fileinput import filename
-# import imp
-# from operator import indexOf
-# from optparse import SUPPRESS_USAGE
-# from pickle import NONE
-# from asyncio.windows_events import NULL
-# from importlib.metadata import requires
-# from logging import error
-# from asyncio import constants
 import re
-from numpy import reshape
-# import random
-# from xmlrpc import server
-# from regex import F
 import requests
-# import urllib.parse
-# from sre_parse import SPECIAL_CHARS
-# from traceback import print_tb
-# from types import MethodDescriptorType
-# from urllib import response
-# import uuid
-# from winreg import REG_QWORD, QueryReflectionKey
-# from wsgiref.simple_server import server_version
-# from xml.sax.handler import all_properties
 from flask import Flask, redirect, render_template, request, session, make_response, url_for, flash
 from flask_session import Session
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
-# from sqlalchemy import false, true
-# from sqlalchemy import true
 from werkzeug.security import generate_password_hash
-from werkzeug.utils import secure_filename
-from PIL import Image
-# import sqlite3
 import os
-# import urllib.request
-# import json
-# import time
-# import pandas as pd
 from flask_wtf.csrf import CSRFProtect
 from flask_paginate import Pagination
 from itsdangerous.url_safe import URLSafeSerializer
@@ -215,7 +177,7 @@ def create():
                     print("unsaved brs",unsaved_poem.line_break)
                     db.session.commit()
                 else:
-                    unsaved_poems = CurrentUnsavedPoem(user_id = current_user.id, rhyme_scheme = user_rhyme_scheme ,rhymes= rhymes, current_line_breaks=line_breaks)
+                    unsaved_poems = CurrentUnsavedPoem(user_id = current_user.id, rhyme_scheme = user_rhyme_scheme ,rhymes= rhymes, line_break=line_breaks)
                     db.session.add(unsaved_poems)
                     db.session.commit()
             return redirect(url_for("write", rs=user_rhyme_scheme))
@@ -826,6 +788,10 @@ def write():
                 return make_response({"response":"successful"}, 200)
 
 
+@app.route("/Meter")
+def meter():
+    return render_template("meter.html")
+
 @app.route("/Format", methods=["POST", "GET"])
 @login_required
 def format():
@@ -1088,6 +1054,7 @@ def poems():
     if request.method == "GET":
         user_poems = Poems.query.filter_by(user_id=current_user.id).all()
         poem_lines = PoemLines.query.all()
+        print(user_poems[1].line_break)
         return render_template("drafts-poems.html", user_poems=user_poems, poem_lines=poem_lines, username=current_user.username, session="poem")
     if request.method == "POST":
         req=request.get_json()

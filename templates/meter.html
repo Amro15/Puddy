@@ -1,0 +1,73 @@
+{% extends "layout.html" %}
+
+{% block title %} More About Meter {% endblock %}
+
+{% block head %}
+<style>
+    body {
+        background-image: url("/static/get_inspired_background.jpg") !important;
+    }
+    main{
+        color:white;
+    }
+</style>
+{% endblock %}
+
+{% block main %}
+<h3>Meter is the rhythmic structure of a line composed of the number of syllables and their repeating pattern.</h3>
+<div class="input-group mb-3">
+    <select class="form-select" aria-label=".form-select-lg example" id="meter_foot_type">
+        <option>Foot Type</option>
+        <option value="trochaic">Trochaic</option>
+        <option value="iambic">Imabic</option>
+        <option value="spondaic">Spondaic</option>
+        <option value="dactylic">Dactylic</option>
+        <option value="anapestic">Anapestic</option>
+    </select>
+    <select class="form-select" id="meter_foot_amount">
+        <option>Foot Amount</option>
+        <option value="1">Mono</option>
+        <option value="2">Di</option>
+        <option value="3">Tri</option>
+        <option value="4">Tetra</option>
+        <option value="5">Penta</option>
+        <option value="6">Hexa</option>
+        <option value="7">Hepta</option>
+        <option value="8">Octa</option>
+    </select>
+    <label class="input-group-text" for="meter_foot_amount">meter</label>
+</div>
+<p>Example(one foot):</p>
+<div id="meter_example">
+</div>
+<div id="all_meter_descritpion">
+    <p>The foot's type is determined by the repeating pattern of syllables (STRESSED or unstressed):</p>
+    <ul>
+        <li>Trochaic: STRESSED-unstressed</li>
+        <li>Iambic: unstressed-STRESSED</li>
+        <li>Spondaic: STRESSED-STRESSED </li>
+        <li>Dactylic: STRESSED-unstressed-unstressed</li>
+        <li>Anapestic: unstressed-unstressed-STRESSED</li>
+    </ul>
+    <p>The foot's repition amount is quite simple it is the word "meter" preceeded by how many time the syllable pattern is repeated using greek suffixes:</p>
+    <ol>
+        <li><b>Mono</b>meter</li>
+        <li><b>Di</b>meter</li>
+        <li><b>Tri</b>meter</li>
+        <li><b>Tetra</b>meter</li>
+        <li><b>Penta</b>meter</li>
+        <li><b>Hexa</b>meter</li>
+        <li><b>Hepta</b>meter</li>
+        <li><b>Octa</b>meter</li>
+    </ol>
+</div>
+<button class="info_btn" onclick="window.location='https:\/\/www.masterclass.com/articles/poetry-101-what-is-meter-learn-the-difference-between-qualitative-and-quantitative-meter-in-poetry-with-examples#IJphWatabIIJrZoygpE7g'">Read More About Meter</button>
+{% endblock %}
+
+{% block script %}
+<script src="/static/js/meter.js"></script>
+{% endblock %}
+
+{% block footer %}
+info from <a href="https://www.masterclass.com/articles/poetry-101-what-is-meter-learn-the-difference-between-qualitative-and-quantitative-meter-in-poetry-with-examples#IJphWatabIIJrZoygpE7g">this article</a>
+{% endblock %}

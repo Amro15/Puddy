@@ -1,3 +1,4 @@
+// LINES SHORTCUTS
 let lines = document.getElementsByClassName("line");
 for(let i =0; i<lines.length; i++){
     lines[i].addEventListener("keydown",(event)=>{
@@ -15,6 +16,23 @@ for(let i =0; i<lines.length; i++){
         }
         });
 }
+
+// SHORTCUTS
+document.addEventListener("keydown", (event)=>{
+    if(event.altKey && event.key=="n"){
+        document.getElementById("toggle_note").click();
+    }
+    if(event.altKey && event.key=="r"){
+        check_rhyme_btn.click();
+    }
+    if(event.altKey && event.key=="s"){
+        check_syllables_btn.click();
+    }
+    if(event.altKey && event.key=="m"){
+        check_meter_btn.click()
+    }
+})
+
 // quick search for rhymes
 let search_btn = document.getElementById("quick_search_rhymes_btn");
 let search_query = document.getElementById("quick_search");

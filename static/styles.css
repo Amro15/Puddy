@@ -966,3 +966,8 @@ hr{
   display: none;
   font-weight: bold;
 }
+
+.meter_select{
+  width: 49%!important;
+  display: inline-block!important;
+}
