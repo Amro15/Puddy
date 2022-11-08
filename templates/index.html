@@ -22,9 +22,11 @@
     <li>
         <p>Can't think of rhymes for a word? <a href="/Rhymes"> Search for rhymes</a> will help you with that.</p>
     </li>
+    {% if current_user.is_authenticated %}
     <li>
         <p>Customize your experience and from your <a href="/Account/Settings">account settings</a>.</p>
     </li>
+    {% endif %}
 </ul>
 <p>Disclaimer: This is a one man project so results are not 100% accurate for rhyme checking, syllable count and meter checking used resources are shown in <a>contributors</a>.</p>
 </div>

@@ -44,7 +44,6 @@
 {% else %}
 <div id="btn_div">
 {% endif %}
-    {% if not user_rhyme_scheme == "Haiku" or not user_rhyme_scheme == "Free Verse" %}
     <input type="text" class="form-control" id="quick_search" placeholder="Quick Search For Rhymes">
     <button type="button" class="button" id="quick_search_rhymes_btn">
         <img src="/static/icons/search.png" id="search_icon">
@@ -52,7 +51,6 @@
     <div id="loading_quick_search" class="text-center loading">
         <div class="spinner-border" style="width: 2rem; height: 2rem;" role="status"></div>
     </div>
-    {% endif %}
     {% if hide_detatch_btn=="True" %}
     <div class="form-check form-switch util_btn_div form-check-reverse switch_div" style="display: none;">
     {% else %}
@@ -101,11 +99,19 @@
             </div>
         </div>
     </div>
-    <div class="form-check form-switch util_btn_div form-check-reverse switch_div">
+    <!-- <div class="form-check form-switch util_btn_div form-check-reverse switch_div">
             <input class="form-check-input util_btn" id="check_meter" name="switch" value="check_meter" type="checkbox">
             <label class="form-check-label" for="check_meter">Display Meter</label>
             <button onclick="show_div('#meter_info_div','inline-block')" class="info_btn">?</button>
     </div>
+    <div>
+        <p id="no_data_meter">
+        <p>
+    </div>
+    <div id="loading_meter" class="text-center loading">
+        <div class="spinner-border" style="width: 2rem; height: 2rem;" role="status">
+        </div>
+    </div> -->
     </div>
     {% if user_rhyme_scheme == "Custom" or user_rhyme_scheme == "Free Verse" or user_rhyme_scheme == "Blank Verse" %}
         {% if user_rhyme_scheme == "Free Verse" or user_rhyme_scheme == "Blank Verse" %}
@@ -133,14 +139,6 @@
         <div id="edit_mode_errors">There must only be one letter or - (dash symbol) per rhyme square </div>
     </div>
     {% endif %}
-    <div>
-        <p id="no_data_meter">
-        <p>
-    </div>
-    <div id="loading_meter" class="text-center loading">
-        <div class="spinner-border" style="width: 2rem; height: 2rem;" role="status">
-        </div>
-    </div>
 </div>
 {% if detatch_util=="True" %}
 <button class="button" id="arrow" style="position: fixed; right:245px;"><i class="arrow right" id="arrow_symbol" ></i></button>
@@ -167,7 +165,7 @@
 </div>
 {% endif %}
 
-<div id="meter_info_div" class="info_div">
+<!-- <div id="meter_info_div" class="info_div">
     <button onclick="hide_div('#meter_info_div')" class="close_btn">x</button>
     Display Meter:
     <ul>
@@ -175,7 +173,7 @@
         <li>Identify <b>STRESSED</b> And <b>unstressed</b> Syllables</li>
         <li><a href="/Meter" target="_blank">More About Meter...</a></li>
     </ul>
-</div>
+</div> -->
 <div id="search_results" class="info_div">
     <button onclick="hide_div('#search_results')" class="close_btn">x</button>
     <ul id="search_results_list"></ul>

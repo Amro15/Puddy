@@ -119,7 +119,7 @@ def create():
         else:
             user_background = "/static/create_write_background.jpg"
             session["user background"] = user_background
-        if CurrentUnsavedPoem.query.filter_by(user_id=current_user.id).first():
+        if current_user.is_authenticated and CurrentUnsavedPoem.query.filter_by(user_id=current_user.id).first():
             recent_poem = True
         else:
             recent_poem = False
