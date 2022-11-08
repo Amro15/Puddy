@@ -8,15 +8,15 @@ import re
 from flask import request #,session, g,redirect,
 # from functools import wraps
 from app import app
-import prosodic as p
+# import prosodic as p
 
-def check_meter(sentence):
-    temp = []
-    text = p.Text(sentence)
-    text.parse()
-    for parse in text.bestParses():
-        temp.append(parse)
-    return temp
+# def check_meter(sentence):
+#     temp = []
+#     text = p.Text(sentence)
+#     text.parse()
+#     for parse in text.bestParses():
+#         temp.append(parse)
+#     return temp
 
 def is_safe_url(target):
     ref_url = urlparse(request.host_url)

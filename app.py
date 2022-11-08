@@ -535,9 +535,9 @@ def write():
             # server_request METER ===================================================================================================================
             if server_request == "check meter":
                 server_meter_response = {}
-                for key, value in req.items():
-                    server_meter_response[key]=str(check_meter(value))
-                print(server_meter_response)
+                # for key, value in req.items():
+                #     server_meter_response[key]=str(check_meter(value))
+                # print(server_meter_response)
                 return make_response(server_meter_response, 200)
             
             #server request undo edits =================================================================================================================================
