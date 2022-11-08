@@ -949,19 +949,32 @@ def search_poems():
             # if user wants to sort results sort accordingly
             if(request.args.get("sort_by")):
                 form.sort_by.data = request.args.get("sort_by") 
-                match request.args.get("sort_by"):
-                    case "shortest":
-                        poetrydb_api_response.sort(key=lambda i: int(i["linecount"]))
-                    case "longest":
-                        poetrydb_api_response.sort(key=lambda i: int(i["linecount"]), reverse=True)
-                    case "author":
-                        poetrydb_api_response.sort(key=lambda i: i["author"])
-                    case "author_reverse":
-                        poetrydb_api_response.sort(key=lambda i: i["author"], reverse=True)
-                    case "title":
-                        poetrydb_api_response.sort(key=lambda i: i["title"])
-                    case "title_reverse":
-                        poetrydb_api_response.sort(key=lambda i: i["title"], reverse=True)
+                if request.agrs.get("sort_by") == "shortest":
+                    poetrydb_api_response.sort(key=lambda i: int(i["linecount"]))
+                elif request.agrs.get("sort_by") == "longest": 
+                    poetrydb_api_response.sort(key=lambda i: int(i["linecount"]), reverse=True)
+                elif request.agrs.get("sort_by") == "author": 
+                    poetrydb_api_response.sort(key=lambda i: i["author"])
+                elif request.agrs.get("sort_by") == "author_reverse": 
+                    poetrydb_api_response.sort(key=lambda i: i["author"], reverse=True)
+                elif request.agrs.get("sort_by") == "title": 
+                    poetrydb_api_response.sort(key=lambda i: i["title"])
+                elif request.agrs.get("sort_by") == "title_reverse": 
+                    poetrydb_api_response.sort(key=lambda i: i["title"], reverse=True)
+
+                # match request.args.get("sort_by"):
+                #     case "shortest":
+                #         poetrydb_api_response.sort(key=lambda i: int(i["linecount"]))
+                #     case "longest":
+                #         poetrydb_api_response.sort(key=lambda i: int(i["linecount"]), reverse=True)
+                #     case "author":
+                #         poetrydb_api_response.sort(key=lambda i: i["author"])
+                #     case "author_reverse":
+                #         poetrydb_api_response.sort(key=lambda i: i["author"], reverse=True)
+                #     case "title":
+                #         poetrydb_api_response.sort(key=lambda i: i["title"])
+                #     case "title_reverse":
+                #         poetrydb_api_response.sort(key=lambda i: i["title"], reverse=True)
             # if no results match user's search
             if "status" in poetrydb_api_response and poetrydb_api_response["status"]== 404:
                 return render_template("search_poems.html", form=form, not_found="There are no results that match your search check your spelling or try again")
