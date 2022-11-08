@@ -877,18 +877,28 @@ def rhymes_def():
         return render_template("rhymes_def.html", no_results=f'"{word}" has no known definitions in our dictionary')
     def_obj = {"Noun":[],"Verb":[],"Adjective":[],"Adverb":[],"Undefined":[]}
     for i in definition:
-        match i[0]:
-            case "n":
-                def_obj["Noun"].append(i[1:])
-            case "v":
-                def_obj["Verb"].append(i[1:])
-            case "u":
-                def_obj["Unidentified"].append(i[1:])
-        match i[0:3]:
-            case "adj":
-                def_obj["Adjective"].append(i[3:])
-            case "adv":
-                def_obj["Adverb"].append(i[3:])
+        if i[0]=="n":
+            def_obj["Noun"].append(i[1:])
+        elif i[0] == "v":
+            def_obj["Verb"].append(i[1:])
+        elif i[0] == "u":
+            def_obj["Unidentified"].append(i[1:])
+        elif i[0:3]== "adj":
+            def_obj["Adjective"].append(i[3:])
+        elif i[0:3] == "adv":
+            def_obj["Adverb"].append(i[3:])
+        # match i[0]:
+        #     case "n":
+        #         def_obj["Noun"].append(i[1:])
+        #     case "v":
+        #         def_obj["Verb"].append(i[1:])
+        #     case "u":
+        #         def_obj["Unidentified"].append(i[1:])
+        # match i[0:3]:
+        #     case "adj":
+        #         def_obj["Adjective"].append(i[3:])
+        #     case "adv":
+        #         def_obj["Adverb"].append(i[3:])
     print(def_obj)
 
     return render_template("rhymes_def.html",definition=def_obj, word=word)
