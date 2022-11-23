@@ -52,7 +52,7 @@ search_btn.addEventListener("click", () => {
     fetch(`https://api.datamuse.com/words?rel_rhy=${search_query.value}`)
         .then((response) => {
             if (response.status != 200) {
-                console.log("Could Not Get Rhymes From Api");
+                // console.log("Could Not Get Rhymes From Api");
             }
             return response.json();
         })
@@ -177,10 +177,10 @@ if (check_rhyme_btn) {
             loading_rhymes.style.display = "block";
             let send_to_server_rhymes = {};
             let input = document.getElementsByClassName("line");
-            console.log(input.length)
+            // console.log(input.length)
             for (let i = 0; i < input.length; i++) {
-                console.log(input.item(i).innerText);
-                console.log(i);
+                // console.log(input.item(i).innerText);
+                // console.log(i);
                 if (send_to_server_rhymes.hasOwnProperty(input.item(i).getAttribute("name"))) {
                     send_to_server_rhymes[input.item(i).getAttribute("name")].push(input.item(i).innerText);
                 }
@@ -188,7 +188,7 @@ if (check_rhyme_btn) {
                     send_to_server_rhymes[input.item(i).getAttribute("name")] = [input.item(i).innerText];
                 }
             }
-            console.log(send_to_server_rhymes)
+            // console.log(send_to_server_rhymes)
 
             //send data to server if btn is checked
 
@@ -204,12 +204,12 @@ if (check_rhyme_btn) {
             })
                 .then((respone) => {
                     if (respone.status !== 200) {
-                        console.log("request status for rhyme is " + respone.status, respone.statusText, "response.json " + respone.json());
+                        // console.log("request status for rhyme is " + respone.status, respone.statusText, "response.json " + respone.json());
                         return;
                     }
                     respone.json().then((data) => {
                         loading_rhymes.style.display = "none";
-                        console.log("this is the workable with data", data)
+                        // console.log("this is the workable with data", data)
                         // check if user is trying to detect rhymes of empty lines
                         let no_data_rhymes = document.getElementById("no_data_rhymes");
                         let obj_len = 0;
@@ -222,7 +222,7 @@ if (check_rhyme_btn) {
                         // change element color corresponding to the returned object's key
                         if (data["red"]) {
                             for (let i in data["red"]) {
-                                console.log("data is red")
+                                // console.log("data is red")
                                 let rhyme_symbol = document.getElementById("symbol" + data["red"][i]);
                                 if (check_rhyme_btn.checked) {
                                     rhyme_symbol.style.backgroundColor = "red";
@@ -231,23 +231,23 @@ if (check_rhyme_btn) {
                         };
                         if (data["green"]) {
                             for (let i in data["green"]) {
-                                console.log("data is green")
-                                console.log("symbol" + data["green"][i])
+                                // console.log("data is green")
+                                // console.log("symbol" + data["green"][i])
                                 let rhyme_symbol = document.getElementById("symbol" + data["green"][i]);
-                                console.log(rhyme_symbol)
+                                // console.log(rhyme_symbol)
                                 rhyme_symbol.style.backgroundColor = "green";
                             };
                         };
                         if (data["yellow"]) {
                             for (let i in data["yellow"]) {
-                                console.log("data is yellow")
+                                // console.log("data is yellow")
                                 let rhyme_symbol = document.getElementById("symbol" + data["yellow"][i]);
                                 rhyme_symbol.style.backgroundColor = "yellow";
                             };
                         };
                         if (data["blue"]) {
                             for (let i in data["blue"]) {
-                                console.log("data is blue")
+                                // console.log("data is blue")
                                 let rhyme_symbol = document.getElementById("symbol" + data["blue"][i]);
                                 rhyme_symbol.style.backgroundColor = "blue";
                             };
@@ -285,7 +285,7 @@ if (check_syllables_btn) {
             for (let i = 0; i < input.length; i++) {
                 send_to_server_syllables[input.item(i).id] = input.item(i).innerText;
             }
-            console.log(send_to_server_syllables);
+            // console.log(send_to_server_syllables);
             fetch(window.origin + "/Write", {
                 method: "POST",
                 headers: new Headers({
@@ -299,7 +299,7 @@ if (check_syllables_btn) {
 
                 .then((respone) => {
                     if (respone.status !== 200) {
-                        console.log("request status for syllables is" + respone.status);
+                        // console.log("request status for syllables is" + respone.status);
                         return;
                     }
                     respone.json().then((data) => {
@@ -309,7 +309,7 @@ if (check_syllables_btn) {
                             delete data["rs"];
                         }
                         loading_syllables.style.display = "none";
-                        console.log("this is the workable with data", data)
+                        // console.log("this is the workable with data", data)
                         for (let j = 0; j < input.length; j++) {
                             if (data[input.item(j).id]) {
                                 for (k in data[input.item(j).id]) {
@@ -324,7 +324,7 @@ if (check_syllables_btn) {
                                 if (syllables[j].style.visibility !== "visible" && syllables[j].style.position !== "relative") {
                                     syllables[j].style.cssText = "display:flex";
                                     syllables_text[j].innerText = data[input.item(j).id].join(" / ").concat(" = " + total_rhymes);
-                                    console.log(rs)
+                                    // console.log(rs)
                                     if (rs == "Haiku") {
                                         if ((j == 0 || j == 2) && total_rhymes == 5) {
                                             syllables_text[j].style.color = "lime";
@@ -379,7 +379,7 @@ check_meter_btn.addEventListener("click", () => {
         for (let i = 0; i < input.length; i++) {
             send_to_server_meter[input.item(i).id] = input.item(i).innerText;
         }
-        console.log(send_to_server_meter)
+        // console.log(send_to_server_meter)
         fetch(window.origin + "/Write", {
             method: "POST",
             headers: new Headers({
@@ -392,15 +392,15 @@ check_meter_btn.addEventListener("click", () => {
         })
             .then((respone) => {
                 if (respone.status !== 200) {
-                    console.log("request status for is" + respone.status);
+                    // console.log("request status for is" + respone.status);
                     return;
                 }
                 respone.json().then((data) => {
                     loading_meter.style.display = "none";
-                    console.log(data)
+                    // console.log(data)
                     lines = document.getElementsByClassName("line");
                     for (let i = 0; i < lines.length; i++) {
-                        console.log(i)
+                        // console.log(i)
                         meter_divs[i].style.cssText = "display:flex";
                         meter_text[i].innerHTML = data[lines[i].id].slice(1, -1).replace(/([.|])/g, " $1 ");
                         if (data[lines[i].id] === "[None]") {

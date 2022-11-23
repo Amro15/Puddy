@@ -65,7 +65,7 @@ random_poem_btn.addEventListener("click", () => {
 
         .then((respone) => {
             if (respone.status !== 200) {
-                console.log("request status for is" + respone.status);
+                // console.log("request status for is" + respone.status);
                 return;
             }
             respone.json().then((data) => {

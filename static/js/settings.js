@@ -25,7 +25,7 @@ change_username_btn.addEventListener("click", () => {
         .then((respone) => {
             // if request fails
             if (respone.status !== 200) {
-                console.log("request status for is" + respone.status);
+                // console.log("request status for is" + respone.status);
                 return;
             }
             // if request succeeds 

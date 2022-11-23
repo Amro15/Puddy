@@ -59,16 +59,16 @@ if (save_draft) {
                 let draft_num = urlParams.get("dnum");
                 let poem_num = urlParams.get("pnum");
                 send_to_server_draft = { "title": title, "notes": notepad, "draft_id": draft_id, "draft_num": draft_num, "poem_num": poem_num };
-                console.log(send_to_server_draft)
+                // console.log(send_to_server_draft)
             }
             else {
                 send_to_server_draft = { "title": title, "notes": notepad };
             }
             for (let i = 0; i < input.length; i++) {
-                console.log(input.item(i).id)
+                // console.log(input.item(i).id)
                 send_to_server_draft[input.item(i).id] = input.item(i).innerText;
             }
-            console.log(send_to_server_draft);
+            // console.log(send_to_server_draft);
             fetch(window.origin + "/Write", {
                 method: "POST",
                 headers: new Headers({
@@ -81,11 +81,11 @@ if (save_draft) {
             })
                 .then((respone) => {
                     if (respone.status !== 200) {
-                        console.log("request status for draft is" + respone.status);
+                        // console.log("request status for draft is" + respone.status);
                         return;
                     }
                     respone.json().then((data) => {
-                        console.log("data we got back is", data);
+                        // console.log("data we got back is", data);
                         if (data["response"] == "input was altered cannot save") {
                             save_error_msg.style.display = "block";
                             save_error_msg.scrollIntoView();
@@ -110,7 +110,7 @@ if (save_draft) {
 if (save_draft_modal) {
     // if user chooses to save from the modal
     save_draft_modal.addEventListener("click", () => {
-        console.log("user wants to save");
+        // console.log("user wants to save");
         fetch(window.origin + "/Write", {
             method: "POST",
             headers: new Headers({
@@ -122,9 +122,9 @@ if (save_draft_modal) {
             body: JSON.stringify({ "request": "save another draft" })
         })
             .then((respone) => {
-                console.log("saved another draft");
+                // console.log("saved another draft");
                 if (respone.status !== 200) {
-                    console.log("request status for draft is" + respone.status);
+                    // console.log("request status for draft is" + respone.status);
                     return;
                 }
                 respone.json().then((data) => {
@@ -143,7 +143,7 @@ if (save_draft_modal) {
 if (update_draft_btn) {
     // if user wants to update existing draft
     update_draft_btn.addEventListener("click", () => {
-        console.log("user wants to update");
+        // console.log("user wants to update");
         // tell the server
         fetch(window.origin + "/Write", {
             method: "POST",
@@ -157,7 +157,7 @@ if (update_draft_btn) {
         })
             .then((respone) => {
                 if (respone.status !== 200) {
-                    console.log("request status for draft is" + respone.status);
+                    // console.log("request status for draft is" + respone.status);
                     return;
                 }
                 respone.json().then((data) => {
@@ -202,7 +202,7 @@ if (save_poem_btn) {
             for (let i = 0; i < input.length; i++) {
                 send_to_server_format[input.item(i).id] = input.item(i).innerText;
             }
-            console.log(send_to_server_format);
+            // console.log(send_to_server_format);
             fetch(window.origin + "/Write", {
                 method: "POST",
                 headers: new Headers({
@@ -215,11 +215,11 @@ if (save_poem_btn) {
             })
                 .then((respone) => {
                     if (respone.status !== 200) {
-                        console.log("request status for draft is" + respone.status);
+                        // console.log("request status for draft is" + respone.status);
                         return;
                     }
                     respone.json().then((data) => {
-                        console.log("data we got back is", data);
+                        // console.log("data we got back is", data);
                         if (data["response"] === "input was altered cannot save") {
                             save_error_msg.style.display = "block";
                             save_error_msg.scrollIntoView();
@@ -259,7 +259,7 @@ if (update_poem_btn) {
             for (let i = 0; i < input.length; i++) {
                 send_to_server_update_poem[input.item(i).id] = input.item(i).innerText;
             }
-            console.log(send_to_server_update_poem);
+            // console.log(send_to_server_update_poem);
             fetch(window.origin + "/Write", {
                 method: "POST",
                 headers: new Headers({
@@ -272,11 +272,11 @@ if (update_poem_btn) {
             })
                 .then((respone) => {
                     if (respone.status !== 200) {
-                        console.log("request status for draft is" + respone.status);
+                        // console.log("request status for draft is" + respone.status);
                         return;
                     }
                     respone.json().then((data) => {
-                        console.log("data we got back is", data);
+                        // console.log("data we got back is", data);
                         if (data["response"] == "successful") {
                             success_msg_div.style.display = "block";
                             success_msg_div.scrollIntoView();
@@ -602,12 +602,12 @@ if (toggle_edit_btn) {
                         add_lines_bulk_len_error.style.display = "block";
                     }
                     else {
-                        console.log("lines_Arr", lines_arr)
+                        // console.log("lines_Arr", lines_arr)
                         iterable = lines_arr.length;
                     }
                 }
                 for (let j = 0; j < iterable; j++) {
-                    console.log(j)
+                    // console.log(j)
                     if (edit_btn_div.getAttribute("name") == "edit_fv") {
                         extra_line.content.querySelector(".rhyme_symbols").innerText = line.length + 1;
                         extra_line.content.querySelector(".rhyme_symbols").removeAttribute("contenteditable");
@@ -639,7 +639,7 @@ if (toggle_edit_btn) {
                 }
 
                 delete_line_btn[i].addEventListener("click", () => {
-                    console.log("delete inside add")
+                    // console.log("delete inside add")
                     delete_btn_container[i].style.display = "none";
                     line[i].style.display = "none";
                     rhyme_symbol[i].style.cssText = "display:none!important";
@@ -757,7 +757,7 @@ if (toggle_edit_btn) {
                 .then((respone) => {
                     // if request fails
                     if (respone.status !== 200) {
-                        console.log("request status for is" + respone.status);
+                        // console.log("request status for is" + respone.status);
                         return;
                     }
                     // if request succeeds 
@@ -813,7 +813,7 @@ if (toggle_edit_btn) {
                 }
             }
             send_to_server_edits["line_breaks"] = send_to_server_edits["line_breaks"].join(",").toString();
-            console.log(send_to_server_edits);
+            // console.log(send_to_server_edits);
             fetch(window.origin + "/Write", {
                 method: "POST",
                 headers: new Headers({
@@ -828,7 +828,7 @@ if (toggle_edit_btn) {
                 .then((respone) => {
                     // if request fails
                     if (respone.status !== 200) {
-                        console.log("request status for save edits is " + respone.status);
+                        // console.log("request status for save edits is " + respone.status);
                         return;
                     }
                     // if request succeeds 

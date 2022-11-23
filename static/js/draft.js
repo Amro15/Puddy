@@ -4,7 +4,7 @@ for (let i = 0; i < draft_delete.length; i++) {
     let selectobject = document.getElementById("poem_select")
     draft_delete[i].addEventListener("click", () => {
         send_to_server_draft_delete = { "draft_id": document.getElementsByClassName("poem count")[i].getAttribute("value") };
-        console.log(send_to_server_draft_delete)
+        // console.log(send_to_server_draft_delete)
         // determine if to show modal or not
         const draft_modal = new bootstrap.Modal(document.getElementById('draft_modal'), { keyboard: false, backdrop: "static" });
         if (!getCookie("hide_draft_modal")) {
@@ -31,7 +31,7 @@ for (let i = 0; i < draft_delete.length; i++) {
                     .then((respone) => {
                         // if request fails
                         if (respone.status !== 200) {
-                            console.log("request status for delete draft is" + respone.status);
+                            // console.log("request status for delete draft is" + respone.status);
                             return;
                         }
                         // if request succeeds 
@@ -64,7 +64,7 @@ for (let i = 0; i < draft_delete.length; i++) {
                 .then((respone) => {
                     // if request fails
                     if (respone.status !== 200) {
-                        console.log("request status for delete draft is" + respone.status);
+                        // console.log("request status for delete draft is" + respone.status);
                         return;
                     }
                     // if request succeeds 
