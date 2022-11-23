@@ -561,9 +561,9 @@ def write():
             # server_request METER ===================================================================================================================
             if server_request == "check meter":
                 server_meter_response = {}
-                # for key, value in req.items():
-                #     server_meter_response[key]=str(check_meter(value))
-                # print(server_meter_response)
+                for key, value in req.items():
+                    server_meter_response[key]=str(check_meter(value))
+                print(server_meter_response)
                 return make_response(server_meter_response, 200)
 
             # server request undo edits =================================================================================================================================
@@ -950,6 +950,7 @@ def rhymes_def():
             def_obj["Adjective"].append(i[3:])
         elif i[0:3] == "adv":
             def_obj["Adverb"].append(i[3:])
+        # switch statements had to be commented out to work with render.com
         # match i[0]:
         #     case "n":
         #         def_obj["Noun"].append(i[1:])

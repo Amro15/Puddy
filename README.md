@@ -2,7 +2,7 @@
 #### Video Demo:  <URL HERE>
 
 #### Website URL: <https://puddy-poetry.onrender.com/> 
-(The No_Meter branch of my repository is used for this version since [render.com](https://render.com/) the service I used to host the server doesn't work with [Prosodic](https://pypi.org/project/prosodic/) which I use for meter checking so unfortunatley I was not able to roll out that feature)
+(This version of the website uses the latest commit called **render.com version** with the SHA  since [render.com](https://render.com/) the service I used to host the server doesn't work with [Prosodic](https://pypi.org/project/prosodic/) which I use for meter checking so unfortunatley I was not able to roll out that feature the **full version** commit with the SHA is the complete website)
 #### Description:
 
 

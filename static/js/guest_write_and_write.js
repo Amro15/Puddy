@@ -28,9 +28,9 @@ document.addEventListener("keydown", (event) => {
     if (event.altKey && event.key == "s") {
         check_syllables_btn.click();
     }
-    // if (event.altKey && event.key == "m") {
-    //     check_meter_btn.click()
-    // }
+    if (event.altKey && event.key == "m") {
+        check_meter_btn.click()
+    }
 })
 
 // quick search for rhymes
@@ -366,58 +366,58 @@ if (check_syllables_btn) {
 }
 
 // check meter
-// let loading_meter = document.getElementById("loading_meter");
-// let check_meter_btn = document.getElementById("check_meter");
-// let meter_divs = document.getElementsByClassName("meter");
-// let meter_text = document.getElementsByClassName("meter_text");
-// let no_data_meter = document.getElementById("no_data_meter");
-// check_meter_btn.addEventListener("click", () => {
-//     if (check_meter_btn.checked) {
-//         loading_meter.style.display = "block";
-//         let send_to_server_meter = {};
-//         let input = document.getElementsByClassName("line");
-//         for (let i = 0; i < input.length; i++) {
-//             send_to_server_meter[input.item(i).id] = input.item(i).innerText;
-//         }
-//         console.log(send_to_server_meter)
-//         fetch(window.origin + "/Write", {
-//             method: "POST",
-//             headers: new Headers({
-//                 "X-CSRFToken": document.getElementsByName("csrf_token")[0].value,
-//                 "Content-Type": "application/json",
-//                 "Request": "check meter"
-//             }),
-//             cache: "no-cache",
-//             body: JSON.stringify(send_to_server_meter)
-//         })
-//             .then((respone) => {
-//                 if (respone.status !== 200) {
-//                     console.log("request status for is" + respone.status);
-//                     return;
-//                 }
-//                 respone.json().then((data) => {
-//                     loading_meter.style.display = "none";
-//                     console.log(data)
-//                     lines = document.getElementsByClassName("line");
-//                     for (let i = 0; i < lines.length; i++) {
-//                         console.log(i)
-//                         meter_divs[i].style.cssText = "display:flex";
-//                         meter_text[i].innerHTML = data[lines[i].id].slice(1, -1).replace(/([.|])/g, " $1 ");
-//                         if (data[lines[i].id] === "[None]") {
-//                             no_data_meter.innerText = "Please Check Your Spelling"
-//                         }
-//                     }
-//                 });
-//             });
-//     }
-//     else {
-//         for (let i = 0; i < meter_divs.length; i++) {
-//             meter_text[i].innerHTML = "";
-//             meter_divs[i].style.cssText = "display:none";
-//         }
-//         no_data_meter.innerText = "";
-//     }
+let loading_meter = document.getElementById("loading_meter");
+let check_meter_btn = document.getElementById("check_meter");
+let meter_divs = document.getElementsByClassName("meter");
+let meter_text = document.getElementsByClassName("meter_text");
+let no_data_meter = document.getElementById("no_data_meter");
+check_meter_btn.addEventListener("click", () => {
+    if (check_meter_btn.checked) {
+        loading_meter.style.display = "block";
+        let send_to_server_meter = {};
+        let input = document.getElementsByClassName("line");
+        for (let i = 0; i < input.length; i++) {
+            send_to_server_meter[input.item(i).id] = input.item(i).innerText;
+        }
+        console.log(send_to_server_meter)
+        fetch(window.origin + "/Write", {
+            method: "POST",
+            headers: new Headers({
+                "X-CSRFToken": document.getElementsByName("csrf_token")[0].value,
+                "Content-Type": "application/json",
+                "Request": "check meter"
+            }),
+            cache: "no-cache",
+            body: JSON.stringify(send_to_server_meter)
+        })
+            .then((respone) => {
+                if (respone.status !== 200) {
+                    console.log("request status for is" + respone.status);
+                    return;
+                }
+                respone.json().then((data) => {
+                    loading_meter.style.display = "none";
+                    console.log(data)
+                    lines = document.getElementsByClassName("line");
+                    for (let i = 0; i < lines.length; i++) {
+                        console.log(i)
+                        meter_divs[i].style.cssText = "display:flex";
+                        meter_text[i].innerHTML = data[lines[i].id].slice(1, -1).replace(/([.|])/g, " $1 ");
+                        if (data[lines[i].id] === "[None]") {
+                            no_data_meter.innerText = "Please Check Your Spelling"
+                        }
+                    }
+                });
+            });
+    }
+    else {
+        for (let i = 0; i < meter_divs.length; i++) {
+            meter_text[i].innerHTML = "";
+            meter_divs[i].style.cssText = "display:none";
+        }
+        no_data_meter.innerText = "";
+    }
 
+})
 
-// })
 
