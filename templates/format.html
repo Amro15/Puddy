@@ -21,7 +21,7 @@
     <span contenteditable class="edit_title"><p class="poem_title">{{user_poem.title}}</p></span>
     <p id="poem_author">By {{username}}</p>
 {%for i in user_poem_lines %}
-<p><span contenteditable id="{{i.line_num}}" class="edit_line">{{i.line_text}}</span></p>
+<p><span contenteditable id="{{i.line_num}}" class="edit_line_format">{{i.line_text}}</span></p>
     {% if user_poem.line_break and ((loop.index % user_poem.line_break) == 0)%}
     <br>
     {%endif%}

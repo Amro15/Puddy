@@ -3,7 +3,7 @@ let save = document.getElementById("save_poem");
 
 save.addEventListener("click", () => {
     let send_to_server_poem = {};
-    let lines = document.getElementsByClassName("edit_line");
+    let lines = document.getElementsByClassName("edit_line_format");
     for (let i = 0; i < lines.length; i++) {
         send_to_server_poem[lines.item(i).id] = lines.item(i).innerText;
     }
@@ -23,7 +23,7 @@ save.addEventListener("click", () => {
                 return;
             }
             respone.json().then((data) => {
-                window.location="/Account/Poems";
+                window.location = "/Account/Poems";
             });
         });
 

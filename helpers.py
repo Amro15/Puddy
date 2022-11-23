@@ -1,12 +1,8 @@
-# import os
-# import urllib.request
-# import sqlite3
 from urllib.parse import urlparse, urljoin
 import json
 import sys
 import re
-from flask import request #,session, g,redirect,
-# from functools import wraps
+from flask import request
 from app import app
 # import prosodic as p
 
@@ -24,14 +20,6 @@ def is_safe_url(target):
     return test_url.scheme in ('http', 'https') and \
            ref_url.netloc == test_url.netloc
 
-#configure file uploads
-UPLOAD_FOLDER = 'static/'
-ALLOWED_EXTENSIONS = {'jpg', 'jpeg', "png"}
-app.config['MAX_CONTENT_LENGTH'] = 8 * 1000 * 1000
-
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 # rhyming functions

@@ -1,14 +1,14 @@
 // remind user to save after 20 mins 
 let warning_div = document.getElementById("warning");
 if (warning_div) {
-let warning = setTimeout(() => {
+    let warning = setTimeout(() => {
         warning_div.style.display = "inline-block";
         warning_div.scrollIntoView();
         let close_warning_btn = document.getElementById("warning_close");
         close_warning_btn.addEventListener("click", () => {
             warning_div.style.display = "none";
         })
-        
+
     }, (20 * 60000))
 }
 
@@ -132,7 +132,7 @@ if (save_draft_modal) {
                     if (data["response"] === "successful") {
                         success_msg_div.style.display = "block";
                     }
-                    else if(data["response"]=== "input was altered cannot save") {
+                    else if (data["response"] === "input was altered cannot save") {
                         save_error_msg.style.display = "block";
                         save_error_msg.scrollIntoView();
                     }
@@ -166,7 +166,7 @@ if (update_draft_btn) {
                         success_msg_div.style.display = "block";
                         success_msg_div.scrollIntoView();
                     }
-                    else if(data["response"]=== "input was altered cannot save") {
+                    else if (data["response"] === "input was altered cannot save") {
                         save_error_msg.style.display = "block";
                         save_error_msg.scrollIntoView();
                     }
@@ -225,11 +225,11 @@ if (save_poem_btn) {
                             save_error_msg.scrollIntoView();
                         }
                         else if (data["response"] === "successful") {
-                            if(data["skip_format"]=="True"){
-                                window.location="/Account/Poems";
+                            if (data["skip_format"] == "True") {
+                                window.location = "/Account/Poems";
                             }
-                            else{
-                                window.location="/Format";
+                            else {
+                                window.location = "/Format";
                             }
                         }
 
@@ -282,14 +282,14 @@ if (update_poem_btn) {
                     }
                     respone.json().then((data) => {
                         console.log("data we got back is", data);
-                    if(data["response"]=="successful"){
-                        success_msg_div.style.display = "block";
-                        success_msg_div.scrollIntoView();
-                    }
-                    else if(data["response"]=== "input was altered cannot save") {
-                        error_msg.style.display="block";
-                        error_msg.scrollIntoView();
-                    }
+                        if (data["response"] == "successful") {
+                            success_msg_div.style.display = "block";
+                            success_msg_div.scrollIntoView();
+                        }
+                        else if (data["response"] === "input was altered cannot save") {
+                            error_msg.style.display = "block";
+                            error_msg.scrollIntoView();
+                        }
 
                     });
                 });
@@ -345,9 +345,9 @@ if (toggle_edit_btn) {
             save_btn_div.style.display = "none";
             for (let i = 0; i < delete_line_btn.length; i++) {
                 delete_btn_container[i].style.display = "inline-block";
-                let rhyme_symbol_editable = document.createElement("input"); 
+                let rhyme_symbol_editable = document.createElement("input");
                 // edit fv means the user's rhyme scheme is free verse thus we do not want them to edit the line symbol text since it is autoincremented
-                if(edit_btn_div.getAttribute("name")!=="edit_fv"){
+                if (edit_btn_div.getAttribute("name") !== "edit_fv") {
                     rhyme_symbol_editable.setAttribute("type", "text");
                     rhyme_symbol[i].setAttribute("contenteditable", "true");
                     rhyme_symbol[i].setAttribute("role", "textbox");
@@ -370,43 +370,43 @@ if (toggle_edit_btn) {
                 delete_btn_container[i].style.display = "none";
                 undo_btn_container[i].style.display = "none";
                 br_btn[i].style.display = "none";
-                if(edit_btn_div.getAttribute("name")!=="edit_fv"){
-                rhyme_symbol[i].removeAttribute("contenteditable");
-                rhyme_symbol[i].removeAttribute("role");
-                rhyme_symbol[i].style.backgroundColor = "rgb(105, 113, 132)";
+                if (edit_btn_div.getAttribute("name") !== "edit_fv") {
+                    rhyme_symbol[i].removeAttribute("contenteditable");
+                    rhyme_symbol[i].removeAttribute("role");
+                    rhyme_symbol[i].style.backgroundColor = "rgb(105, 113, 132)";
                 }
             }
             add_btn_container[0].style.display = "none";
             add_bulk_container[0].style.display = "none";
             add_lines_bulk_input_div.style.display = "none";
             add_br_bulk_btn_div.style.display = "none";
-            edit_mode_errors.style.display="none";
+            edit_mode_errors.style.display = "none";
         }
     })
     // show and hide line break buttons
     toggle_br_btn.addEventListener("click", () => {
         for (let i = 0; i < br_btn.length; i++) {
             if (toggle_br_btn.checked && toggle_edit_btn.checked) {
-                    br_btn[i].style.display = "inline-block";
+                br_btn[i].style.display = "inline-block";
             }
             else {
-                    br_btn[i].style.display = "none";
+                br_btn[i].style.display = "none";
             }
         }
     })
     // show and hide undo btns
-    toggle_undo_btn.addEventListener("click", ()=>{
-        for(let i =0; i<undo_btn.length; i++){ 
-            if(toggle_edit_btn.checked && toggle_undo_btn.checked){
-                if(undo_btn_container[i].style.display == "inline-block"){
+    toggle_undo_btn.addEventListener("click", () => {
+        for (let i = 0; i < undo_btn.length; i++) {
+            if (toggle_edit_btn.checked && toggle_undo_btn.checked) {
+                if (undo_btn_container[i].style.display == "inline-block") {
                     undo_btn_container[i].style.display = "none";
-                    verse[i].style.display="none";
-                    }
+                    verse[i].style.display = "none";
                 }
-            else{
-                if(line[i].style.display == "none"){
-                undo_btn_container[i].style.display = "inline-block";
-                verse[i].style.display="flex";
+            }
+            else {
+                if (line[i].style.display == "none") {
+                    undo_btn_container[i].style.display = "inline-block";
+                    verse[i].style.display = "flex";
                 }
             }
         }
@@ -415,15 +415,15 @@ if (toggle_edit_btn) {
     for (let i = 0; i < delete_line_btn.length; i++) {
         // hide whole line and surrounding elements and display undo btn instead
         delete_line_btn[i].addEventListener("click", () => {
-            if(toggle_edit_btn.checked){
+            if (toggle_edit_btn.checked) {
                 delete_btn_container[i].style.display = "none";
                 line[i].style.display = "none";
                 rhyme_symbol[i].style.cssText = "display:none!important";
                 br_btn[i].style.display = "none";
-                if(toggle_undo_btn.checked){
-                    undo_btn_container[i].style.display="none";
+                if (toggle_undo_btn.checked) {
+                    undo_btn_container[i].style.display = "none";
                 }
-                else{
+                else {
                     undo_btn_container[i].style.display = "inline-block";
                 }
             }
@@ -431,13 +431,13 @@ if (toggle_edit_btn) {
 
         // show hidden elements and hide undo btn
         undo_btn[i].addEventListener("click", () => {
-            if(toggle_edit_btn.checked){
+            if (toggle_edit_btn.checked) {
                 delete_btn_container[i].style.display = "inline-block";
                 line[i].style.display = "block";
-                if(edit_btn_div.getAttribute("name")!=="edit_fv"){
+                if (edit_btn_div.getAttribute("name") !== "edit_fv") {
                     rhyme_symbol[i].style.cssText = "display:inline-block; background-color:rgb(37, 37, 37)";
                 }
-                else{
+                else {
                     rhyme_symbol[i].style.cssText = "display:inline-block;"
                 }
                 if (toggle_br_btn.checked) {
@@ -449,7 +449,7 @@ if (toggle_edit_btn) {
 
         // add and remove line breaks aswell as changing buttons respectively
         br_btn[i].addEventListener("click", () => {
-            if(toggle_edit_btn.checked){
+            if (toggle_edit_btn.checked) {
                 if (br_btn[i].id === "remove_br") {
                     br_btn[i].id = "add_br";
                     br_div[i].innerText = "";
@@ -479,36 +479,164 @@ if (toggle_edit_btn) {
     add_line_btn.addEventListener("click", () => {
         if (toggle_edit_btn.checked) {
             add_line_err.style.display = "none";
-            if(line.length+2>101){
+            if (line.length + 2 > 101) {
                 add_line_err.style.display = "block";
             }
-            else{
-            // look for line break frequency to know when to add a line break when adding lines
-           for (let i = 0; i < delete_line_btn.length; i++) {
-               if (br_btn[i].id == "remove_br" && br_frequency.length==0) {
-                   br_frequency.push(i + 1);
-               }
-           }
-            initial_len = delete_line_btn.length;
-            if(edit_btn_div.getAttribute("name")==="edit_fv"){
-                extra_line.content.querySelector(".rhyme_symbols").innerText = line.length+1;
-                extra_line.content.querySelector(".rhyme_symbols").removeAttribute("contenteditable");
-                extra_line.content.querySelector(".rhyme_symbols").removeAttribute("role");
+            else {
+                // look for line break frequency to know when to add a line break when adding lines
+                for (let i = 0; i < delete_line_btn.length; i++) {
+                    if (br_btn[i].id == "remove_br" && br_frequency.length == 0) {
+                        br_frequency.push(i + 1);
+                    }
+                }
+                initial_len = delete_line_btn.length;
+                if (edit_btn_div.getAttribute("name") === "edit_fv") {
+                    extra_line.content.querySelector(".rhyme_symbols").innerText = line.length + 1;
+                    extra_line.content.querySelector(".rhyme_symbols").removeAttribute("contenteditable");
+                    extra_line.content.querySelector(".rhyme_symbols").removeAttribute("role");
+                }
+                else {
+                    extra_line.content.querySelector(".rhyme_symbols").innerText = "";
+                    extra_line.content.querySelector(".rhyme_symbols").style.cssText = "background-color:rgb(37, 37, 37)";
+                }
+                poem_body.appendChild(extra_line.content.cloneNode(true));
+                if ((delete_line_btn.length) % br_frequency[0] == 0) {
+                    document.getElementsByClassName("br_div")[delete_line_btn.length - 1].appendChild(document.createElement("br"));
+                    document.getElementsByClassName("br_btn")[delete_line_btn.length - 1].id = "remove_br";
+                    document.getElementsByClassName("br_icon")[delete_line_btn.length - 1].setAttribute("src", "static/icons/remove-br.png");
+                }
+                else {
+                    document.getElementsByClassName("br_div")[delete_line_btn.length - 1].innerHtml = "";
+                    document.getElementsByClassName("br_btn")[delete_line_btn.length - 1].id = "add_br";
+                    document.getElementsByClassName("br_icon")[delete_line_btn.length - 1].setAttribute("src", "static/icons/add-br.png");
+                }
+                for (let i = initial_len; i < delete_line_btn.length; i++) {
+                    if (toggle_br_btn.checked) {
+                        br_btn[i].style.display = "inline-block";
+                    }
+                    else {
+                        br_btn[i].style.display = "none";
+                    }
+
+
+                    delete_line_btn[i].addEventListener("click", () => {
+                        delete_btn_container[i].style.display = "none";
+                        line[i].style.display = "none";
+                        rhyme_symbol[i].style.cssText = "display:none!important";
+                        br_btn[i].style.display = "none";
+                        if (toggle_undo_btn.checked) {
+                            undo_btn_container[i].style.display = "none";
+                        }
+                        else {
+                            undo_btn_container[i].style.display = "inline-block";
+                        }
+                    })
+                    undo_btn[i].addEventListener("click", () => {
+                        delete_btn_container[i].style.display = "inline-block";
+                        line[i].style.display = "block";
+                        if (edit_btn_div.getAttribute("name") !== "edit_fv") {
+                            rhyme_symbol[i].style.cssText = "display:inline-block; background-color:rgb(37, 37, 37)";
+                        }
+                        else {
+                            rhyme_symbol[i].style.cssText = "display:inline-block;"
+                        }
+                        if (toggle_br_btn.checked) {
+                            br_btn[i].style.display = "inline-block";
+                        }
+                        undo_btn_container[i].style.display = "none";
+                    })
+                    br_btn[i].addEventListener("click", () => {
+                        if (br_btn[i].id === "remove_br") {
+                            br_btn[i].id = "add_br";
+                            br_div[i].innerText = "";
+                            br_icon[i].setAttribute("src", "/static/icons/add-br.png");
+                        }
+                        else {
+                            br_btn[i].id = "remove_br";
+                            br_div[i].appendChild(document.createElement("br"));
+                            br_icon[i].setAttribute("src", "/static/icons/remove-br.png");
+                        }
+                    })
+                }
             }
-            else{
-                extra_line.content.querySelector(".rhyme_symbols").innerText = "";
-                extra_line.content.querySelector(".rhyme_symbols").style.cssText = "background-color:rgb(37, 37, 37)";
-            } 
-            poem_body.appendChild(extra_line.content.cloneNode(true));
-            if ((delete_line_btn.length) % br_frequency[0] == 0) {
-                document.getElementsByClassName("br_div")[delete_line_btn.length-1].appendChild(document.createElement("br"));
-                document.getElementsByClassName("br_btn")[delete_line_btn.length-1].id = "remove_br";
-                document.getElementsByClassName("br_icon")[delete_line_btn.length-1].setAttribute("src", "static/icons/remove-br.png");
+        }
+    })
+
+
+    let add_lines_input = document.getElementById("add_lines_input");
+    let add_lines_bulk_len_error = document.getElementById("add_lines_bulk_length_error");
+    let add_lines_bulk_error = document.getElementById("add_lines_bulk_error");
+    add_lines_input.addEventListener("keydown", (event) => {
+        if (event.key == "Enter") {
+            add_lines_bulk_btn.click();
+        }
+    })
+    add_lines_bulk_btn.addEventListener("click", () => {
+        if (toggle_edit_btn.checked) {
+            let lines_to_add = add_lines_input.value.replace(/\s/g, '');
+            add_lines_bulk_error.style.display = "none";
+            add_lines_bulk_len_error.style.display = "none";
+            let pattern;
+            if (edit_btn_div.getAttribute("name") == "edit_fv") {
+                pattern = /^[0-9]{0,3}$/g
             }
             else {
-                document.getElementsByClassName("br_div")[delete_line_btn.length-1].innerHtml = "";
-                document.getElementsByClassName("br_btn")[delete_line_btn.length-1].id = "add_br";
-                document.getElementsByClassName("br_icon")[delete_line_btn.length-1].setAttribute("src", "static/icons/add-br.png");
+                pattern = /^[a-zA-Z\-]{1,100}$/;
+            }
+            if ((pattern.test(lines_to_add)) === false) {
+                add_lines_bulk_error.style.display = "block";
+            }
+            else {
+                initial_len = delete_line_btn.length;
+                add_lines_input.value = "";
+                for (let i = 0; i < delete_line_btn.length; i++) {
+                    if (br_btn[i].id == "remove_br" && br_frequency.length == 0) {
+                        br_frequency.push(i + 1);
+                    }
+                }
+                // same as add lines but in a loop 
+                let iterable;
+                if (edit_btn_div.getAttribute("name") == "edit_fv") {
+                    if ((parseInt(lines_to_add) + line.length + 1) > 101) {
+                        add_lines_bulk_len_error.style.display = "block";
+                    }
+                    else {
+                        iterable = lines_to_add;
+                    }
+                }
+                else {
+                    lines_arr = lines_to_add.split("");
+                    if ((lines_arr.length + line.length + 1) > 101) {
+                        add_lines_bulk_len_error.style.display = "block";
+                    }
+                    else {
+                        console.log("lines_Arr", lines_arr)
+                        iterable = lines_arr.length;
+                    }
+                }
+                for (let j = 0; j < iterable; j++) {
+                    console.log(j)
+                    if (edit_btn_div.getAttribute("name") == "edit_fv") {
+                        extra_line.content.querySelector(".rhyme_symbols").innerText = line.length + 1;
+                        extra_line.content.querySelector(".rhyme_symbols").removeAttribute("contenteditable");
+                        extra_line.content.querySelector(".rhyme_symbols").removeAttribute("role");
+                    }
+                    else {
+                        extra_line.content.querySelector(".rhyme_symbols").innerText = lines_arr[j].toUpperCase();
+                        extra_line.content.querySelector(".rhyme_symbols").style.cssText = "background-color:rgb(37, 37, 37)";
+                    }
+                    poem_body.appendChild(extra_line.content.cloneNode(true));
+                    if ((delete_line_btn.length) % br_frequency[0] == 0) {
+                        document.getElementsByClassName("br_div")[delete_line_btn.length - 1].appendChild(document.createElement("br"));
+                        document.getElementsByClassName("br_btn")[delete_line_btn.length - 1].id = "remove_br";
+                        document.getElementsByClassName("br_icon")[delete_line_btn.length - 1].setAttribute("src", "static/icons/remove-br.png");
+                    }
+                    else {
+                        document.getElementsByClassName("br_div")[delete_line_btn.length - 1].innerHtml = "";
+                        document.getElementsByClassName("br_btn")[delete_line_btn.length - 1].id = "add_br";
+                        document.getElementsByClassName("br_icon")[delete_line_btn.length - 1].setAttribute("src", "static/icons/add-br.png");
+                    }
+                }
             }
             for (let i = initial_len; i < delete_line_btn.length; i++) {
                 if (toggle_br_btn.checked) {
@@ -517,27 +645,27 @@ if (toggle_edit_btn) {
                 else {
                     br_btn[i].style.display = "none";
                 }
-                
 
                 delete_line_btn[i].addEventListener("click", () => {
+                    console.log("delete inside add")
                     delete_btn_container[i].style.display = "none";
                     line[i].style.display = "none";
                     rhyme_symbol[i].style.cssText = "display:none!important";
                     br_btn[i].style.display = "none";
-                    if(toggle_undo_btn.checked){
-                        undo_btn_container[i].style.display="none";
+                    if (toggle_undo_btn.checked) {
+                        undo_btn_container[i].style.display = "none";
                     }
-                    else{
+                    else {
                         undo_btn_container[i].style.display = "inline-block";
                     }
                 })
                 undo_btn[i].addEventListener("click", () => {
                     delete_btn_container[i].style.display = "inline-block";
                     line[i].style.display = "block";
-                    if(edit_btn_div.getAttribute("name")!=="edit_fv"){
+                    if (edit_btn_div.getAttribute("name") !== "edit_fv") {
                         rhyme_symbol[i].style.cssText = "display:inline-block; background-color:rgb(37, 37, 37)";
                     }
-                    else{
+                    else {
                         rhyme_symbol[i].style.cssText = "display:inline-block;"
                     }
                     if (toggle_br_btn.checked) {
@@ -557,158 +685,30 @@ if (toggle_edit_btn) {
                         br_icon[i].setAttribute("src", "/static/icons/remove-br.png");
                     }
                 })
-        }
-        }
-        }
-    })
-
-
-    let add_lines_input = document.getElementById("add_lines_input");
-    let add_lines_bulk_len_error = document.getElementById("add_lines_bulk_length_error");
-    let add_lines_bulk_error = document.getElementById("add_lines_bulk_error");
-    add_lines_input.addEventListener("keydown", (event) => {
-        if (event.key == "Enter") {
-            add_lines_bulk_btn.click();
-        }
-    })
-    add_lines_bulk_btn.addEventListener("click", () => {
-        if(toggle_edit_btn.checked){
-        let lines_to_add = add_lines_input.value.replace(/\s/g, '');
-        add_lines_bulk_error.style.display = "none";
-        add_lines_bulk_len_error.style.display = "none";
-        let pattern;
-        if(edit_btn_div.getAttribute("name")=="edit_fv"){
-            pattern = /^[0-9]{0,3}$/g
-        }
-        else{
-            pattern = /^[a-zA-Z\-]{1,100}$/;
-        }
-        if ((pattern.test(lines_to_add))===false) {
-            add_lines_bulk_error.style.display = "block";
-        }
-        else {
-                initial_len = delete_line_btn.length;
-                add_lines_input.value = "";
-                for (let i = 0; i < delete_line_btn.length; i++) {
-                    if (br_btn[i].id == "remove_br" && br_frequency.length==0) {
-                        br_frequency.push(i + 1);
-                    }
-                }
-                // same as add lines but in a loop 
-                let iterable;
-                if(edit_btn_div.getAttribute("name")=="edit_fv"){
-                    if((parseInt(lines_to_add)+line.length+1)>101){
-                        add_lines_bulk_len_error.style.display = "block";
-                    }
-                    else{
-                            iterable = lines_to_add;
-                    }
-                }
-                else{
-                    lines_arr = lines_to_add.split("");
-                    if((lines_arr.length+line.length+1)>101){
-                        add_lines_bulk_len_error.style.display = "block";
-                        }
-                    else{
-                        console.log("lines_Arr",lines_arr)
-                        iterable= lines_arr.length;
-                    }
-                }
-                for (let j =0; j<iterable; j++) {
-                    console.log(j)
-                    if(edit_btn_div.getAttribute("name")=="edit_fv"){
-                        extra_line.content.querySelector(".rhyme_symbols").innerText = line.length+1;
-                        extra_line.content.querySelector(".rhyme_symbols").removeAttribute("contenteditable");
-                        extra_line.content.querySelector(".rhyme_symbols").removeAttribute("role");
-                    }
-                    else{
-                        extra_line.content.querySelector(".rhyme_symbols").innerText = lines_arr[j].toUpperCase();
-                        extra_line.content.querySelector(".rhyme_symbols").style.cssText = "background-color:rgb(37, 37, 37)";
-                    } 
-                    poem_body.appendChild(extra_line.content.cloneNode(true));
-                    if ((delete_line_btn.length) % br_frequency[0] == 0) {
-                        document.getElementsByClassName("br_div")[delete_line_btn.length - 1].appendChild(document.createElement("br"));
-                        document.getElementsByClassName("br_btn")[delete_line_btn.length-1].id = "remove_br";
-                        document.getElementsByClassName("br_icon")[delete_line_btn.length-1].setAttribute("src", "static/icons/remove-br.png");
-                    }
-                    else {
-                        document.getElementsByClassName("br_div")[delete_line_btn.length - 1].innerHtml = "";
-                        document.getElementsByClassName("br_btn")[delete_line_btn.length-1].id = "add_br";
-                        document.getElementsByClassName("br_icon")[delete_line_btn.length-1].setAttribute("src", "static/icons/add-br.png");
-                    }
-                }
-        }
-        for (let i = initial_len; i < delete_line_btn.length; i++) {
-            if (toggle_br_btn.checked) {
-                br_btn[i].style.display = "inline-block";
             }
-            else {
-                br_btn[i].style.display = "none";
-            }
-            
-            delete_line_btn[i].addEventListener("click", () => {
-                console.log("delete inside add")
-                delete_btn_container[i].style.display = "none";
-                line[i].style.display = "none";
-                rhyme_symbol[i].style.cssText = "display:none!important";
-                br_btn[i].style.display = "none";
-                if(toggle_undo_btn.checked){
-                    undo_btn_container[i].style.display="none";
-                }
-                else{
-                    undo_btn_container[i].style.display = "inline-block";
-                }
-            })
-            undo_btn[i].addEventListener("click", () => {
-                delete_btn_container[i].style.display = "inline-block";
-                line[i].style.display = "block";
-                if(edit_btn_div.getAttribute("name")!=="edit_fv"){
-                rhyme_symbol[i].style.cssText = "display:inline-block; background-color:rgb(37, 37, 37)";
-                }
-                else{
-                    rhyme_symbol[i].style.cssText = "display:inline-block;"
-                }
-                if (toggle_br_btn.checked) {
-                    br_btn[i].style.display = "inline-block";
-                }
-                undo_btn_container[i].style.display = "none";
-            })
-            br_btn[i].addEventListener("click", () => {
-                if (br_btn[i].id === "remove_br") {
-                    br_btn[i].id = "add_br";
-                    br_div[i].innerText = "";
-                    br_icon[i].setAttribute("src", "/static/icons/add-br.png");
-                }
-                else {
-                    br_btn[i].id = "remove_br";
-                    br_div[i].appendChild(document.createElement("br"));
-                    br_icon[i].setAttribute("src", "/static/icons/remove-br.png");
-                }
-            })
         }
-    }
     })
 
     let add_brs_input = document.getElementById("add_brs_input");
     let add_brs_bulk_error = document.getElementById("add_brs_bulk_error");
-    add_brs_input.addEventListener("keydown", (event)=>{
-        if(event.key == "Enter"){
+    add_brs_input.addEventListener("keydown", (event) => {
+        if (event.key == "Enter") {
             add_br_bulk_btn.click();
         }
     })
-    add_br_bulk_btn.addEventListener("click", ()=>{
-        if(Number.isNaN(add_brs_input.value) || add_brs_input.value%1 !=0){
-            add_brs_bulk_error.style.display="block";
+    add_br_bulk_btn.addEventListener("click", () => {
+        if (Number.isNaN(add_brs_input.value) || add_brs_input.value % 1 != 0) {
+            add_brs_bulk_error.style.display = "block";
         }
-        else{
+        else {
             // clear line break and change the frequency by clearing it so it s calculated again next time
             br_frequency = [];
-            add_brs_bulk_error.style.display="none";
-            for(let i =0; i<br_btn.length; i++){
+            add_brs_bulk_error.style.display = "none";
+            for (let i = 0; i < br_btn.length; i++) {
                 br_btn[i].id = "add_br";
                 br_icon[i].setAttribute("src", "/static/icons/add-br.png");
                 br_div[i].innerText = "";
-                if((i!==0) && (((i+1)% parseInt(add_brs_input.value)) == 0)){
+                if ((i !== 0) && (((i + 1) % parseInt(add_brs_input.value)) == 0)) {
                     br_btn[i].id = "remove_br";
                     br_div[i].appendChild(document.createElement("br"));
                     br_icon[i].setAttribute("src", "/static/icons/remove-br.png");
@@ -717,8 +717,8 @@ if (toggle_edit_btn) {
         }
     })
 
-    clear_brs_btn.addEventListener("click", ()=>{
-        for(let i =0; i<br_btn.length; i++){
+    clear_brs_btn.addEventListener("click", () => {
+        for (let i = 0; i < br_btn.length; i++) {
             br_btn[i].id = "add_br";
             br_icon[i].setAttribute("src", "/static/icons/add-br.png");
             br_div[i].innerText = "";
@@ -730,123 +730,123 @@ if (toggle_edit_btn) {
     let send_to_server_edits = {};
     undo_edits.addEventListener("click", () => {
         let temp = {};
-        if(toggle_edit_btn.checked){
-            edit_mode_errors.style.display="none";
-            send_to_server_edits = {"title":document.getElementById("title").innerText ,"line_breaks": [] };
+        if (toggle_edit_btn.checked) {
+            edit_mode_errors.style.display = "none";
+            send_to_server_edits = { "title": document.getElementById("title").innerText, "line_breaks": [] };
             for (let i = 0; i < line.length; i++) {
-                if(edit_btn_div.getAttribute("name")==="edit_fv"){
+                if (edit_btn_div.getAttribute("name") === "edit_fv") {
                     send_to_server_edits[i] = line[i].innerText;
                 }
-                else{
-                    if(temp.hasOwnProperty(rhyme_symbol[i].innerText)){
-                        temp[rhyme_symbol[i].innerText]+=1;
+                else {
+                    if (temp.hasOwnProperty(rhyme_symbol[i].innerText)) {
+                        temp[rhyme_symbol[i].innerText] += 1;
                         send_to_server_edits[rhyme_symbol[i].innerText.concat(temp[rhyme_symbol[i].innerText])] = line[i].innerText;
                     }
-                    else{
-                        temp[rhyme_symbol[i].innerText]=0;
+                    else {
+                        temp[rhyme_symbol[i].innerText] = 0;
                         send_to_server_edits[rhyme_symbol[i].innerText.concat(temp[rhyme_symbol[i].innerText])] = line[i].innerText;
                     }
                 }
             }
-            fetch(window.origin+"/Write",{
-                method:"POST",
-                   headers: new Headers({
+            fetch(window.origin + "/Write", {
+                method: "POST",
+                headers: new Headers({
                     "X-CSRFToken": document.getElementsByName("csrf_token")[0].value,
-                    "Content-Type":"application/json",
-                    "Request":"undo edits"
-                   }),
-                   cache:"no-cache",
-                   body: JSON.stringify(send_to_server_edits)
-                })
+                    "Content-Type": "application/json",
+                    "Request": "undo edits"
+                }),
+                cache: "no-cache",
+                body: JSON.stringify(send_to_server_edits)
+            })
                 // this is executed right after the fetch request
-                .then((respone)=>{
-                   // if request fails
-                   if (respone.status !== 200){
-                      console.log("request status for is"+respone.status);
-                      return;
-                   }
-                   // if request succeeds 
-                respone.json().then((data)=>{
-                    if(data["response"]=="bad input"){
-                        edit_mode_errors.style.display = "block";
+                .then((respone) => {
+                    // if request fails
+                    if (respone.status !== 200) {
+                        console.log("request status for is" + respone.status);
+                        return;
                     }
-                    else if(data["response"]=="success"){
-                        window.location="/Write?resume=resume";
-                    }
-                 });
-            });
+                    // if request succeeds 
+                    respone.json().then((data) => {
+                        if (data["response"] == "bad input") {
+                            edit_mode_errors.style.display = "block";
+                        }
+                        else if (data["response"] == "success") {
+                            window.location = "/Write?resume=resume";
+                        }
+                    });
+                });
         }
     })
     save_edits.addEventListener("click", () => {
         let temp = {}
-        if(toggle_edit_btn.checked){
-        edit_mode_errors.style.display="none";
-        send_to_server_edits = {"title":document.getElementById("title").innerText ,"line_breaks": [] };
-        for (let i = 0; i < line.length; i++) {
-            if(edit_btn_div.getAttribute("name")!=="edit_fv"){
-                if (line[i].style.display === "none") {
-                    if(temp.hasOwnProperty(rhyme_symbol[i].innerText)){
-                    temp[rhyme_symbol[i].innerText]+=1;
-                    send_to_server_edits[rhyme_symbol[i].innerText.concat(temp[rhyme_symbol[i].innerText])] = false;
-                }
-                else{
-                    temp[rhyme_symbol[i].innerText]=0;
-                    send_to_server_edits[rhyme_symbol[i].innerText.concat(temp[rhyme_symbol[i].innerText])] = false;
-                }
-            }
-            else {
-                if(temp.hasOwnProperty(rhyme_symbol[i].innerText)){
-                    temp[rhyme_symbol[i].innerText]+=1;
-                    send_to_server_edits[rhyme_symbol[i].innerText.concat(temp[rhyme_symbol[i].innerText])] = line[i].innerText;
-                }
-                else{
-                    temp[rhyme_symbol[i].innerText]=0;
-                    send_to_server_edits[rhyme_symbol[i].innerText.concat(temp[rhyme_symbol[i].innerText])] = line[i].innerText;
-                }
-            }
-        }
-        else{
-            if(line[i].style.display==="none"){
-                send_to_server_edits[i] = false;
-            }
-            else{
-                send_to_server_edits[i] = line[i].innerText;
-            }
-        }
-        if (br_btn[i].id == "remove_br") {
-            console.log("br")
-            send_to_server_edits["line_breaks"].push(i);
-        }
-    }
-        send_to_server_edits["line_breaks"] = send_to_server_edits["line_breaks"].join(",").toString();
-        console.log(send_to_server_edits);
-        fetch(window.origin + "/Write", {
-            method: "POST",
-            headers: new Headers({
-                "X-CSRFToken": document.getElementsByName("csrf_token")[0].value,
-                "Content-Type": "application/json",
-                "Request": "save edits"
-            }),
-            cache: "no-cache",
-            body: JSON.stringify(send_to_server_edits)
-        })
-            // this is executed right after the fetch request
-            .then((respone) => {
-                // if request fails
-                if (respone.status !== 200) {
-                    console.log("request status for save edits is " + respone.status);
-                    return;
-                }
-                // if request succeeds 
-                respone.json().then((data) => { 
-                    if(data["response"] === "bad input"){
-                        edit_mode_errors.style.display = "block";
+        if (toggle_edit_btn.checked) {
+            edit_mode_errors.style.display = "none";
+            send_to_server_edits = { "title": document.getElementById("title").innerText, "line_breaks": [] };
+            for (let i = 0; i < line.length; i++) {
+                if (edit_btn_div.getAttribute("name") !== "edit_fv") {
+                    if (line[i].style.display === "none") {
+                        if (temp.hasOwnProperty(rhyme_symbol[i].innerText)) {
+                            temp[rhyme_symbol[i].innerText] += 1;
+                            send_to_server_edits[rhyme_symbol[i].innerText.concat(temp[rhyme_symbol[i].innerText])] = false;
+                        }
+                        else {
+                            temp[rhyme_symbol[i].innerText] = 0;
+                            send_to_server_edits[rhyme_symbol[i].innerText.concat(temp[rhyme_symbol[i].innerText])] = false;
+                        }
                     }
-                    else if(data["response"] === "successful"){
-                        window.location = "/Write?resume=resume"
+                    else {
+                        if (temp.hasOwnProperty(rhyme_symbol[i].innerText)) {
+                            temp[rhyme_symbol[i].innerText] += 1;
+                            send_to_server_edits[rhyme_symbol[i].innerText.concat(temp[rhyme_symbol[i].innerText])] = line[i].innerText;
+                        }
+                        else {
+                            temp[rhyme_symbol[i].innerText] = 0;
+                            send_to_server_edits[rhyme_symbol[i].innerText.concat(temp[rhyme_symbol[i].innerText])] = line[i].innerText;
+                        }
                     }
+                }
+                else {
+                    if (line[i].style.display === "none") {
+                        send_to_server_edits[i] = false;
+                    }
+                    else {
+                        send_to_server_edits[i] = line[i].innerText;
+                    }
+                }
+                if (br_btn[i].id == "remove_br") {
+                    console.log("br")
+                    send_to_server_edits["line_breaks"].push(i);
+                }
+            }
+            send_to_server_edits["line_breaks"] = send_to_server_edits["line_breaks"].join(",").toString();
+            console.log(send_to_server_edits);
+            fetch(window.origin + "/Write", {
+                method: "POST",
+                headers: new Headers({
+                    "X-CSRFToken": document.getElementsByName("csrf_token")[0].value,
+                    "Content-Type": "application/json",
+                    "Request": "save edits"
+                }),
+                cache: "no-cache",
+                body: JSON.stringify(send_to_server_edits)
+            })
+                // this is executed right after the fetch request
+                .then((respone) => {
+                    // if request fails
+                    if (respone.status !== 200) {
+                        console.log("request status for save edits is " + respone.status);
+                        return;
+                    }
+                    // if request succeeds 
+                    respone.json().then((data) => {
+                        if (data["response"] === "bad input") {
+                            edit_mode_errors.style.display = "block";
+                        }
+                        else if (data["response"] === "successful") {
+                            window.location = "/Write?resume=resume"
+                        }
+                    });
                 });
-            });
 
         }
     })

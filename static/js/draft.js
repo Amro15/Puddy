@@ -3,7 +3,7 @@ let draft_delete = document.getElementsByClassName("delete");
 for (let i = 0; i < draft_delete.length; i++) {
     let selectobject = document.getElementById("poem_select")
     draft_delete[i].addEventListener("click", () => {
-        send_to_server_draft_delete={"draft_id" : document.getElementsByClassName("poem count")[i].getAttribute("value")};
+        send_to_server_draft_delete = { "draft_id": document.getElementsByClassName("poem count")[i].getAttribute("value") };
         console.log(send_to_server_draft_delete)
         // determine if to show modal or not
         const draft_modal = new bootstrap.Modal(document.getElementById('draft_modal'), { keyboard: false, backdrop: "static" });
@@ -16,7 +16,7 @@ for (let i = 0; i < draft_delete.length; i++) {
                     setCookie("hide_draft_modal", true, 365)
                 }
                 draft_modal.hide();
-                
+
                 fetch(window.origin + "/Account/Draft", {
                     method: "POST",
                     headers: new Headers({
@@ -39,7 +39,7 @@ for (let i = 0; i < draft_delete.length; i++) {
                             for (let j = 0; j < selectobject.length; j++) {
                                 if (selectobject.options[j].id == send_to_server_draft_delete["draft_id"])
                                     selectobject.remove(j);
-                                }
+                            }
                             document.getElementsByName(send_to_server_draft_delete["draft_id"])[0].style.display = "none";
                             if (selectobject.length == 1) {
                                 window.location.reload();

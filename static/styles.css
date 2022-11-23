@@ -696,6 +696,12 @@ span[contenteditable]:not(.rhyme_symbols):empty::before {
 }
 /* --------------------------------------------- */
 
+/* Format */
+.edit_line_format{
+  display: block;
+  border: black 1px solid;
+}
+/* -------------------- */
   
 /* /Draft */
 

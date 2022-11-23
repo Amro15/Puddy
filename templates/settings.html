@@ -16,15 +16,14 @@
 <p id="username_error" class="error_msg">Username must start with a letter, can only contain letter numbers and underscores and be between 3 to 30 characters long</p>
 </div>
 <div id="settings_btns_div">
-    <button type="button" class="settings_btns info_btn">Change Profile Picture</button>
-    <button type="button" class="settings_btns info_btn">Change Password</button>
-    <button type="button" class="info_btn settings_btns" style="display: inline-block;">Change Write Background</button><button type="button"  class="info_btn settings_btns" style="display: inline-block;" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Change the background you see when you are writing your poem to a picture of your choosing">?</button>
     <button type="button" class="settings_btns info_btn" onclick="show_div('#shortcuts','block')">Display Shortcuts</button>
     <div id="shortcuts">
+      <p>Go Down A Line : Shift + Enter</p>
+      <p>Go Up A Line : Ctrl + Enter</p>
       <p>Toggle Notes: Alt + N</p>
       <p>Check Rhymes: Alt + R</p>
       <p>Check Syllables: Alt + S</p>
-      <p>Check Meter: Alt + M</p> 
+      <!-- <p>Check Meter: Alt + M</p>  -->
       <button type="button" class="info_btn" onclick="hide_div('#shortcuts')">Hide</button>
     </div>
   </div>
