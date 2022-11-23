@@ -1016,20 +1016,20 @@ def search_poems():
             # if user wants to sort results sort accordingly
             if (request.args.get("sort_by")):
                 form.sort_by.data = request.args.get("sort_by")
-                if request.agrs.get("sort_by") == "shortest":
+                if request.args.get("sort_by") == "shortest":
                     poetrydb_api_response.sort(
                         key=lambda i: int(i["linecount"]))
-                elif request.agrs.get("sort_by") == "longest":
+                elif request.args.get("sort_by") == "longest":
                     poetrydb_api_response.sort(
                         key=lambda i: int(i["linecount"]), reverse=True)
-                elif request.agrs.get("sort_by") == "author":
+                elif request.args.get("sort_by") == "author":
                     poetrydb_api_response.sort(key=lambda i: i["author"])
-                elif request.agrs.get("sort_by") == "author_reverse":
+                elif request.args.get("sort_by") == "author_reverse":
                     poetrydb_api_response.sort(
                         key=lambda i: i["author"], reverse=True)
-                elif request.agrs.get("sort_by") == "title":
+                elif request.args.get("sort_by") == "title":
                     poetrydb_api_response.sort(key=lambda i: i["title"])
-                elif request.agrs.get("sort_by") == "title_reverse":
+                elif request.args.get("sort_by") == "title_reverse":
                     poetrydb_api_response.sort(
                         key=lambda i: i["title"], reverse=True)
 
