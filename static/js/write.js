@@ -225,12 +225,7 @@ if (save_poem_btn) {
                             save_error_msg.scrollIntoView();
                         }
                         else if (data["response"] === "successful") {
-                            if (data["skip_format"] == "True") {
                                 window.location = "/Account/Poems";
-                            }
-                            else {
-                                window.location = "/Format";
-                            }
                         }
 
                     });
@@ -300,7 +295,6 @@ if (update_poem_btn) {
 let toggle_edit_btn = document.getElementById("toggle_edit_btn");
 
 if (toggle_edit_btn) {
-    let edit_indicator = document.getElementById("edit_mode_indicator");
     let edit_btn_div = document.getElementById("edit_btn_div");
     let edit_btns_div = document.getElementById("edit_btns_div");
     let edit_mode_errors = document.getElementById("edit_mode_errors");
@@ -339,7 +333,6 @@ if (toggle_edit_btn) {
     // show all edit elements and hide save btns and check rhyme meter and syllables btns
     toggle_edit_btn.addEventListener("click", () => {
         if (toggle_edit_btn.checked) {
-            edit_indicator.style.display = "block";
             edit_btns_div.style.display = "block";
             func_buttons_div.style.display = "none";
             save_btn_div.style.display = "none";
@@ -362,7 +355,6 @@ if (toggle_edit_btn) {
         }
         // hide and unhide respective elements
         else {
-            edit_indicator.style.display = "none";
             func_buttons_div.style.display = "block";
             edit_btns_div.style.display = "none";
             save_btn_div.style.display = "block";
@@ -732,7 +724,7 @@ if (toggle_edit_btn) {
         let temp = {};
         if (toggle_edit_btn.checked) {
             edit_mode_errors.style.display = "none";
-            send_to_server_edits = { "title": document.getElementById("title").innerText, "line_breaks": [] };
+            send_to_server_edits = { "title": document.getElementById("title").innerText, "line_breaks": [], "notes":document.getElementById("notepad").innerText };
             for (let i = 0; i < line.length; i++) {
                 if (edit_btn_div.getAttribute("name") === "edit_fv") {
                     send_to_server_edits[i] = line[i].innerText;
@@ -746,6 +738,9 @@ if (toggle_edit_btn) {
                         temp[rhyme_symbol[i].innerText] = 0;
                         send_to_server_edits[rhyme_symbol[i].innerText.concat(temp[rhyme_symbol[i].innerText])] = line[i].innerText;
                     }
+                }
+                if (br_btn[i].id == "remove_br") {
+                    send_to_server_edits["line_breaks"].push(i);
                 }
             }
             fetch(window.origin + "/Write", {
@@ -781,7 +776,7 @@ if (toggle_edit_btn) {
         let temp = {}
         if (toggle_edit_btn.checked) {
             edit_mode_errors.style.display = "none";
-            send_to_server_edits = { "title": document.getElementById("title").innerText, "line_breaks": [] };
+            send_to_server_edits = { "title": document.getElementById("title").innerText, "line_breaks": [], "notes":document.getElementById("notepad").innerText };
             for (let i = 0; i < line.length; i++) {
                 if (edit_btn_div.getAttribute("name") !== "edit_fv") {
                     if (line[i].style.display === "none") {
@@ -814,7 +809,6 @@ if (toggle_edit_btn) {
                     }
                 }
                 if (br_btn[i].id == "remove_br") {
-                    console.log("br")
                     send_to_server_edits["line_breaks"].push(i);
                 }
             }

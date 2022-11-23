@@ -138,7 +138,6 @@ aria-hidden="true">
          <p class="poem_author">By {{username}}</p>
     {% set count.value = 0 %}
      {%for j in poem_lines%}
-     {{count.value}}
      {% if j.poem_id == i.poem_id%}
      <p class="poem_lines" >{{j.line_text}}</p>
      {%endif%}

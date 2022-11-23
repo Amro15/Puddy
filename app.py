@@ -112,12 +112,8 @@ def index():
 def create():
     if request.method == "GET":
         # check if user has a custom background store it in session to know which to render when rendering the page from post
-        if os.path.exists("static/user_background.jpg"):
-            user_background = "/static/user_background.jpg"
-            session["user background"] = user_background
-        else:
-            user_background = "/static/create_write_background.jpg"
-            session["user background"] = user_background
+        user_background = "/static/create_write_background.jpg"
+        session["user background"] = user_background
         if current_user.is_authenticated and CurrentUnsavedPoem.query.filter_by(user_id=current_user.id).first():
             recent_poem = True
         else:
@@ -125,7 +121,7 @@ def create():
         return render_template("create.html", rhyme_schemes=rhyme_schemes, user_background=user_background, recent_poem=recent_poem)
     if request.method == "POST":
         # Fields that need special handling
-        SPCEIAL_RHYME_SCHEMES = ["Custom", "Free Verse(No Rhyme Scheme)"]
+        SPCEIAL_RHYME_SCHEMES = ["Custom", "Free Verse, Blank Verse"]
         FIXED_RHYME_SCHEMES = ["Limerick", "Shakespearean Sonnet",
                                "Haiku", "Free Verse", "Custom", "Terza Rima"]
 
@@ -359,7 +355,7 @@ def write():
                 user_rhyme_scheme = poem.rhyme_scheme
                 session["rs"] = user_rhyme_scheme
                 title = poem.title
-                if len(str(poem.line_break)) != 1:
+                if len(str(poem.line_break))!=1 :
                     line_breaks = poem.line_break.split(",")
                 else:
                     line_breaks = poem.line_break
@@ -568,10 +564,11 @@ def write():
 
             # server request undo edits =================================================================================================================================
             if server_request == "undo edits":
-                # get the initial lines the user used in creat and render them with any text that may be in them
+                # get the initial lines the user used in create and render them with any text that may be in them
                 title = req["title"]
-                del req["title"]
-                del req["line_breaks"]
+                notes = req["notes"]
+                line_breaks = req["line_breaks"]
+                del req["title"]; del req["notes"]; del req["line_breaks"]
                 poem = CurrentUnsavedPoem.query.filter_by(
                     user_id=current_user.id).first()
                 rhyme_check = poem.rhymes.split(",")
@@ -583,6 +580,8 @@ def write():
                         filtered_req.append(value)
                     ctr += 1
                 poem.title = title
+                poem.notes = notes
+                poem.line_break = ",".join(map(str, line_breaks))
                 poem_lines = CurrentUnsavedPoemLines.query.filter_by(
                     user_id=current_user.id)
                 # delete any current lines
@@ -602,6 +601,8 @@ def write():
             if server_request == "save edits":
                 title = req["title"]
                 brs = req["line_breaks"]
+                notes = req["notes"]
+                del req["notes"]
                 del req["title"]
                 del req["line_breaks"]
                 # check if any rhymes are not alphabetical or -
@@ -615,6 +616,7 @@ def write():
                 poem = CurrentUnsavedPoem.query.filter_by(
                     user_id=current_user.id).first()
                 poem.title = title
+                poem.notes = notes
                 poem_lines = CurrentUnsavedPoemLines.query.filter_by(
                     user_id=current_user.id)
                 if poem_lines.all():
@@ -674,7 +676,6 @@ def write():
                 # check if this is a new draft by checking if poem already has entry in db
                 existing_draft = Drafts.query.filter_by(
                     user_id=current_user.id, poem_count=global_poem_num).first()
-                print("DRAFT EXISTS", existing_draft.poem_count)
                 # if there are no drafts of our current poem make a new one
                 if not existing_draft:
                     print("draft doesn t exist")
@@ -820,7 +821,7 @@ def write():
                 if request.cookies.get("del_draft") == "True":
                     draft.delete()
                     db.session.commit()
-                return make_response({"response": "successful", "skip_format": request.cookies.get("skip_format")})
+                return make_response({"response": "successful"})
             # does not share global initial request with other server_Requests!
             # REQUEST UPDATE POEM====================================================================================================================================================================================
             if server_request == "update poem":
@@ -1088,13 +1089,11 @@ def settings():
     form = SettingsForm()
     if request.method == "GET":
         print("cookies", request.cookies.get('detatch_util'))
-        # detatch_util=session.get("detatch_util",None)
         detatch_util = request.cookies.get('detatch_util')
         hide_detatch_btn = request.cookies.get("hide_detatch_btn")
         disable_reminder = request.cookies.get("disable_reminder")
-        skip_format = request.cookies.get("skip_format")
         del_draft = request.cookies.get("del_draft")
-        return render_template("settings.html", form=form, detatch_util=detatch_util, hide_detatch_btn=hide_detatch_btn, disable_reminder=disable_reminder, skip_format=skip_format, del_draft=del_draft)
+        return render_template("settings.html", form=form, detatch_util=detatch_util, hide_detatch_btn=hide_detatch_btn, disable_reminder=disable_reminder, del_draft=del_draft)
     if request.method == "POST":
         if "Request" in request.headers and request.headers["Request"] == "change username":
             req = request.get_json()
@@ -1113,8 +1112,6 @@ def settings():
             form.hide_detatch_btn.data),  expires=datetime.now() + timedelta(days=365))
         resp.set_cookie("disable_reminder", value=str(
             form.disable_reminder.data),  expires=datetime.now() + timedelta(days=365))
-        resp.set_cookie("skip_format", value=str(
-            form.skip_format.data),  expires=datetime.now() + timedelta(days=365))
         resp.set_cookie("del_draft", value=str(form.del_draft.data),
                         expires=datetime.now() + timedelta(days=365))
         return resp

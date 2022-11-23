@@ -45,23 +45,6 @@
             <label class="form-check-label" for="flexSwitchCheckDefault">Hide Detatch Utility Box Button</label>
           </div>
     <div class="form-check form-switch settings_switches ">
-      {% if disable_reminder =="True" %}
-        {{form.disable_reminder(class= "form-check-input", checked=true)}}
-        {% else %}
-        {{form.disable_reminder(class= "form-check-input", checked=false)}}
-      {% endif %}
-        <label class="form-check-label" for="flexSwitchCheckDefault">Disable Reminder To Save As Draft</label>
-        <button type="button" class="info_btn" data-bs-toggle="tooltip" data-bs-placement="bottom" title="A pop-up appears every 20 minutes when you have been working on your poem for a while without having manually saved which is advised despite our autosaving feature">?</button>
-      </div>
-    <div class="form-check form-switch settings_switches ">
-      {% if skip_format == "True" %}
-        {{form.skip_format(class="form-check-input", checked=true)}}
-      {% else %}
-        {{form.skip_format(class="form-check-input", checked=false)}}
-      {% endif %}
-        <label class="form-check-label" for="flexSwitchCheckDefault">Skip Format When Saving Poems</label>
-      </div>
-    <div class="form-check form-switch settings_switches ">
       {% if del_draft == "True" %}
         {{form.del_draft(class= "form-check-input", checked=true)}}
       {% else %}

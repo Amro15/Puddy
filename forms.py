@@ -80,5 +80,4 @@ class SettingsForm(FlaskForm):
     detatch_util = BooleanField()
     hide_detatch_btn = BooleanField()
     disable_reminder = BooleanField()
-    skip_format = BooleanField()
     del_draft = BooleanField()

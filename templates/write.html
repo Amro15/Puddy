@@ -382,7 +382,7 @@
                     <div class="br_div"></div>
                     <button class="br_btn" id="add_br"><img src="static/icons/add-br.png" class="small_icon br_icon"></button>
                 {% elif ((line_breaks|string)|length)==1 %}
-                    {% if line_breaks == loop.index-1 %}
+                    {% if line_breaks == loop.index %}
                     <div class="br_div"><br></div>
                     <button class="br_btn" id="remove_br"><img src="static/icons/remove-br.png" class="small_icon br_icon"></button>
                     {% else %}
@@ -435,7 +435,7 @@
                 <div class="br_div"></div>
                 <button class="br_btn" id="add_br"><img src="static/icons/add-br.png" class="small_icon br_icon"></button>
             {% elif ((line_breaks|string)|length)==1 %}
-                {% if line_breaks == loop.index-1 %}
+                {% if line_breaks == loop.index %}
                 <div class="br_div"><br></div>
                 <button class="br_btn" id="remove_br"><img src="static/icons/remove-br.png" class="small_icon br_icon"></button>
                 {% else %}
