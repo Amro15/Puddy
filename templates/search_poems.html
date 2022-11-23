@@ -80,7 +80,6 @@
   <div id="poem_result">
     {% for i in items%}
     <div id="{{loop.index}}">
-      <button id="like_btn"><img src="/static/icons/empty-like.png" id="like_icon"></button>
       <h3>{{i.title}} By {{i.author}}</h3>
       <p>{{i.lines[0]}}</p>
       <p>{{i.lines[1]}}</p>
@@ -109,6 +108,4 @@
 <script  src="/static/js/search_poems.js"> </script>
 {% endblock %}
 {% block footer %}
-<a href="https://www.flaticon.com/free-icons/search" title="search icons">Search icons created by Smashicons - Flaticon</a>
-<a href="https://www.flaticon.com/free-icons/heart" title="heart icons">Heart icons created by Vlad Szirka - Flaticon</a>
 {% endblock %}
