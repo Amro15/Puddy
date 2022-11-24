@@ -835,7 +835,6 @@ def write():
                     if (len(req) > len(rhymes)) or rhyme != key:
                         # reject input since it means user has changed keys or added an unwanted value
                         return make_response({"response": "input was altered cannot save"})
-                    ctr += 1
                 updated_poem.title = title
                 updated_poem.edit_date = datetime.now()
                 for key, value in req.items():

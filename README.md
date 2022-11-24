@@ -1,5 +1,5 @@
 # Puddy For Poetry Writing
-#### Video Demo:  <URL HERE>
+#### Video Demo:  <https://youtu.be/0Kd6iLgwf84>
 
 #### Website URL: <https://puddy-poetry.onrender.com/> 
 (This version of the website uses the latest commit called **render.com version** with the SHA  since [render.com](https://render.com/) the service I used to host the server doesn't work with [Prosodic](https://pypi.org/project/prosodic/) which I use for meter checking so unfortunatley I was not able to roll out that feature the **full version** commit with the SHA is the complete website)
